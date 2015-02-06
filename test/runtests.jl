@@ -1,5 +1,5 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
-addprocs(CPU_CORES)
+addprocs(4)
 @everywhere using FactCheck, FunctionalData, Compat
 FactCheck.setstyle(:compact)
 

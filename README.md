@@ -177,6 +177,8 @@ r = @p f1 a b | f2 c | f3 e f       # pipeline macro, equals f3(f2(f1(a,b),c),e,
 view(a,i)                           # lightweight view of item i of a
 view(a,i,v)                         # lightweight view of item i of a, reusing v
 next!(v)                            # make v point to the i + 1th item of a
+trytoview(a,v)                      # for dense array, use view, otherwise part
+trytoview(a,v,i)                    # for dense array, use view reusing v, otherwise part
 ```
  
 ###### Computing: map and Friends [[details]](#computing)
@@ -536,6 +538,16 @@ typealias View Array
 
 ```
  
+##### trytoview
+```jl
+
+```
+
+##### trytoview
+```jl
+
+```
+
 ### <a name="computing"></a>Computing: map and Friends
 
 ##### map
