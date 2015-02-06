@@ -85,6 +85,15 @@ end
 #  elapsed time: 0.013347679 seconds (80 bytes allocated)
 ```
 
+With the exact same syntax we can easily parallelize our code using the local workers via shared memory or Julia's inter-process serialization, both on the local host or all machines:
+
+```jl
+shmap!(a, csum!)      # local processes, shared memory
+lmap!(a, csum!)       # local processes
+pmap!(a, csum!)       # all available processes
+```
+
+For each of these variants there are optimized functions available for in-place operation on the input array, in-place operation on a new output array, or fallback options for functions which do not work in-place. For details, see the section on [map and Friends](#computing).
 
 
 ## Documentation
