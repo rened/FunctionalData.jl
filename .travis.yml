@@ -1,0 +1,16 @@
+language: cpp
+compiler:
+  - clang
+notifications:
+  email: 
+      - code@donner.at
+before_install:
+  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - sudo add-apt-repository ppa:staticfloat/juliareleases -y
+  - sudo apt-get update -qq -y
+  - sudo apt-get install libpcre3-dev julia -y
+script:
+  - julia -e 'Pkg.init(); Pkg.add("FactCheck")'
+  - julia -e 'run(`ln -s $(pwd()) $(Pkg.dir("FunctionalData"))`); Pkg.pin("FunctionalData")'
+  - julia -e 'Pkg.resolve()'
+  - julia ~/.julia/v0.3/FunctionalData/test/runtests.jl

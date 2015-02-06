@@ -1,0 +1,113 @@
+export @p
+
+#######################################
+##  pipelining:  x = @p add 1 2 | minus _ 3 
+
+macro p(a...)
+    # println("\n\n\ninside p")
+    # println()
+    # println(a...)
+    #map(x->print(typeof(x)),a)
+    #println()
+    #a = map(x->
+
+    #b = {}
+    #println(a)
+    #map(x-> typeof(x)==Expr && x.args[1]==:|?append!(b,x.args[[2,1,3]]):push!(b,x),a)
+    #println(string("b:  ",b))
+
+    # flip arguments where the order was messed up by |
+    output = a
+    input = Any[]
+    while input!=output
+        input = output
+        output = Any[]
+        flatten(x) = typeof(x)==Expr && x.args[1]==:|?append!(output,x.args[[2,1,3]]):push!(output,x)
+        # println(string("input before: ",input))
+        # println(string("output before: ",output))
+        # @show flatten input
+        Base.map(flatten,input)
+        # println(string("input after: ",input))
+        # println(string("output after:  ",output))
+    end
+    
+
+
+
+
+    currying = Any[:map,:pmap,:work,:pwork]
+
+    parts = split(output,:|)
+    # @show parts
+    part = parts[1]
+    if in(part[1],currying) # ==:map
+        # println("map!")
+        f = :(x -> $(part[3]) (x, $(part[4:end]...)) )
+        #println(f)
+        ex = :( $(part[1]) ($(part[2]), $f) )
+    else
+        ex = :( $(part[1]) ($(part[2:end]...)) )
+    end
+    # println(ex)
+
+    for i = 2:length(parts)
+        # println("i is $i")
+        part = parts[i]
+        # @show part
+        didreplace = false
+        function replace_(a::Array)
+            # @show "replacing" typeof(a) a
+            r = a
+            r = Base.map(replace_, r)
+            if anyequal(a, :_)   # replace _ in expression
+                if sum(part.==:_) > 1
+                    error("Use can use '_' only once per section of a @p ... | ... | ... pipeline")
+                end
+                part[find(part.==:_)] = ex
+                didreplace = true
+            end
+            r = :( $(part[1]) ( $(part[2:end]...)) )
+        end
+        function replace_(a::Expr)
+            # @show "replacing" typeof(a) a
+            if isa(a.args, Array)
+                a.args = Base.map(replace_, a.args)
+            end
+            a
+        end
+        function replace_(a) 
+            # @show "replacing" typeof(a) a
+            if a == :_ 
+                didreplace = true
+                ex
+            else
+                a
+            end
+        end
+        newex = replace_(part)
+        if didreplace
+            ex = newex
+        else
+            #println("fany==false")
+            #println("### part[1] $(part[1]))")
+            if in(part[1],currying) # ==:map
+                #println("map!")
+                #println("### part: $(part)")
+                f = :( x-> $(part[2]) (x, $(part[3:end]...)) )
+                #println("### f: $f")
+                ex = :( $(part[1]) ($ex, $f) )
+                #println("### ex: $ex")
+            else
+                ex = :( $(part[1]) ($ex, $(part[2:end]...)) )
+            end
+        end
+        # println(ex)
+    end
+    #println()
+    #println(ex)
+    return esc(ex)  
+end
+
+
+
+
