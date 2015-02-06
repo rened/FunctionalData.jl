@@ -280,12 +280,12 @@ divby                               # alias for ./
 `len` returns the length of a collection.
 
 ```jl
-len(1)              =>  1
-len(1:10)           => 10
-len("abc")          =>  3
-len(["a",1])        =>  2
-len(ones(2,3))      =>  3
-len(ones(2,3,4))    =>  4
+len(1)                              =>  1
+len(1:10)                           => 10
+len("abc")                          =>  3
+len(["a",1])                        =>  2
+len(ones(2,3))                      =>  3
+len(ones(2,3,4))                    =>  4
 ```
 
 ##### siz(a)
@@ -293,22 +293,22 @@ len(ones(2,3,4))    =>  4
 `siz` returns the size of an item. Items always have at least 2 dimensions. For arrays `siz(a) == col(size(a))`.
 
 ```jl
-siz(1)              =>  [1 1]'
-siz(1:5)            =>  [1 5]'
-siz("abc")          =>  [1 3]'
-siz(["a",1])        =>  [2 1]'
-siz(["a" 1])        =>  [1 2]'
-siz(["a" 1]')       =>  [2 1]'
-siz(ones(2,3))      =>  [2 3]'
-siz(ones(2,3,4))    =>  [2 3 4]'
+siz(1)                              =>  [1 1]'
+siz(1:5)                            =>  [1 5]'
+siz("abc")                          =>  [1 3]'
+siz(["a",1])                        =>  [2 1]'
+siz(["a" 1])                        =>  [1 2]'
+siz(["a" 1]')                       =>  [2 1]'
+siz(ones(2,3))                      =>  [2 3]'
+siz(ones(2,3,4))                    =>  [2 3 4]'
 ```
 
 ##### siz3(a)
 `siz3` works for arrays with `ndims<=3` and always returns a `3 x 1` vector. This can help in using the same code for 2D and 3D data.
 ```jl
-siz3(ones(1))       => [1 1 1]'
-siz3(ones(1,2))     => [1 2 1]'
-siz3(ones(1,2,3))   => [1 2 3]'
+siz3(ones(1))                       => [1 1 1]'
+siz3(ones(1,2))                     => [1 2 1]'
+siz3(ones(1,2,3))                   => [1 2 3]'
 ```
 
 
@@ -319,38 +319,38 @@ siz3(ones(1,2,3))   => [1 2 3]'
 `at` allows to acces a single item from a collection.
 
 ```jl
-at(3:5, 2)                  =>  4
-at("abc",3)                 =>  'c'
-at([1 2; 3 4],1)            =>  [1 3]'
-at(ones(2,3,4),3)           =>  ones(2,3)
+at(3:5, 2)                          =>  4
+at("abc",3)                         =>  'c'
+at([1 2; 3 4],1)                    =>  [1 3]'
+at(ones(2,3,4),3)                   =>  ones(2,3)
 ```
 
 ##### setat!(a, i, value)
 `setat!` allows to modify items in a collection. It return the collection.
 ```jl
 a = [1 2 3; 4 5 6]
-setat!(a, 2, [0, 1])        => [1 0 3; 4 1 6]
+setat!(a, 2, [0, 1])                => [1 0 3; 4 1 6]
 a = ["a", 0, "c"]
-setat!(a, 2, "b")           => ["a","b","c"]
+setat!(a, 2, "b")                   => ["a","b","c"]
 ```
 
 ##### fst(a), snd(a), third(a), last(a)
 ```jl
-fst(a)      =>  at(a,1)
-snd(a)      =>  at(a,2)
-third(a)    =>  at(a,3)
-last(a)     =>  at(a,len(a))
+fst(a)                              =>  at(a,1)
+snd(a)                              =>  at(a,2)
+third(a)                            =>  at(a,3)
+last(a)                             =>  at(a,len(a))
 ```
 
 ##### part(a, ind)
 
 ```jl
-part(1:10, 3:5)         =>  3:5
-part("abc", 2:3)        =>  "bc"
-part(1:10, [3,5,8])     =>  [3,5,8]
-part("abc", [3,1,2,2])  =>  "cabb"
+part(1:10, 3:5)                     =>  3:5
+part("abc", 2:3)                    =>  "bc"
+part(1:10, [3,5,8])                 =>  [3,5,8]
+part("abc", [3,1,2,2])              =>  "cabb"
 a = [1 2 3; 4 5 6]
-part(a, 2:3)            =>  [2 3; 5 6]
+part(a, 2:3)                        =>  [2 3; 5 6]
 ```
 
 ##### trimmedpart(a, ind)

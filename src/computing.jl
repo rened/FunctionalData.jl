@@ -210,6 +210,18 @@ end
 ###############################
 #  pmap
 
+import Base.pmap
+mapper(a, f) = map(a,f)
+mapper!(a, f) = map!(a,f)
+mapper!r(a, f) = map!r(a,f)
+mapper2!(a, f1::Function, f2) = map2!(a,f1,f2)
+mapper2!(a, r, f) = map2!(a,r,f)
+pmap(a, f::Function; kargs...) = pmap_internal(mapper, a, f; kargs...)
+pmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; kargs...)
+pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
+pmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
+pmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; kargs...)
+
 function pmapsetup(a; pids = workers())
     if length(pids) > 1
         pids = pids[pids .!= 1]
@@ -219,26 +231,52 @@ function pmapsetup(a; pids = workers())
     pids, inds, n
 end
 
-
-import Base.pmap
-function pmap(a, f::Function; kargs...)
-    pids, inds, n = pmapsetup(a; kargs...)
-    
+function pmapparts(a, inds, n) 
     if isa(a, DenseArray)
         parts = [view(a, inds[i]) for i in 1:n]
     else
         parts = [part(a, inds[i]) for i in 1:n]
     end
+end
 
-    mapper(a) = map(a,f)
+function pmap_exec(g, a; kargs...)
+    pids, inds, n = pmapsetup(a; kargs...)
+    parts = pmapparts(a, inds, n)
     if VERSION.minor >= 4
-        r = pmap(mapper, parts, pids = pids)
+        r = Base.pmap(g, parts, pids = pids)
     else
-        r = pmap(mapper, parts)
+        r = Base.pmap(g, parts)
     end
-
     flatten(r)
 end
 
-lmap(a, f::Function) = pmap(a, f, pids = procs(myid()))
+function pmap_internal(mapf::Function, a, f::Function; kargs...)
+    g(a) = mapf(a,f)
+    pmap_exec(g, a; kargs...)
+end
+
+function pmap_internal2!(mapf::Function, a, f1::Function, f2::Function; kargs...)
+    g(a) = mapf(a,f1,f2)
+    pmap_exec(g, a; kargs...)
+end
+
+function pmap_internal2!(mapf::Function, a, r, f::Function; kargs...)
+    g(a) = mapf(fst(a), snd(a), f)
+    pids, inds, n = pmapsetup(a; kargs...)
+    partsa = pmapparts(a, inds, n)
+    partsr = pmapparts(r, inds, n)
+    parts = zip(partsa, partsr)
+    if VERSION.minor >= 4
+        r = Base.pmap(g, parts, pids = pids)
+    else
+        r = Base.pmap(g, parts)
+    end
+    flatten(r)
+end
+
+lmap(a, f) = pmap_internal(mapper, a, f; pids = procs(myid()))
+lmap!(a, f) = pmap_internal(mapper!, a, f; pids = procs(myid()))
+lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = procs(myid()))
+lmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = procs(myid()))
+lmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = procs(myid()))
 
