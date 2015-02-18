@@ -24,13 +24,15 @@ col(a...) = col(a)
 import Base.reshape
 reshape{T}(a::Array, siz::Array{T,2}) = reshape(a, siz...)
 function reshape(a::Array) 
-    assert(len(a,1)==1)
+    if !(ndims(a)==1 || len(a)==1)
+        error("FuncionalData.reshape(a): a was expected to be a vector or len(a)==1, actual size was: $(size(a))")
+    end
     r2 = sqrt(length(a))
     r3 = cbrt(length(a))
     if round(r2)==r2
-        return reshape(a, r2, r2)
-    elseif rount(r3)==r3
-        return reshape(a, r3, r3, r3)
+        return Base.reshape(a, int(r2), int(r2))
+    elseif round(r3)==r3
+        return Base.reshape(a, int(r3), int(r3), int(r3))
     else
         error("cannot reshape array of size $(size(a)) to a square or cube")
     end
@@ -78,13 +80,14 @@ end
 ## flatten, stack, unstack
 
 
-function stack(a::Array{Any,1})
+function stack{T}(a::Array{T,1})
     r = arraylike(fst(a), len(a))
     for i = 1:len(a)
         setat!(r, i, at(a,i))
     end
     return r
 end
+stack{T<:Real}(a::DenseArray{T}) = a
 
 typealias StringLike Union(Char, AbstractString)
 tostring(a) = string(a)
@@ -245,7 +248,7 @@ _randperm = randperm
 randperm(a::Number) = _randperm(a)
 randperm(a) = part(a, randperm(len(a)))
 
-randsample(a, n) = part(a, rand(1:len(a), round(Integer,n)))
+randsample(a, n) = part(a, rand(1:len(a), int(n)))
 
 
 

@@ -1,12 +1,14 @@
-using SHA
 export map, map!, map!r, map2!, mapmap, work
 export share, unshare, shmap, shmap!, shmap!r, shmap2!
 export pmap, lmap
-export sort
-export fasthash
+export sort, sortrev, unique
 
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
+sortrev(a, f) = sort(a,f; rev = true)
+
+import Base.unique
+unique(a,f) = @p part a unique(map(a,f))
 
 #######################################
 ## map, pmap

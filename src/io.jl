@@ -20,7 +20,7 @@ existsfile(filename::String) = (s = stat(filename); s.inode!=0)
 #        for i = 1:n
 #      @show riffle(parts[1:i],'/')
 #        d = [start join(riffle(parts[1:i],'/'))];
-#            if not(existsfile(d))
+#            if !(existsfile(d))
 #                Base.mkdir(d)
 #            end
 #        end

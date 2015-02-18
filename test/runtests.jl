@@ -250,6 +250,13 @@ shouldtest("computing") do
         @fact FunctionalData.sort([1,2,3], x->-x) => [3,2,1]
         @fact FunctionalData.sort([1 2 3], x->-x) => [3 2 1]
         @fact FunctionalData.sort("dcba", int) => "abcd"
+        @fact FunctionalData.sort("dcba", int; rev = true) => "dcba"
+        @fact FunctionalData.sortrev("dcba", int) => "dcba"
+    end
+    shouldtestcontext("unique") do
+        @fact sort(unique([1 2 3], id),id)  =>  [1 2 3]
+        @fact sort(unique([1 2 1], id),id)  =>  [1 2]
+        @fact sort(unique([-1 2 1], abs),id)  =>  [-1 2]
     end
     shouldtestcontext("map") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) =>   [2 2 2]
@@ -341,6 +348,9 @@ shouldtest("computing") do
 end
 
 shouldtest("dataflow") do
+    shouldtestcontext("reshape") do
+        @fact size(reshape(rand(9)))  =>  (3,3)
+    end
     context("rowcol") do
         @fact row(1)  =>  ones(Int, 1, 1)
         @fact row([1,2,3])  =>  [1 2 3]

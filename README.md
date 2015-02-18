@@ -14,7 +14,7 @@ wordcount(filename) = @p read filename | lines | map split | flatten | length
  
 #### Memory Layout 
 
-Indexing is simplified for dense n-dimensional arrays with individual (n-1)-dimensional items. 
+Indexing is simplified for dense n-dimensional arrays, which are viewed as collections of (n-1)-dimensional items. 
 
 For example, this allows to use the exact same code for 2D patches and 3D blocks:
 
@@ -42,7 +42,7 @@ map(c, sum)       =>  [8 ... ]     of size 1 x 10
 
 #### Efficiency
 
-Using a custom `View` type based on this memory layout assumption, the provided `map` operations can be considerably faster than built-ins. Given our data and desired operation
+Using a custom `View` type based on this memory layout assumption, the provided `map` operations can be considerably faster than built-ins. Given our data and desired operation:
 
 ```jl
 a = rand(10, 1000000)   #  =>  80 MB
