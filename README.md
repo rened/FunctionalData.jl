@@ -203,6 +203,9 @@ anyequal(a, x)                      # is any item == x
 all(a, f)                           # are all f(item) true
 allequal(a, x)                      # are all items == x
 sort(a, f; kargs...)                # sort a accorting to f(item)
+table(f, a...)                      # like [f(m,n) for m in a[1], n in a[2]], for any length of a
+ptable, ltable                      # parallel table using all workers, local workes
+tableany, ptableany, ltableany      # like table, but does not flatten result
 ```
 
 ###### Output [[details]](#output)
