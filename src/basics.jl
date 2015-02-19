@@ -53,6 +53,7 @@ repeat(a, n) = flatten(map(1:n, x->a))
 
 nop(a...) = return
 id(a) = a
+id(a...) = a
 
 istrue(a::Bool) = a
 istrue(f::Function) = istrue(f())

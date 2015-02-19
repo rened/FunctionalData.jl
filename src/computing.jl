@@ -1,6 +1,7 @@
 export map, map!, map!r, map2!, mapmap, work
 export share, unshare, shmap, shmap!, shmap!r, shmap2!
 export pmap, lmap
+export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
 export sort, sortrev, unique
 
 import Base.sort
@@ -234,7 +235,7 @@ function pmapsetup(a; pids = workers())
 end
 
 function pmapparts(a, inds, n) 
-    if isa(a, DenseArray)
+    if isa(a, DenseArray) && eltype(a)<:Real
         parts = [view(a, inds[i]) for i in 1:n]
     else
         parts = [part(a, inds[i]) for i in 1:n]
@@ -281,4 +282,34 @@ lmap!(a, f) = pmap_internal(mapper!, a, f; pids = procs(myid()))
 lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = procs(myid()))
 lmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = procs(myid()))
 lmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = procs(myid()))
+
+table(f, a...) = table_internal(map, f, a...; flat = true)
+ptable(f, a...) = table_internal(pmap, f, a...; flat = true)
+ltable(f, a...) = table_internal(lmap, f, a...; flat = true)
+
+tableany(f, a...) = table_internal(map, f, a...; flat = false)
+ptableany(f, a...) = table_internal(pmap, f, a...; flat = false)
+ltableany(f, a...) = table_internal(lmap, f, a...; flat = false)
+
+function table_internal(mapf, f, args...; flat = true)
+    a = [collect(x) for x in args]
+    s = @p col [length(x) for x in a]
+    S = tuple(s...)
+    getarg(sub) = [a[i][sub[i]] for i in 1:length(a)]
+    args = [getarg(ind2sub(S,x)) for x in 1:prod(s)]
+    g(x) = f(x...)
+    r = @p mapf args g
+    if flat
+        if length(fst(r))==1
+            news = s
+        else
+            s1 = siz(fst(r))
+            s1 = s1[end] == 1 ? s1[1:end-1] : s1
+            news = vcat(s1,s)
+        end
+        @p flatten r | reshape news
+    else
+        @p reshape r s
+    end
+end
 

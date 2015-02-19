@@ -1,4 +1,4 @@
-export len, siz, siz3, ndims
+export len, siz, siz3
 
 len(a) = length(a)
 len{T,N}(a::AbstractArray{T,N}) = size(a,N)
@@ -38,4 +38,3 @@ function siz3{T,N}(a::Array{T,N})
     r
 end
 siz3(a) = siz(a)
-

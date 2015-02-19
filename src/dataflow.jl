@@ -107,6 +107,9 @@ function flatten{T}(a::Array{T,1})
     if isa(a[1], StringLike)
         return join(map(a,tostring))
     end
+    if ndims(fst(a)) == 1
+        return vcat(a...)
+    end
     r = arraylike(fst(fst(a)), sum([len(x) for x in a]))
     ind = 0
     for i = 1:len(a)
@@ -209,7 +212,6 @@ function riffle(a,x)
     r = similar(a,dims...)
     # println("dims: $dims   r: $r")
     for i = 1:len(a)
-        # @show a i r i*2-1
         setat!(r, i*2-1, at(a,i))
     end
     for i = 2:2:len(r)-1
