@@ -292,13 +292,14 @@ ptableany(f, a...) = table_internal(pmap, f, a...; flat = false)
 ltableany(f, a...) = table_internal(lmap, f, a...; flat = false)
 
 function table_internal(mapf, f, args...; flat = true)
-    a = [collect(x) for x in args]
-    s = @p col [length(x) for x in a]
+    a = [isa(x,Range) ? collect(x) : x for x in args]
+    s = @p col [len(x) for x in a]
     S = tuple(s...)
-    getarg(sub) = [a[i][sub[i]] for i in 1:length(a)]
+    getarg(sub) = [at(a[i],sub[i]) for i in 1:length(a)]
     args = [getarg(ind2sub(S,x)) for x in 1:prod(s)]
     g(x) = f(x...)
     r = @p mapf args g
+
     if flat
         if length(fst(r))==1
             news = s

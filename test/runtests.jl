@@ -348,6 +348,7 @@ shouldtest("computing") do
     shouldtestcontext("table") do
         adder(x,y) = x+y
         pass(x,y) = [x,y]
+        passarray(x,y) = col([x,y])
         @fact table(id,[1,2,3])  =>  [1,2,3]
         @fact table(pass,[1,2],1:3)  =>  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
         @fact ltable(id,[1,2,3])  =>  [1,2,3]
@@ -355,7 +356,10 @@ shouldtest("computing") do
         @fact ptable(id,[1,2,3])  =>  [1,2,3]
         @fact ptable(pass,[1,2],1:3)  =>  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
         @fact tableany(id,[1,2,3])  =>  Any[1,2,3]
-        @fact tableany(pass,[1,2],1:3)  =>  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2,3)
+        @fact tableany(pass,[1,2],1:3)  =>  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
+        @fact table(passarray,[1,2],1:3)  =>  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @fact tableany(passarray,[1,2],1:3)  =>  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
+        @fact table(adder,[1 2; 3 4],1:3)  =>  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
     end
 end
 
