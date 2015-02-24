@@ -11,6 +11,56 @@ shouldtest("exports") do
     for a in names(FunctionalData)
         # @fact eval(a) => eval("FunctionalData.$a")
     end
+end   
+
+function checkcodeexamples(filename)
+    absname = Pkg.dir("FunctionalData")*"/doc/"*filename
+    mdlines = @p read absname | lines
+
+    startasserts = true
+    insidecode = false
+
+    for line in mdlines
+        isempty(strip(line)) && continue
+        if startswith(line, "```jl")
+            insidecode = true && startasserts
+        elseif startswith(line, "```")
+            insidecode = false
+        elseif insidecode 
+            # println(line)
+            if contains(line, "=>")
+                line = @p split line "=>" | concat "@fact (" fst(_) ")  =>  (" snd(_) ")" 
+            end
+            eval(parse(line))
+        end
+    end
+end 
+
+shouldtest("doc") do
+    shouldtestcontext("computing") do 
+        checkcodeexamples("computing.md")
+    end
+    shouldtestcontext("dataflow") do 
+        checkcodeexamples("dataflow.md")
+    end
+    shouldtestcontext("helpers") do 
+        checkcodeexamples("helpers.md")
+    end
+    shouldtestcontext("io") do 
+        checkcodeexamples("io.md")
+    end
+    shouldtestcontext("lensize") do 
+        checkcodeexamples("lensize.md")
+    end
+    shouldtestcontext("output") do 
+        checkcodeexamples("output.md")
+    end
+    shouldtestcontext("pipeline") do 
+        checkcodeexamples("pipeline.md")
+    end
+    shouldtestcontext("views") do 
+        checkcodeexamples("views.md")
+    end
 end
 
 shouldtest("views") do
