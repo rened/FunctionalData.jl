@@ -4,7 +4,7 @@
 
 `FunctionalData` is a package for fast and expressive data modification. 
 
-Built around a simple memory layout convention, it provides a small set of general purpose [functional constructs](doc/dataflow.md) as well as routines for [efficient computation](doc/views.md) with dense numerical arrays.
+Built around a simple memory layout convention, it provides a small set of general purpose [functional constructs](doc/dataflow.md) as well as routines for [efficient computation](doc/computing.md) with dense numerical arrays.
 
 Optionally, it supplies a [syntax](doc/pipeline.md) for clean, concise code:
  
@@ -104,8 +104,8 @@ Please see the [overview](doc/overview.md) below for one-line descriptions of ea
 * [Data access](doc/accessors.md)
 * [Data Layout](doc/dataflow.md)
 * [Pipeline syntax](doc/pipeline.md)
-* [Efficient views](doc/views.md)
-* [Computing: map and friends](doc/computing.md)
+* [Efficient views](doc/computing.md#views)
+* [Computing: map and friends](doc/computing.md#computing)
 * [Output](doc/output.md)
 * [I/O](doc/io.md)
 * [Helpers](doc/helpers.md)
@@ -171,7 +171,7 @@ randsample(a, n)                    # draw n items from a with repetition
 r = @p f1 a b | f2 | f3 e           # pipeline macro, equals f3(f2(f1(a,b)),e)
 ```
 
-###### Efficient Views [[details]](doc/views.md)
+###### Efficient Views [[details]](doc/computing.md)
 
 ```jl
 view(a,i)                           # lightweight view of item i of a
@@ -181,7 +181,7 @@ trytoview(a,v)                      # for dense array, use view, otherwise part
 trytoview(a,v,i)                    # for dense array, use view reusing v, otherwise part
 ```
  
-###### Computing: map and Friends [[details]](doc/computing.md)
+###### Computing: map and Friends [[details]](doc/computing.md#computing)
 
 ```jl
 map(a, f)                           # apply f to each item

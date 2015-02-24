@@ -58,9 +58,6 @@ shouldtest("doc") do
     shouldtestcontext("pipeline") do 
         checkcodeexamples("pipeline.md")
     end
-    shouldtestcontext("views") do 
-        checkcodeexamples("views.md")
-    end
 end
 
 shouldtest("views") do
