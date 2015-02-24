@@ -4,9 +4,9 @@
 
 `FunctionalData` is a package for fast and expressive data modification. 
 
-Built around a simple memory layout convention, it provides a small set of general purpose [functional constructs](#dataflow) as well as routines for [efficient computation](#views) with dense numerical arrays.
+Built around a simple memory layout convention, it provides a small set of general purpose [functional constructs](doc/dataflow.md) as well as routines for [efficient computation](doc/views.md) with dense numerical arrays.
 
-Optionally, it supplies a [syntax](#pipeline) for clean, concise code:
+Optionally, it supplies a [syntax](doc/pipeline.md) for clean, concise code:
  
 ```jl
 wordcount(filename) = @p read filename | lines | map split | flatten | length
@@ -93,27 +93,27 @@ lmap!(a, csum!)       # local processes
 pmap!(a, csum!)       # all available processes
 ```
 
-For each of these variants there are optimized functions available for in-place operation on the input array, in-place operation on a new output array, or fallback options for functions which do not work in-place. For details, see the section on [map and Friends](#computing).
+For each of these variants there are optimized functions available for in-place operation on the input array, in-place operation on a new output array, or fallback options for functions which do not work in-place. For details, see the section on [map and Friends](doc/computing.md).
 
 
 ## Documentation
 
-Please see the [overview](#overview) below for one-line descriptions of each function. More details and examples can then be found in the following sections (work in progress)
+Please see the [overview](doc/overview.md) below for one-line descriptions of each function. More details and examples can then be found in the following sections (work in progress)
 
-* [Length and size](#lensize)
-* [Data access](#accessors)
-* [Data Layout](#dataflow)
-* [Pipeline syntax](#pipeline)
-* [Efficient views](#views)
-* [Computing: map and friends](#computing)
-* [Output](#output)
-* [I/O](#io)
-* [Helpers](#helpers)
-* [Unit tests](#testmacros)
+* [Length and size](doc/lensize.md)
+* [Data access](doc/accessors.md)
+* [Data Layout](doc/dataflow.md)
+* [Pipeline syntax](doc/pipeline.md)
+* [Efficient views](doc/views.md)
+* [Computing: map and friends](doc/computing.md)
+* [Output](doc/output.md)
+* [I/O](doc/io.md)
+* [Helpers](doc/helpers.md)
+* [Unit tests](doc/testmacros.md)
 
 ### <a name="overview"></a>Overview
 
-###### Length and Size [[details]](#lensize)
+###### Length and Size [[details]](doc/lensize.md)
 
 ```jl
 len(a)                              # length
@@ -121,7 +121,7 @@ siz(a)                              # lsize, ndims x 1
 siz3(a)                             # lsize, 3 x 1
 ```
 
-###### Data Access [[details]](#accessors)
+###### Data Access [[details]](doc/accessors.md)
 
 ```jl
 at(a, i)                            # item i
@@ -142,7 +142,7 @@ extract(a, field, default)          #
 @getfield(a, x)                     # get key x of dict or field x of composite type instance
 ```
 
-###### Data Layout [[details]](#dataflow)
+###### Data Layout [[details]](doc/dataflow.md)
 
 ```jl
 row(a)                              # reshape into row vector
@@ -165,13 +165,13 @@ findsub(a)                          # return sub for the non-zero entries in arr
 randsample(a, n)                    # draw n items from a with repetition
 ```
 
-###### Pipeline Syntax [[details]](#pipeline)
+###### Pipeline Syntax [[details]](doc/pipeline.md)
 
 ```jl
-r = @p f1 a b | f2 c | f3 e f       # pipeline macro, equals f3(f2(f1(a,b),c),e,f)
+r = @p f1 a b | f2 | f3 e           # pipeline macro, equals f3(f2(f1(a,b)),e)
 ```
 
-###### Efficient Views [[details]](#views)
+###### Efficient Views [[details]](doc/views.md)
 
 ```jl
 view(a,i)                           # lightweight view of item i of a
@@ -181,7 +181,7 @@ trytoview(a,v)                      # for dense array, use view, otherwise part
 trytoview(a,v,i)                    # for dense array, use view reusing v, otherwise part
 ```
  
-###### Computing: map and Friends [[details]](#computing)
+###### Computing: map and Friends [[details]](doc/computing.md)
 
 ```jl
 map(a, f)                           # apply f to each item
@@ -208,7 +208,7 @@ ptable, ltable                      # parallel table using all workers, local wo
 tableany, ptableany, ltableany      # like table, but does not flatten result
 ```
 
-###### Output [[details]](#output)
+###### Output [[details]](doc/output.md)
 
 ```jl
 showinfo
@@ -216,7 +216,7 @@ tee
 makeliteral
 ```
 
-###### I/O [[details]](#io)
+###### I/O [[details]](doc/io.md)
 
 ```jl
 read
@@ -232,7 +232,7 @@ writemat
 @snapshot
 ```
 
-###### Helpers [[details]](#helpers)
+###### Helpers [[details]](doc/helpers.md)
 
 ```jl
 zerossiz(s, typ)                    # zeros(s...), default typ is Float64
@@ -266,7 +266,7 @@ times                               # alias for .*
 divby                               # alias for ./
 ```
 
-###### Unit Tests [[details]](#testmacros)
+###### Unit Tests [[details]](doc/testmacros.md)
 
 ```jl
 @test_equal a b                     # test a and b for equality, show detailed info if not
@@ -275,530 +275,6 @@ divby                               # alias for ./
 ```
 
 
-### <a name="lensize"></a>Length and Size
 
 
-##### len(a)
-
-`len` returns the length of a collection.
-
-```jl
-len(1)                              =>  1
-len(1:10)                           => 10
-len("abc")                          =>  3
-len(["a",1])                        =>  2
-len(ones(2,3))                      =>  3
-len(ones(2,3,4))                    =>  4
-```
-
-##### siz(a)
-
-`siz` returns the size of an item. Items always have at least 2 dimensions. For arrays `siz(a) == col(size(a))`.
-
-```jl
-siz(1)                              =>  [1 1]'
-siz(1:5)                            =>  [1 5]'
-siz("abc")                          =>  [1 3]'
-siz(["a",1])                        =>  [2 1]'
-siz(["a" 1])                        =>  [1 2]'
-siz(["a" 1]')                       =>  [2 1]'
-siz(ones(2,3))                      =>  [2 3]'
-siz(ones(2,3,4))                    =>  [2 3 4]'
-```
-
-##### siz3(a)
-`siz3` works for arrays with `ndims<=3` and always returns a `3 x 1` vector. This can help in using the same code for 2D and 3D data.
-```jl
-siz3(ones(1))                       => [1 1 1]'
-siz3(ones(1,2))                     => [1 2 1]'
-siz3(ones(1,2,3))                   => [1 2 3]'
-```
-
-
-### <a name="accessors"></a>Data Access
-
-##### at(a, i)
-
-`at` allows to acces a single item from a collection.
-
-```jl
-at(3:5, 2)                          =>  4
-at("abc",3)                         =>  'c'
-at([1 2; 3 4],1)                    =>  [1 3]'
-at(ones(2,3,4),3)                   =>  ones(2,3)
-```
-
-##### setat!(a, i, value)
-`setat!` allows to modify items in a collection. It return the collection.
-```jl
-a = [1 2 3; 4 5 6]
-setat!(a, 2, [0, 1])                => [1 0 3; 4 1 6]
-a = ["a", 0, "c"]
-setat!(a, 2, "b")                   => ["a","b","c"]
-```
-
-##### fst(a), snd(a), third(a), last(a)
-```jl
-fst(a)                              =>  at(a,1)
-snd(a)                              =>  at(a,2)
-third(a)                            =>  at(a,3)
-last(a)                             =>  at(a,len(a))
-```
-
-##### part(a, ind)
-
-```jl
-part(1:10, 3:5)                     =>  3:5
-part("abc", 2:3)                    =>  "bc"
-part(1:10, [3,5,8])                 =>  [3,5,8]
-part("abc", [3,1,2,2])              =>  "cabb"
-a = [1 2 3; 4 5 6]
-part(a, 2:3)                        =>  [2 3; 5 6]
-```
-
-##### trimmedpart(a, ind)
-Like `part`, but ignores indices which would access elements which do not exist.
-```jl
-trimmedpart("abc", 2:10)    => "bc"
-```
-
-##### take(a, n)
-Take up to `n` items from the beginning.
-```jl
-take([1 2 3 4 5], 3)        =>  [1 2 3]
-take(1:3, 100)              =>  1:3
-```
-
-##### takelast(a, n)
-Take up to `n` items from the end.
-```jl
-takelast(1:10, 2)           =>  9:10
-takelast(1:3, 100)          =>  1:3
-
-```
-
-##### drop
-```jl
-
-```
-
-##### droplast
-```jl
-
-```
-
-##### tail
-```jl
-
-```
-
-##### partition
-```jl
-
-```
-
-##### partsoflen
-```jl
-
-```
-
-##### extract
-```jl
-
-```
-
-##### @getfield
-```jl
-
-```
-
-### <a name="dataflow"></a>Data Layout
-
-##### row
-```jl
-
-```
-
-##### col
-```jl
-
-```
-
-##### reshape
-```jl
-
-```
-
-##### split
-```jl
-
-```
-
-##### concat
-```jl
-
-```
-
-##### subtoind
-```jl
-
-```
-
-##### indtosub
-```jl
-
-```
-
-##### stack
-```jl
-
-```
-
-##### flatten
-```jl
-
-```
-
-##### unstack
-```jl
-
-```
-
-##### riffle
-```jl
-
-```
-
-##### matrix
-```jl
-
-```
-
-##### unmatrix
-```jl
-
-```
-
-##### lines
-```jl
-
-```
-
-##### unlines
-```jl
-
-```
-
-##### unzip
-```jl
-
-```
-
-##### findsub
-```jl
-
-```
-
-##### randsample
-```jl
-
-```
-
-### <a name="pipeline"></a>Pipeline Syntax
-
-`_` gets replaced with the result of the previous step. `_` can also be used multiple times.
-
-
-##### @p
-```jl
-@p ones 2 3 | minus 2   => -ones(2,3)
-```
-
-###### Caveats
-
-* Literal ranges sometimes need to be places in parentheses: 
-```jl
-@p id 1:10
-@p id (1:10) | show
-```
-
-### <a name="views"></a>Efficient Views
-
-typealias View Array
-
-##### View
-```jl
-
-```
-
-##### view
-```jl
-
-```
-
-##### next!
-```jl
-
-```
- 
-##### trytoview
-```jl
-
-```
-
-##### trytoview
-```jl
-
-```
-
-### <a name="computing"></a>Computing: map and Friends
-
-##### map
- ```jl
-
- ```
-
-##### map!
- ```jl
-
- ```
-
-##### map!r
- ```jl
-
- ```
-
-##### map2!
- ```jl
-
- ```
-
-##### mapmap
- ```jl
-
- ```
-
-##### work
- ```jl
-
- ```
-
-##### pmapon
- ```jl
-
- ```
-
-##### pmapover
- ```jl
-
- ```
-
-##### share
- ```jl
-
- ```
-
-##### sort
- ```jl
-
- ```
-
-### <a name="output"></a>Output
-
-##### tee
-```jl
-
-```
-
-##### showinfo
-```jl
-
-```
-
-##### makeliteral
-```jl
-
-```
-
-### <a name="io"></a>I/O
-
-##### read
-```jl
-
-```
-
-##### write
-```jl
-
-```
-
-##### existsfile
-```jl
-
-```
-
-##### mkdir 
-```jl
-
-```
-
-##### filenames
-```jl
-
-```
-
-##### filepaths
-```jl
-
-```
-
-##### dirnames
-```jl
-
-```
-
-##### dirpaths
-```jl
-
-```
-
-##### readmat
-```jl
-
-```
-
-##### writemat
-```jl
-
-```
-
-##### @snapshot
-```jl
-
-```
-
-### <a name="helpers"></a>Helpers
-
-##### zerossiz
-```jl
-
-```
-
-##### onessiz
-```jl
-
-```
-
-##### randsiz
-```jl
-
-```
-
-##### randnsiz
-```jl
-
-```
-
-##### zeroel
-```jl
-
-```
-
-##### oneel
-```jl
-
-```
-
-##### +
-```jl
-
-```
-
-##### * 
-```jl
-
-```
-
-##### repeat
-```jl
-
-```
-
-##### nop
-```jl
-
-```
-
-##### id
-```jl
-
-```
-
-##### istrue
-```jl
-
-```
-
-##### isfalse
-```jl
-
-```
-
-##### not
-```jl
-
-```
-
-##### or
-```jl
-
-```
-
-##### and
-```jl
-
-```
-
-##### any
-```jl
-
-```
-
-##### @dict
-```jl
-
-```
-
-##### plus
-```jl
-
-```
-
-##### minus
-```jl
-
-```
-
-
-##### times
-```jl
-
-```
-
-##### divby
-```jl
-
-```
-
-### <a name="testmacros"></a>Unit Tests
-
-##### @test_equal
-```jl
-
-```
-
-##### @test_almostequal
-```jl
-
-```
 

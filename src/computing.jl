@@ -47,16 +47,22 @@ function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
     v = view(a,1)
     r1 = f(v)
     r = arraylike(r1, len(a), a)
-    rv = view(r,1)
-    rv[:] = r1
-    next!(v)
-    next!(rv)
-    for i = 2:len(a)
-        rv[:] = f(v) 
+    if isviewable(r)
+        rv = view(r,1)
+        rv[:] = r1
         next!(v)
         next!(rv)
+        for i = 2:len(a)
+            rv[:] = f(v) 
+            next!(v)
+            next!(rv)
+        end
+        r
+    else
+        setat!(r, 1, r1)
+        map_(f,a,r)
+        r
     end
-    r
 end
 
 function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Function, f2::Function)

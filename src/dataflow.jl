@@ -14,12 +14,12 @@ export randsample
 row(a::Number) = row([a])
 row(a) = reshape(a,1,length(a))
 row(a::Tuple) = reshape([a...],1,length(a))
-row(a...) = row(a)
+row(a...) = row(vcat(a...))
 
 col(a::Number) = col([a])
 col(a) = reshape(a,length(a),1)
 col(a::Tuple) = reshape([a...],length(a),1)
-col(a...) = col(a)
+col(a...) = col(vcat(a...))
 
 import Base.reshape
 reshape{T}(a::Array, siz::Array{T,2}) = reshape(a, siz...)

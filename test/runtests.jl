@@ -260,6 +260,7 @@ shouldtest("computing") do
     end
     shouldtestcontext("map") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) =>   [2 2 2]
+        @fact map([1 2 3; 4 5 6], x->Any[size(x,1)]) =>   Any[2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) => [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1),size(x,1)]) => [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) => cat(3,[2 2],[2 2],[2 2])

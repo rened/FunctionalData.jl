@@ -1,4 +1,4 @@
-export len, siz, siz3
+export len, siz, siz3, sizem, sizen, sizeo, rangem, rangen, rangeo, range
 
 len(a) = length(a)
 len{T,N}(a::AbstractArray{T,N}) = size(a,N)
@@ -38,3 +38,11 @@ function siz3{T,N}(a::Array{T,N})
     r
 end
 siz3(a) = siz(a)
+
+sizem(a) = size(a,1)
+sizen(a) = size(a,2)
+sizeo(a) = size(a,3)
+rangem(a) = 1:size(a,1)
+rangen(a) = 1:size(a,2)
+rangeo(a) = 1:size(a,3)
+range(a) = 1:len(a)
