@@ -286,11 +286,12 @@ function pmap_internal2!(mapf::Function, a, r, f::Function; kargs...)
     flatten(r)
 end
 
-lmap(a, f) = pmap_internal(mapper, a, f; pids = procs(myid()))
-lmap!(a, f) = pmap_internal(mapper!, a, f; pids = procs(myid()))
-lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = procs(myid()))
-lmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = procs(myid()))
-lmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = procs(myid()))
+localworkers() = (r = sort(procs(myid())); len(r) > 1 ? r[2:end] : r)
+lmap(a, f) = pmap_internal(mapper, a, f; pids = localworkers())
+lmap!(a, f) = pmap_internal(mapper!, a, f; pids = localworkers())
+lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = localworkers())
+lmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers())
+lmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers())
 
 table(f, a...) = table_internal(map, f, a...; flat = true)
 ptable(f, a...) = table_internal(pmap, f, a...; flat = true)
