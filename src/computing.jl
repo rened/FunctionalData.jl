@@ -35,7 +35,6 @@ end
     end
 end
 
-map(a::Dict, f::AbstractArray) = error("Calling map with no function does not make sense")
 map(a::Dict, f::Function) = @compat Dict(Base.map((x) -> (x[1], f(x[2])), a))
 function mapmap(a, f)
     isempty(a) && return Any[]
@@ -102,7 +101,7 @@ function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
     a
 end
  
-work(a,f::Function) = ([(f(at(a,i));nothing) for i in 1:len(a)]; nothing)
+work(a,f::Function) = (for i in 1:len(a) f(at(a,i)) end; nothing)
 function work{T<:Real,N}(a::DenseArray{T,N},f::Function)
     v = view(a,1)
     for i = 1:len(a)
@@ -110,6 +109,10 @@ function work{T<:Real,N}(a::DenseArray{T,N},f::Function)
         next!(v)
     end
 end
+lwork(a, f) = (g(x) = (f(x);uint8(0)); lwork(a, g); nothing)
+pwork(a, f) = (g(x) = (f(x);uint8(0)); pwork(a, g); nothing)
+shwork(a, f) = (g(x) = (f(x);uint8(0)); shwork(a, g); nothing)
+workwork(a, f) = (g(x) = (f(x);uint8(0)); workwork(a, g); nothing)
  
 share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a

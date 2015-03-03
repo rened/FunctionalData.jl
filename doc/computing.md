@@ -30,52 +30,93 @@ typealias View Array
 ### <a name="computing"></a>Computing: map and Friends
 
 ##### map
- ```jl
+```jl
 
- ```
+```
 
 ##### map!
- ```jl
+```jl
 
- ```
+```
 
 ##### map!r
- ```jl
+```jl
 
- ```
+```
 
 ##### map2!
- ```jl
+```jl
 
- ```
+```
+
+##### map2!
+```jl
+
+```
+
+##### shmap
+```jl
+
+```
+
+##### shmap!
+```jl
+
+```
+
+##### shmap!r
+```jl
+
+```
+
+##### shmap2!
+```jl
+
+```
+
+##### shmap2!
+```jl
+
+```
+
+##### pmap
+```jl
+
+```
+
+##### lmap
+```jl
+
+```
 
 ##### mapmap
- ```jl
+```jl
 
- ```
+```
 
 ##### work
- ```jl
+```jl
 
- ```
+```
 
-##### pmapon
- ```jl
+##### pwork
+```jl
 
- ```
+```
 
-##### pmapover
- ```jl
+##### lwork
+```jl
 
- ```
+```
 
-##### share
- ```jl
+##### shwork
+```jl
 
- ```
+```
 
-##### sort
- ```jl
+##### workwork
+```jl
 
- ```
- 
+```
+
+

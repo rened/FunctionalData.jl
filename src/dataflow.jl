@@ -59,7 +59,14 @@ function split(a::AbstractArray,f::Function)
     return r
 end
 
-concat(a...) = flatten(Any[a...])
+function concat(a...) 
+    try
+        flatten(Any[a...])
+    catch
+        Any[a...]
+    end
+end
+
 
 #######################################
 ## subtoind, indtosub

@@ -198,6 +198,7 @@ pmap(a, f)                          # parallel map of f accross all workers
 lmap(a, f)                          # parallel map of f accross local workers
 mapmap(a, f)                        # shorthand for map(a, x->map(x,f))
 work(a, f)                          # apply f to each item, no result value
+pwork, lwork, shwork, workwork      # like the corresponding map variants
 any(a, f)                           # is any f(item) true
 anyequal(a, x)                      # is any item == x
 all(a, f)                           # are all f(item) true

@@ -32,10 +32,8 @@ macro p(a...)
     end
     
 
-
-
-
-    currying = Any[:map,:pmap,:work,:pwork]
+    currying = Any[:map, :map!, :map!r, :map2!, :mapmap, :shmap, :shmap!, :shmap!r, :shmap2!, :pmap, :lmap, 
+        :map, :map!, :map!r, :map2!, :mapmap, :shmap, :shmap!, :shmap!r, :shmap2!, :pmap, :lmap]
 
     parts = split(output,:|)
     # @show parts

@@ -63,8 +63,8 @@ part{T<:Real}(a,i::DenseArray{T,2}) = map(i, x->at(a,x))
 trimmedpart(a, i::UnitRange) = part(a, max(1, minimum(i)):min(len(a),maximum(i)))
 
 import Base.take
-take(a,n) = part(a,1:min(n,len(a)))
-takelast(a,n) = part(a,max(1,len(a)-n+1):len(a))
+take(a::Union(Array, UnitRange, String), n::Int64) = part(a, 1:min(n, len(a)))
+takelast(a, n::Integer) = part(a, max(1,len(a)-n+1):len(a))
 
 drop(a,i) = part(a,i+1:len(a))
 
@@ -72,19 +72,11 @@ droplast(a) = part(a,1:max(1,len(a)-1))
 droplast(a,i) = part(a,1:max(1,len(a)-i))
 
 function partition(a,n) 
+    n = min(n, len(a))
+    ind = int(linspace(1, len(a)+1, n+1))
     r = cell(n)
-    n2 = min(n, len(a))
-    s = len(a)
-    stepsize = s/n2
-    pos = stepsize
-    ndone = 0
-    for i = 1:n2
-        r[i] = part(a, ndone + 1 : min(ceil(Integer, pos+stepsize-1), s))
-        pos += stepsize
-        ndone += length(r[i])
-    end
-    for i = n2+1:n
-        r[i] = cell(0)
+    for i = 1:n
+        r[i] = part(a, ind[i]:ind[i+1]-1)
     end
     r
 end

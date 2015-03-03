@@ -260,9 +260,11 @@ shouldtest("accessors") do
     end
 
     shouldtestcontext("partition") do
-        @fact partition(1:3,2)  => Any[1:2, 3:3]
-        @fact partition(1:10,9) => Any[1:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10]
-        @fact partition([1:3], 5) => Any[[1],[2],[3],Any[],Any[]]
+        @fact partition(1:3,1)  => Any[1:3]
+        a = partition(1:3,2)
+        @fact a == Any[1:2, 3:3] || a == Any[1:1, 2:3]  =>  true  # Julia v0.3 and v0.4 work differently
+        @fact partition(1:3,3)  => Any[1:1, 2:2, 3:3]
+        @fact partition(1:3,4)  => Any[1:1, 2:2, 3:3]
     end
     shouldtestcontext("partsoflen") do
 
