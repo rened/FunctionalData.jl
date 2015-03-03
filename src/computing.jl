@@ -1,6 +1,9 @@
 export map, map!, map!r, map2!, mapmap, work
-export share, unshare, shmap, shmap!, shmap!r, shmap2!
-export pmap, lmap
+export share, unshare
+export shmap, shmap!, shmap!r, shmap2!, shwork
+export pmap, pmap!, pmap!r, pmap2!, pwork
+export lmap, lmap!, lmap!r, lmap2!, lwork
+export hmap, hmap!, hmap!r, hmap2!, hwork
 export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
 export sort, sortrev, unique
 
@@ -257,10 +260,68 @@ function pmap_exec(g, a; kargs...)
     if VERSION.minor >= 4
         r = Base.pmap(g, parts, pids = pids)
     else
-        r = Base.pmap(g, parts)
+        r = pmapon(g, parts, pids = pids)
     end
     flatten(r)
 end
+
+function pmapon(f, lsts...; err_retry=true, err_stop=false, pids = workers())
+    len = length(lsts)
+    results = Dict{Int,Any}()
+    retryqueue = []
+    task_in_err = false
+    is_task_in_error() = task_in_err
+    set_task_in_error() = (task_in_err = true)
+    nextidx = 0
+    getnextidx() = (nextidx += 1)
+    states = [start(lsts[idx]) for idx in 1:len]
+    function getnext_tasklet()
+        if is_task_in_error() && err_stop
+            return nothing
+        elseif !any(idx->done(lsts[idx],states[idx]), 1:len)
+            nxts = [next(lsts[idx],states[idx]) for idx in 1:len]
+            for idx in 1:len; states[idx] = nxts[idx][2]; end
+                nxtvals = [x[1] for x in nxts]
+                return (getnextidx(), nxtvals)
+            elseif !isempty(retryqueue)
+                return shift!(retryqueue)
+            else
+                return nothing
+            end
+        end
+        @sync begin
+            for wpid in pids
+                @async begin
+                    tasklet = getnext_tasklet()
+                    while (tasklet != nothing)
+                        (idx, fvals) = tasklet
+                        try
+                            result = remotecall_fetch(wpid, f, fvals...)
+                            if isa(result, Exception)
+                                ((wpid == myid()) ? rethrow(result) : throw(result))
+                            else
+                                results[idx] = result
+                            end
+                        catch ex
+                        if err_retry
+                            push!(retryqueue, (idx,fvals, ex))
+                        else
+                            results[idx] = ex
+                        end
+                        set_task_in_error()
+                        break # remove this worker from accepting any more tasks
+                    end
+                    tasklet = getnext_tasklet()
+                end
+            end
+        end
+    end
+    for failure in retryqueue
+        results[failure[1]] = failure[3]
+    end
+    [results[x] for x in 1:nextidx]
+end
+
 
 function pmap_internal(mapf::Function, a, f::Function; kargs...)
     g(a) = mapf(a,f)
@@ -286,7 +347,19 @@ function pmap_internal2!(mapf::Function, a, r, f::Function; kargs...)
     flatten(r)
 end
 
-localworkers() = (r = sort(procs(myid())); len(r) > 1 ? r[2:end] : r)
+export localworkers
+localworkers(pid = myid()) = (r = sort(procs(pid)); len(r) > 1 ? r[2:end] : r)
+
+export hostpids
+hostpids() = @p map unstack(workers()) procs | map sort | unique | map x->x[1]==1 && len(x)>1 ? x[2] : x[1]
+
+export hmap, hmap!, hmap!r, hmap2!r
+hmap(a, f) = pmap_internal(mapper, a, f; pids = hostpids())
+hmap!(a, f) = pmap_internal(mapper!, a, f; pids = hostpids())
+hmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = hostpids())
+hmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = hostpids())
+hmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids())
+
 lmap(a, f) = pmap_internal(mapper, a, f; pids = localworkers())
 lmap!(a, f) = pmap_internal(mapper!, a, f; pids = localworkers())
 lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = localworkers())
