@@ -232,6 +232,7 @@ end
 #######################################
 ##  matrix, unmatrix
 
+matrix{T<:Number}(a::AbstractArray{T}) = @p reshape a div(length(a),len(a)) len(a)
 matrix(a) = @p map a col | flatten
 function unmatrix(a, example) 
     r = @p map a (x->reshape(x,siz(fst(example)))) 

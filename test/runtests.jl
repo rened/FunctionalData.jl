@@ -1,5 +1,5 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
-addprocs(4)
+addprocs(3)
 @everywhere using FactCheck, FunctionalData, Compat
 FactCheck.setstyle(:compact)
 
@@ -344,7 +344,7 @@ shouldtest("computing") do
         a = row([1:3])
         r = shmap(a, x->x+1)
         @fact r => a + 1
-        a = rand(10,int(1e6))
+        a = rand(10,int(1e3))
         r = shmap(a, x->x+1)
         @fact r => a+1
     end
@@ -353,7 +353,7 @@ shouldtest("computing") do
         orig = copy(a)
         shmap!(a, x->x[:] = x+1)
         @fact a => orig + 1
-        a = share(rand(10,int(1e6)))
+        a = share(rand(10,int(1e3)))
         orig = copy(a)
         shmap!(a, x->x[:] = x+1)
         @fact a => orig + 1
@@ -363,7 +363,7 @@ shouldtest("computing") do
         orig = copy(a)
         shmap!r(a, x-> x+1)
         @fact a => orig + 1
-        # a = share(rand(10,int(1e6)))
+        # a = share(rand(10,int(1e3)))
         # orig = copy(a)
         # shmap!r(a, x-> x+1)
         # @fact a => orig + 1
@@ -375,7 +375,7 @@ shouldtest("computing") do
         r = shzerossiz(siz(a))
         shmap2!(a, r, (r,x)->r[:] = x+1)
         @fact r => a + 1
-        a = rand(10,int(1e6))
+        a = rand(10,int(1e3))
         r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
         @fact r => a + 1
     end
@@ -465,6 +465,7 @@ shouldtest("dataflow") do
     shouldtestcontext("matrix") do
         a = Any[ones(2,3), zeros(2,3)]
         @fact size(matrix(a))  =>  6,2
+        @fact size(matrix(zeros(2,3,4))) => 6,4
         @fact unmatrix(matrix(a),a)  =>  a
     end
     context("lines") do

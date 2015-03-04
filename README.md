@@ -95,6 +95,18 @@ pmap!(a, csum!)       # all available processes
 
 For each of these variants there are optimized functions available for in-place operation on the input array, in-place operation on a new output array, or fallback options for functions which do not work in-place. For details, see the section on [map and Friends](doc/computing.md).
 
+## News
+
+#### master
+
+* added `localworkers` and `hostpids`
+* added `hmap` and variants, which map tasks to the first pid of each machine
+* removed `makeliteral`, as the built-in `repr` does the same
+* sped up `matrix`
+
+#### 0.0.4
+
+* fixed bug in partition function
 
 ## Documentation
 
@@ -214,7 +226,6 @@ tableany, ptableany, ltableany      # like table, but does not flatten result
 ```jl
 showinfo
 tee
-makeliteral
 ```
 
 ###### I/O [[details]](doc/io.md)

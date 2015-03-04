@@ -1,4 +1,4 @@
-export tee, showinfo, makeliteral
+export tee, showinfo
 
 tee(a...) = (@show a a[2] a[1]; a[2](part(a,vcat(1, 3:length(a)))); return a[end])
 
@@ -24,11 +24,4 @@ function showinfo(io::IO, a, comment::ASCIIString = "")
     a
 end
 showinfo(a, comment::ASCIIString = "") = showinfo(STDOUT, a, comment)
-
-function makeliteral(a) 
-    buf = IOBuffer()
-    showall(buf,a)
-    return takebuf_string(buf)
-end
-
 
