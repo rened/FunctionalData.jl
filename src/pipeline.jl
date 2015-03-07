@@ -110,8 +110,17 @@ macro p(a...)
                 f = :( x-> $(part[2]) (x, $(part[3:end]...)) )
                 ex = :( $(part[1]) ($ex, $f) )
             elseif in(part[1], currying2) # ==:map2
-                f = :( x-> $(part[2]) (x, $(part[3:end]...)) )
-                ex = :( $(part[1]) ($ex..., $f) )
+                f = :( (x,y) -> $(part[3]) (x, y, $(part[4:end]...)) )
+                ex = :( $(part[1]) ($ex, $(part[2]), $f) )
+            elseif in(part[1], currying3) # ==:map3
+                f = :( (x,y,z) -> $(part[4]) (x, y, z, $(part[5:end]...)) )
+                ex = :( $(part[1]) ($ex, $(part[2]), $(part[3]), $f) )
+            elseif in(part[1], currying4) # ==:map4
+                f = :( (x,y,z,z2) -> $(part[5]) (x, y, z, z2, $(part[6:end]...)) )
+                ex = :( $(part[1]) ($ex, $(part[2]), $(part[3]),  $(part[4]), $f) )
+            elseif in(part[1], currying5) # ==:map5
+                f = :( (x,y,z,z2,z3) -> $(part[6]) (x, y, z, z2, z3, $(part[7:end]...)) )
+                ex = :( $(part[1]) ($ex, $(part[2]), $(part[3]), $(part[4]), $(part[5]), $f) )
             else
                 ex = :( $(part[1]) ($ex, $(part[2:end]...)) )
             end
