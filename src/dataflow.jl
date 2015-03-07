@@ -22,8 +22,8 @@ col(a::Tuple) = reshape([a...],length(a),1)
 col(a...) = col(vcat(a...))
 
 import Base.reshape
-reshape{T}(a::Array, siz::Array{T,2}) = reshape(a, siz...)
-function reshape(a::Array) 
+reshape{T}(a::AbstractArray, siz::Array{T,2}) = reshape(a, siz...)
+function reshape(a::AbstractArray) 
     if !(ndims(a)==1 || len(a)==1)
         error("FuncionalData.reshape(a): a was expected to be a vector or len(a)==1, actual size was: $(size(a))")
     end
@@ -180,7 +180,7 @@ end
 unstack{T,N}(a::AbstractArray{T,N}) = Any[at(a,i) for i in 1:len(a)]
 unstack(a::Tuple) = Any[at(a,i) for i in 1:len(a)]
 
-unstack(a::ASCIIString) = Any[at(a,i) for i in 1:len(a)]
+unstack(a::String) = Any[at(a,i) for i in 1:len(a)]
 
 
 
@@ -188,7 +188,7 @@ unstack(a::ASCIIString) = Any[at(a,i) for i in 1:len(a)]
 #######################################
 ##  riffle
 
-function riffle(a::ASCIIString,x::Union(Char,ASCIIString))
+function riffle(a::String,x::Union(Char,String))
     join(a,x)
 end
 
@@ -266,25 +266,22 @@ randsample(a, n) = part(a, rand(1:len(a), int(n)))
 ##   unzip
 
 function unzip(a)
-    if isempty(a)
-        return Any[]
+    forth(a) = at(a,4)
+    fifth(a) = at(a,5)
+    if len(fst(a)) == 2
+        map(a, fst), map(a, snd)
+    elseif len(fst(a)) == 3
+        map(a, fst), map(a, snd), map(a, third)
+    elseif len(fst(a)) == 4
+        map(a, fst), map(a, snd), map(a, third), map(a, forth)
+    elseif len(fst(a)) == 5
+        map(a, fst), map(a, snd), map(a, third), map(a, forth), map(a, fifth)
+    else
+        error("FunctionalData.unzip: cannot unzip of len(fst(a))==$(len(fst(a)))")
     end
-    
-    n = len(fst(a))
-    assert(all(Base.map(x -> len(x)==n, a)))
-    r = Any[cell(len(a)) for j = 1:n]
-    for i = 1:len(a)
-        for j = 1:n
-            r[j][i] = at(at(a, i), j)
-        end
-    end
-    for i = 1:len(r)
-        try
-            r[i] = flatten(r[i])
-        end
-    end
-    r
 end
+
+
 
 #####################################################
 ##   find

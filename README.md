@@ -103,6 +103,8 @@ For each of these variants there are optimized functions available for in-place 
 * added `hmap` and variants, which map tasks to the first pid of each machine
 * removed `makeliteral`, as the built-in `repr` does the same
 * sped up `matrix`
+* added map2, map3, map4, map5
+* fixed unzip
 
 #### 0.0.4
 

@@ -45,7 +45,7 @@ macro dict(syms...)
 end
 
 import Base.*
-*(a::Union(Char,ASCIIString)...) = string(a...)
+*(a::Union(Char,String)...) = string(a...)
 
 import Base.repeat
 repeat(a::Char,n::Int) = repeat(string(a), n)

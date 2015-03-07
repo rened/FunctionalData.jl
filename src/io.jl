@@ -28,7 +28,7 @@ existsfile(filename::String) = (s = stat(filename); s.inode!=0)
 #end
 
 import Base.read
-function read(filename::ASCIIString)
+function read(filename::String)
     io = open(filename)
     finalizer(io,close)
     r = readall(io)
@@ -36,12 +36,12 @@ function read(filename::ASCIIString)
     return r
 end
 
-#function readlines(filename::ASCIIString)
+#function readlines(filename::String)
 #    lines(read(filename))
 #end
 
 import Base.write
-function write(data::ASCIIString,filename::ASCIIString)
+function write(data::String,filename::String)
     io = open(filename,"w")
     finalizer(io,close)
     write(io,data)
@@ -55,7 +55,7 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
     # @show r
     r = sort(r)
     r = withpath ? map(r, x->joinpath(path,x)) : r
-    map(r, ascii)
+    map(r, utf8)
 end
 dirnames(path = pwd(); kargs...) = filedirnames(path; selector = isdir, kargs...)
 dirpaths(path = pwd(); kargs...) = dirnames(path; withpath = true, kargs...)
@@ -79,16 +79,5 @@ function readmat(filename,variables...)
             close(mat)
     end
 end
-
-# writemat = matwrite
-
-#function writelines(filename::ASCIIString,data::)
-#    io = open(filename,"w")
-#    finalizer(io,close)
-#    write(io,unlines(data))
-#    close(io)
-#end
-
-
 
 

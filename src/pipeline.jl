@@ -34,15 +34,33 @@ macro p(a...)
 
     currying = Any[:map, :map!, :map!r, :map2!, :mapmap, :shmap, :shmap!, :shmap!r, :shmap2!, :pmap, :lmap, 
         :work, :workwork, :shwork, :pwork, :lwork]
+    currying2 = Any[:map2]
+    currying3 = Any[:map3]
+    currying4 = Any[:map4]
+    currying5 = Any[:map5]
 
     parts = split(output,:|)
     # @show parts
     part = parts[1]
     if in(part[1],currying) # ==:map
-        # println("map!")
         f = :(x -> $(part[3]) (x, $(part[4:end]...)) )
-        #println(f)
         ex = :( $(part[1]) ($(part[2]), $f) )
+     elseif in(part[1], currying2) # ==:map2
+         length(part) < 4 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
+         f = :((x,y) -> $(part[4]) (x, y, $(part[5:end]...)) )
+         ex = :( $(part[1]) ($(part[2]), $(part[3]), $f) )
+     elseif in(part[1], currying3) # ==:map3
+         length(part) < 5 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
+         f = :((x,y,z) -> $(part[5]) (x, y, z, $(part[6:end]...)) )
+         ex = :( $(part[1]) ($(part[2]), $(part[3]),$(part[4]), $f) )
+     elseif in(part[1], currying2) # ==:map2
+         length(part) < 6 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
+         f = :((x,y,z,z2) -> $(part[6]) (x, y, z, z2, $(part[7:end]...)) )
+         ex = :( $(part[1]) ($(part[2]), $(part[3]), $(part[4]), $(part[5]), $f) )
+     elseif in(part[1], currying2) # ==:map2
+         length(part) < 7 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
+         f = :((x,y,z,z2,z3) -> $(part[7]) (x, y, z, z2, z3, $(part[8:end]...)) )
+         ex = :( $(part[1]) ($(part[2]), $(part[3]), $(part[4]), $(part[5]), $(part[6]), $f) )
     else
         ex = :( $(part[1]) ($(part[2:end]...)) )
     end

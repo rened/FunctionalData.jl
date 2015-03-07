@@ -12,7 +12,7 @@ function siz(a::Tuple)
     r
 end
 
-function siz(a::Union(UnitRange, Char, ASCIIString, SubString{ASCIIString}))
+function siz(a::Union(UnitRange, Char, String))
     r = ones(Int, 2,1)
     r[2] = length(a)
     r

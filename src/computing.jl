@@ -1,4 +1,5 @@
 export map, map!, map!r, map2!, mapmap, work
+export map2, map3, map4, map5
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
@@ -17,6 +18,11 @@ unique(a,f) = @p part a unique(map(a,f))
 #######################################
 ## map, pmap
 
+
+map2(a, b, f::Function) = [f(at(a,i),at(b,i)) for i in 1:len(a)]
+map3(a, b, c, f::Function) = [f(at(a,i),at(b,i),at(c,i)) for i in 1:len(a)]
+map4(a, b, c, d, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:len(a)]
+map5(a, b, c, d, e_, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)]
 
 import Base.map
 map(a::String, f::Function) = flatten(map(unstack(a),f))

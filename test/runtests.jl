@@ -267,7 +267,8 @@ shouldtest("accessors") do
         @fact partition(1:3,4)  => Any[1:1, 2:2, 3:3]
     end
     shouldtestcontext("partsoflen") do
-
+        @fact partsoflen(1:4,2)  =>  Any[1:2, 3:4]
+        @fact partsoflen(1:4,3)  =>  Any[1:3, 4:4]
     end
 end
 
@@ -315,6 +316,9 @@ shouldtest("computing") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) => cat(3,[2 2],[2 2],[2 2])
         d = @compat Dict("a" => 1, :b => 2)
         @fact map(d, x -> x*10) => @compat Dict("a" => 10, :b => 20)
+    end
+    shouldtestcontext("map2") do
+        @fact map2(1:3,10:12, (+))  =>  [11,13,15]
     end
     shouldtestcontext("mapmap") do
         @fact mapmap([[1 2], [3 4]], x -> x+1)  =>  [[2 3], [4 5]]
@@ -487,41 +491,59 @@ shouldtest("dataflow") do
 end
 
 shouldtest("unzip") do
-    @fact unzip([]) => []
-    @fact unzip([]) => []
-    @fact unzip([1]) => Any[row(1)]
-    @fact unzip(Any[[1 2]])  =>  Any[row([1]),row([2])]
-    @fact unzip(Any[[1, 2]]) => Any[row([1]),row([2])]
-    @fact unzip(Any[[1, 11], [2, 22]]) => Any[[1 2], [11 22]]
+    @fact unzip([(1,1),(2,2)])  =>  ([1,2],[1,2])
+    @fact unzip([(1,2), "ab"])  =>  (Any[1,'a'], Any[2,'b'])
 end
 
 
 shouldtest("pipeline") do
-    add(x,y) = x.+y
-    minus(x,y) = x.-y
+    shouldtestcontext("general") do
+        add(x,y) = x.+y
+        minus(x,y) = x.-y
 
-    x = @p add 1 2
-    @fact x => 3
+        x = @p add 1 2
+        @fact x => 3
 
-    @fact (@p add 1 2) => 3
-    @fact (@p add 1 2 | minus 2) => 1
-    @fact (@p add 1 2 | minus _ 2) => 1
-    @fact (@p add 1 2 | minus 3 _) => 0
+        @fact (@p add 1 2) => 3
+        @fact (@p add 1 2 | minus 2) => 1
+        @fact (@p add 1 2 | minus _ 2) => 1
+        @fact (@p add 1 2 | minus 3 _) => 0
 
-    @fact (@p map [1 2 3] add 1)  =>  [2 3 4]
-    @fact (@p map [1 2 3] minus 1)  =>  [0 1 2]
+        @fact (@p map [1 2 3] add 1)  =>  [2 3 4]
+        @fact (@p map [1 2 3] minus 1)  =>  [0 1 2]
 
-    x = @p linspace 1 5 5 | map add 1
-    @fact x  =>  [2 3 4 5 6]
+        x = @p linspace 1 5 5 | map add 1
+        @fact x  =>  [2 3 4 5 6]
 
-    x = @p add (1:5) 1 | map add 1 | map minus 1
-    @fact x  =>  [2 3 4 5 6]
+        x = @p add (1:5) 1 | map add 1 | map minus 1
+        @fact x  =>  [2 3 4 5 6]
 
-    x = @p map (1:5) add 1 
-    @fact x  =>  [2 3 4 5 6]
+        x = @p map (1:5) add 1 
+        @fact x  =>  [2 3 4 5 6]
 
-    x = @p id [1] | map _ (x->x+_+_+_)
-    @fact x  =>  row([4])
+        x = @p id [1] | map _ (x->x+_+_+_)
+        @fact x  =>  row([4])
+    end
+
+    add2(a,b) = a+b
+
+    shouldtestcontext("map2") do
+        x = @p map2 1:3 10:12 add2
+        @fact x  =>  [11,13,15]
+
+        Z = ones(Int,3)
+        add3(a,b,c) = a+b+c
+        x = @p map3 1:3 10:12 100Z add3
+        @fact x  =>  [111,113,115]
+
+        add4(a,b,c,d) = a+b+c+d
+        x = @p map4 1:3 10:12 100Z 2000Z add4
+        @fact x  =>  [2111,2113,2115]
+        
+        add5(a,b,c,d,e) = a+b+c+d+e
+        x = @p map5 1:3 10:12 100Z 2000Z 30000Z add5
+        @fact x  =>  [32111,32113,32115]
+    end
 end
 
 shouldtest("io") do

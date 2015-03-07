@@ -2,15 +2,15 @@ export tee, showinfo
 
 tee(a...) = (@show a a[2] a[1]; a[2](part(a,vcat(1, 3:length(a)))); return a[end])
 
-showinfo(io::IO, a::ASCIIString) = showinfo(io, a, "")
-function showinfo(io::IO, a, comment::ASCIIString = "")
+showinfo(io::IO, a::String) = showinfo(io, a, "")
+function showinfo(io::IO, a, comment::String = "")
     v(a::Number) = [a]
     v(a) = vec(a)
-    s(a::ASCIIString) = length(a)
+    s(a::String) = length(a)
     s(a) = size(a)
-    med(a::ASCIIString) = @p map a uint8 | median | round Integer _ | char
+    med(a::String) = @p map a uint8 | median | round Integer _ | char
     med(a) = median(a)
-    if isa(a, Union(Number, Array, SharedArray, ASCIIString))
+    if isa(a, Union(Number, Array, SharedArray, String))
         print( isempty(comment) ? "--  " : comment*"  --  ")
         println("type: $(typeof(a))   size: $(s(a))")
         try
@@ -23,5 +23,5 @@ function showinfo(io::IO, a, comment::ASCIIString = "")
     end
     a
 end
-showinfo(a, comment::ASCIIString = "") = showinfo(STDOUT, a, comment)
+showinfo(a, comment::String = "") = showinfo(STDOUT, a, comment)
 
