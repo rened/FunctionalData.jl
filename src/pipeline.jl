@@ -33,7 +33,7 @@ macro p(a...)
     
 
     currying = Any[:map, :map!, :map!r, :map2!, :mapmap, :shmap, :shmap!, :shmap!r, :shmap2!, :pmap, :lmap, 
-        :work, :workwork, :shwork, :pwork, :lwork]
+        :work, :workwork, :shwork, :pwork, :lwork, :tee]
     currying2 = Any[:map2]
     currying3 = Any[:map3]
     currying4 = Any[:map4]
@@ -107,12 +107,11 @@ macro p(a...)
             #println("fany==false")
             #println("### part[1] $(part[1]))")
             if in(part[1],currying) # ==:map
-                #println("map!")
-                #println("### part: $(part)")
                 f = :( x-> $(part[2]) (x, $(part[3:end]...)) )
-                #println("### f: $f")
                 ex = :( $(part[1]) ($ex, $f) )
-                #println("### ex: $ex")
+            elseif in(part[1], currying2) # ==:map2
+                f = :( x-> $(part[2]) (x, $(part[3:end]...)) )
+                ex = :( $(part[1]) ($ex..., $f) )
             else
                 ex = :( $(part[1]) ($ex, $(part[2:end]...)) )
             end

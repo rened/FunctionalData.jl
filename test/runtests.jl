@@ -415,6 +415,16 @@ shouldtest("computing") do
         @fact tableany(passarray,[1,2],1:3)  =>  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
         @fact table(adder,[1 2; 3 4],1:3)  =>  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
     end
+    shouldtestcontext("tee") do
+        a = Any[]
+        @fact tee(1:3, x->push!(a,x+1))  =>  1:3
+        @fact a  =>  Any[2:4]
+        b = Any[]
+        pushadd(x,param) = push!(b,x+param)
+        c = @p tee 1 pushadd 10
+        @fact b  =>  [11]
+        @fact c  =>  1
+    end
 end
 
 shouldtest("dataflow") do

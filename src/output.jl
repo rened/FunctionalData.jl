@@ -1,6 +1,4 @@
-export tee, showinfo
-
-tee(a...) = (@show a a[2] a[1]; a[2](part(a,vcat(1, 3:length(a)))); return a[end])
+export showinfo
 
 showinfo(io::IO, a::String) = showinfo(io, a, "")
 function showinfo(io::IO, a, comment::String = "")

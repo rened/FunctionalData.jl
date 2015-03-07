@@ -7,6 +7,7 @@ export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
 export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
 export sort, sortrev, unique
+export tee
 
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
@@ -403,3 +404,4 @@ function table_internal(mapf, f, args...; flat = true)
     end
 end
 
+tee(a,f) = (f(a);a)
