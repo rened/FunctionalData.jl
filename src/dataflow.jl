@@ -6,7 +6,7 @@ export riffle
 export matrix, unmatrix
 export lines, unlines, unzip
 export findsub
-export randsample
+export randsample, flip
 
 #######################################
 ## row, col, reshape
@@ -259,6 +259,8 @@ randperm(a::Number) = _randperm(a)
 randperm(a) = part(a, randperm(len(a)))
 
 randsample(a, n) = part(a, rand(1:len(a), int(n)))
+
+flip(a) = part(a, len(a):-1:1)
 
 
 

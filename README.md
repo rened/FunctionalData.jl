@@ -105,6 +105,7 @@ For each of these variants there are optimized functions available for in-place 
 * sped up `matrix`
 * added map2, map3, map4, map5
 * fixed unzip
+* added flip
 
 #### 0.0.4
 
@@ -174,9 +175,11 @@ matrix(a)                           # reshape items of a to column vectors
 unmatrix(a, example)                # reshape the column vector items in a according to example
 lines(a)                            # split the text a into array of lines
 unlines(a)                          # concat a with newlines 
-unzip(a)                            # unzip items in a
-findsub(a)                          # return sub for the non-zero entries in array a
+unzip(a)                            # unzip items
+findsub(a)                          # return sub for the non-zero entries
 randsample(a, n)                    # draw n items from a with repetition
+randperm(a)                         # randomly permute order of items
+flip(a)                             # reverse the order of items
 ```
 
 ###### Pipeline Syntax [[details]](doc/pipeline.md)
@@ -211,6 +214,7 @@ shmap2!(a, r, f!)                   # apply f!(resultitem, item), accross procs(
 pmap(a, f)                          # parallel map of f accross all workers
 lmap(a, f)                          # parallel map of f accross local workers
 mapmap(a, f)                        # shorthand for map(a, x->map(x,f))
+map2(a,b,f), map3, map4, map5       # map over a and b invoking f(x,y)
 work(a, f)                          # apply f to each item, no result value
 pwork, lwork, shwork, workwork      # like the corresponding map variants
 any(a, f)                           # is any f(item) true

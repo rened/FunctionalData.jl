@@ -3,7 +3,8 @@ addprocs(3)
 @everywhere using FactCheck, FunctionalData, Compat
 FactCheck.setstyle(:compact)
 
-shouldtest(f, a) = length(ARGS) == 0 || in(a, ARGS) ? facts(f, a) : nothing
+
+shouldtest(f, a) = length(ARGS) == 0 || a == ARGS[1] ? facts(f, a) : nothing
 shouldtestcontext(f, a) = length(ARGS) < 2 || a == ARGS[2] ? facts(f, a) : nothing
 
 shouldtest("exports") do
@@ -431,7 +432,7 @@ shouldtest("dataflow") do
     shouldtestcontext("reshape") do
         @fact size(reshape(rand(9)))  =>  (3,3)
     end
-    context("rowcol") do
+    shouldtestcontext("rowcol") do
         @fact row(1)  =>  ones(Int, 1, 1)
         @fact row([1,2,3])  =>  [1 2 3]
         @fact row(1,2,3)    =>  [1 2 3]
@@ -439,7 +440,7 @@ shouldtest("dataflow") do
         @fact col([1,2,3])  =>  [1 2 3]'
         @fact col(1,2,3)    =>  [1 2 3]'
     end
-    context("stack") do
+    shouldtestcontext("stack") do
         @fact stack(Any[1,2]) => [1 2]
         @fact stack(Any[[1 2],[3 4]]) => cat(3,[1 2], [3 4])
         @fact stack(Any[zeros(2,3,4),ones(2,3,4)]) => cat(4,zeros(2,3,4),ones(2,3,4))
@@ -459,14 +460,14 @@ shouldtest("dataflow") do
         @fact flatten(Any["a","b","c"]) => "abc"
         @fact flatten(Any["a" "b" "c"]) => "abc"
     end
-    context("unstack") do
+    shouldtestcontext("unstack") do
         @fact unstack(cat(3,[1 2],[2 3])) => Any[[1 2],[2 3]]
         @fact unstack(stack(Any[[1 2],[2 3]])) => Any[[1 2],[2 3]]
         @fact unstack(stack(Any[zeros(2,3,4),ones(2,3,4)])) => Any[zeros(2,3,4),ones(2,3,4)]
         @fact unstack([1 2 3; 4 5 6]) => Any[col([1,4]), col([2,5]), col([3,6])]
         @fact unstack((1,2,3)) => Any[1,2,3]
     end
-    context("riffle") do
+    shouldtestcontext("riffle") do
         @fact riffle([1:3],0) => [1,0,2,0,3]
         @fact riffle(1,0) => 1
         @fact riffle([1 2 3; 4 5 6],zeros(2,1)) => [1 0 2 0 3; 4 0 5 0 6]
@@ -482,11 +483,11 @@ shouldtest("dataflow") do
         @fact size(matrix(zeros(2,3,4))) => 6,4
         @fact unmatrix(matrix(a),a)  =>  a
     end
-    context("lines") do
+    shouldtestcontext("lines") do
         @fact lines("line1\nline2\r\nline3") => ["line1","line2","line3"]
         @fact unlines(lines("line1\nline2\r\nline3")) => "line1\nline2\nline3"
     end
-    context("findsub") do
+    shouldtestcontext("findsub") do
         a = [0 1 -1; 1 0 0]
         @fact findsub(a)  =>  [2 1 1; 1 2 3]
     end
@@ -497,6 +498,11 @@ shouldtest("dataflow") do
         @fact size(randsample(1:10,5))  =>  (5,)
         @fact size(randsample(rand(2,10),20))  =>  (2,20)
         @fact randsample("aaa",5)  =>  "aaaaa"
+    end
+    shouldtestcontext("flip") do
+        @fact flip([])  =>  []
+        @fact flip("abc")  =>  "cba"
+        @fact flip(1:10)  =>  10:-1:1
     end
 end
 
