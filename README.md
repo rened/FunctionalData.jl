@@ -105,7 +105,7 @@ For each of these variants there are optimized functions available for in-place 
 * sped up `matrix`
 * added map2, map3, map4, map5
 * fixed unzip
-* added flip
+* added flip, flipdims
 
 #### 0.0.4
 
@@ -180,6 +180,7 @@ findsub(a)                          # return sub for the non-zero entries
 randsample(a, n)                    # draw n items from a with repetition
 randperm(a)                         # randomly permute order of items
 flip(a)                             # reverse the order of items
+flipdims(a,d1,d2)                   # flip dims d1 and d2
 ```
 
 ###### Pipeline Syntax [[details]](doc/pipeline.md)

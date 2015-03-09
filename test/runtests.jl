@@ -504,6 +504,11 @@ shouldtest("dataflow") do
         @fact flip("abc")  =>  "cba"
         @fact flip(1:10)  =>  10:-1:1
     end
+    shouldtestcontext("flipdims") do
+        @fact size(flipdims(rand(2,3,4),1,1))  =>  (2,3,4)
+        @fact size(flipdims(rand(2,3,4),1,3))  =>  (4,3,2)
+        @fact size(flipdims(rand(2,3,4),2,1))  =>  (3,2,4)
+    end
 end
 
 shouldtest("unzip") do
