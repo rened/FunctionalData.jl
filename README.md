@@ -106,6 +106,7 @@ For each of these variants there are optimized functions available for in-place 
 * added map2, map3, map4, map5
 * fixed unzip
 * added flip, flipdims
+* added extract, removed @getfield
 
 #### 0.0.4
 
@@ -153,8 +154,7 @@ drop(a,n)                           # a, except for the first n elements
 droplast(a,n)                       # a, except for the last n elements
 partition(a, n)                     # partition into n parts
 partsoflen(a, n)                    # partition into parts of length n
-extract(a, field, default)          # 
-@getfield(a, x)                     # get key x of dict or field x of composite type instance
+extract(a, field, default)          # get key x of dict or field x of composite type instance
 ```
 
 ###### Data Layout [[details]](doc/dataflow.md)

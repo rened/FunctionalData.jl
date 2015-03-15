@@ -8,6 +8,7 @@ export hmap, hmap!, hmap!r, hmap2!, hwork
 export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
 export sort, sortrev, unique
 export tee
+export *
 
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
@@ -275,7 +276,7 @@ end
 function pmapon(f, lsts...; err_retry=true, err_stop=false, pids = workers())
     len = length(lsts)
     results = Dict{Int,Any}()
-    retryqueue = []
+    retryqueue = Any[]
     task_in_err = false
     is_task_in_error() = task_in_err
     set_task_in_error() = (task_in_err = true)
@@ -405,3 +406,6 @@ function table_internal(mapf, f, args...; flat = true)
 end
 
 tee(a,f) = (f(a);a)
+
+import Base.*
+*(f::Function, g::Function) = h(a...) = f(g(a...))

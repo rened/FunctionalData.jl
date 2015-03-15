@@ -106,6 +106,11 @@ shouldtest("lensize") do
 end
 
 shouldtest("basics") do
+    shouldtestcontext("arraylike") do
+        @fact size(FunctionalData.arraylike([1],2)) => (1,2)
+        @fact size(FunctionalData.arraylike([1 2],2)) => (1,2,2)
+        @fact size(FunctionalData.arraylike(1,2)) => (1,2)
+    end
     shouldtestcontext("ones") do
         @fact onessiz([2 3 4]') => ones(2,3,4)
         @fact zerossiz([2 3 4]') => zeros(2,3,4)
@@ -129,6 +134,11 @@ shouldtest("basics") do
         @fact repeat([1],3) => [1 1 1]
         @fact repeat([1;2],3) => [1 1 1; 2 2 2]
     end
+end
+
+type _somedummytype
+  a
+  b
 end
 
 shouldtest("accessors") do
@@ -271,28 +281,17 @@ shouldtest("accessors") do
         @fact partsoflen(1:4,2)  =>  Any[1:2, 3:4]
         @fact partsoflen(1:4,3)  =>  Any[1:3, 4:4]
     end
+    shouldtestcontext("extract") do
+        @fact extract(_somedummytype(1,2), :a)  =>  1
+        @fact extract(_somedummytype(1,2), :b)  =>  2
+        @fact extract({_somedummytype(1,2), _somedummytype(3,4)}, :b)  =>  [2,4]
+        d1 = @compat Dict(:a => 1)
+        d2 = @compat Dict(:b => 2)
+        @fact extract(d1, :a)  =>  1
+        @fact extract(d1, :b)  =>  nothing
+        @fact extract({d1,d2}, :a, 10)  =>  [1, 10]
+    end
 end
-
-type _somedummytype
-  a
-  b
-end
-
-shouldtest("getfield") do
-    @fact extract([_somedummytype(1,2)],:a) => [1]
-    @fact extract([_somedummytype(1,2)],:b) => [2]
-    a = _somedummytype(1,2)
-    @fact (@getfield(a,a)) => 1
-    @fact (@getfield(a,b)) => 2
-end
-
-
-shouldtest("arraylike") do
-    @fact size(FunctionalData.arraylike([1],2)) => (1,2)
-    @fact size(FunctionalData.arraylike([1 2],2)) => (1,2,2)
-    @fact size(FunctionalData.arraylike(1,2)) => (1,2)
-end
-
 
 shouldtest("computing") do
     shouldtestcontext("sort") do
@@ -425,6 +424,11 @@ shouldtest("computing") do
         c = @p tee 1 pushadd 10
         @fact b  =>  [11]
         @fact c  =>  1
+    end
+    shouldtestcontext("*") do
+        @fact (sum*abs)([-1,0,1])  =>  2
+        @fact (join*split)("a b c")  =>  "abc"
+        @fact (last*join*split)("a b c")  =>  'c'
     end
 end
 

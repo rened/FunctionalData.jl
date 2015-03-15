@@ -1,4 +1,4 @@
-export at, setat!, fst, snd, third, last, @getfield
+export at, setat!, fst, snd, third, last
 export part, trimmedpart, take, takelast, drop, droplast, partition, partsoflen
 export getindex
 export extract
@@ -44,10 +44,6 @@ import Base.last
 @compat @inline last(a::Union(AbstractArray,String)) = at(a,len(a))
 @compat @inline last(a::Union(AbstractArray,String), n) = trimmedpart(a,(-n+1:0)+len(a))
 
-macro getfield(t,f)
-    esc(:($t.$f))
-end
-
 #######################################
 ##  part
 
@@ -88,19 +84,10 @@ function partsoflen(a,n)
     [part(a, indices[1:end-1]...,ceil(i):floor(min(s,i+n-1))) for i in 1:n:s]
 end
 
-extract(a, x) = extract(a, x, nothing)
-function extract(a, x, default)
-  r = cell(size(a))
-  if isa(a[1], Dict)
-    for i = 1:length(r)
-      r[i] = haskey(a[i], x) ? a[i][x] : default
-    end
-    return r
-  end
-  assert(isa(x,Symbol))
-  for i = 1:length(r)
-      r[i] = @getfield(a[i],$x)
-  end
-  return r
-end
+extract(a::Array, x::Any, default = nothing) = map(a, y->extract(y, x, default))
+extract(a::Array, x::Symbol, default = nothing) = map(a, y->extract(y, x, default))
+extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)
+extract(a::Dict, x, default = nothing) = get(a, x, default)
+extract(a, x::Symbol, default = nothing) = a.(x)
+
 
