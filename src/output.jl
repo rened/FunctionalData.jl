@@ -6,7 +6,7 @@ function showinfo(io::IO, a, comment::String = "")
     v(a) = vec(a)
     s(a::String) = length(a)
     s(a) = size(a)
-    med(a::String) = @p map a uint8 | median | round Integer _ | char
+    med(a::String) = @p map a uint8 | median | round Int _ | char
     med(a) = median(a)
     if isa(a, Union(Number, Array, SharedArray, String))
         print( isempty(comment) ? "--  " : comment*"  --  ")

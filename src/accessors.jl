@@ -59,8 +59,8 @@ part{T<:Real}(a,i::DenseArray{T,2}) = map(i, x->at(a,x))
 trimmedpart(a, i::UnitRange) = part(a, max(1, minimum(i)):min(len(a),maximum(i)))
 
 import Base.take
-take(a::Union(Array, UnitRange, String), n::Int64) = part(a, 1:min(n, len(a)))
-takelast(a, n::Integer) = part(a, max(1,len(a)-n+1):len(a))
+take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
+takelast(a, n::Int) = part(a, max(1,len(a)-n+1):len(a))
 
 drop(a,i) = part(a,i+1:len(a))
 

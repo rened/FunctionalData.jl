@@ -112,18 +112,19 @@ function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
     a
 end
  
-work(a,f::Function) = (for i in 1:len(a) f(at(a,i)) end; nothing)
+work(a,f::Function) = for i in 1:len(a) f(at(a,i)) end
 function work{T<:Real,N}(a::DenseArray{T,N},f::Function)
+    len(a)==0 && return
     v = view(a,1)
     for i = 1:len(a)
         f(v) 
         next!(v)
     end
 end
-lwork(a, f) = (g(x) = (f(x);uint8(0)); lwork(a, g); nothing)
-pwork(a, f) = (g(x) = (f(x);uint8(0)); pwork(a, g); nothing)
-shwork(a, f) = (g(x) = (f(x);uint8(0)); shwork(a, g); nothing)
-workwork(a, f) = (g(x) = (f(x);uint8(0)); workwork(a, g); nothing)
+lwork(a, f) = (g(x) = (f(x);uint8(0)); lmap(a, g); nothing)
+pwork(a, f) = (g(x) = (f(x);uint8(0)); pmap(a, g); nothing)
+shwork(a, f) = (g(x) = (f(x);uint8(0)); shmap(a, g); nothing)
+workwork(a, f) = (g(x) = (f(x);uint8(0)); mapmap(a, g); nothing)
  
 share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a

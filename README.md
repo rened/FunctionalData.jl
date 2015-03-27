@@ -97,7 +97,7 @@ For each of these variants there are optimized functions available for in-place 
 
 ## News
 
-#### master
+#### 0.0.6
 
 * added `localworkers` and `hostpids`
 * added `hmap` and variants, which map tasks to the first pid of each machine
@@ -107,10 +107,6 @@ For each of these variants there are optimized functions available for in-place 
 * fixed unzip
 * added flip, flipdims
 * added extract, removed @getfield
-
-#### 0.0.4
-
-* fixed bug in partition function
 
 ## Documentation
 

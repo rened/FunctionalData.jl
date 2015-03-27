@@ -71,10 +71,12 @@ end
 #######################################
 ## subtoind, indtosub
 
-function subtoind(subs,a)
+function subtoind(subs, a)
     strides_ = strides(a)
-    r = 1;
-    [r += (subs[i]-1)*at(strides_,i) for i in 1:length(strides_)]
+    r = oneel(subs)
+    for i in 1:length(strides_)
+        r +=(subs[i]-1) * strides_[i]
+    end
     return r
 end
 
@@ -107,6 +109,7 @@ function flatten{T<:StringLike}(a::Array{T,2})
     join(vec(a))
 end
 
+flatten{T<:Real,N}(a::AbstractArray{T,N}) = a
 function flatten{T}(a::Array{T,1})
     if isempty(a)
         return arraylike(a)
@@ -258,7 +261,7 @@ _randperm = randperm
 randperm(a::Number) = _randperm(a)
 randperm(a) = part(a, randperm(len(a)))
 
-randsample(a, n) = part(a, rand(1:len(a), int(n)))
+randsample(a, n = 1) = part(a, rand(1:len(a), int(n)))
 
 flip(a) = part(a, len(a):-1:1)
 function flipdims(a,d1,d2)

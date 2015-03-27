@@ -497,6 +497,11 @@ shouldtest("dataflow") do
     end
     shouldtestcontext("subtoind") do
         @fact subtoind([1 1]', rand(2,3)) => 1
+        @fact subtoind([2 3]', rand(2,3)) => 6
+        @fact subtoind([1 2]', rand(2,3)) => 3
+        @fact subtoind([1 1 1]', rand(2,3,4)) => 1
+        @fact subtoind([2 3 4]', rand(2,3,4)) => 24
+        @fact subtoind([1 1 2]', rand(2,3,4)) => 7
     end
     shouldtestcontext("randsample") do
         @fact size(randsample(1:10,5))  =>  (5,)
