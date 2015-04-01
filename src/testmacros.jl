@@ -1,12 +1,17 @@
 export @test_equal, @assert_equal,  @test_almostequal
 
 function test_equal(a, b, doassert = false)
-        if isequal(a,b) && isequal(typeof(a), typeof(b)) return end
-        local sizea = siz(a)
-        local sizeb = siz(b)
-        local sizesEqual = isequal(sizea,sizeb)
-        local contentEqual = true
-        if sizesEqual 
+    if isequal(a,b) && isequal(typeof(a), typeof(b)) return end
+    local sizea = ()
+    try sizea = siz(a) end
+    local sizeb = ()
+    try sizeb = siz(b) end
+    local sizesEqual = isequal(sizea,sizeb)
+    local contentEqual = true
+    if sizesEqual 
+        if sizea == sizeb == ()
+            contentEqual = a == b
+        else
             for i = 1:length(a)
                 if a[i] != b[i]
                     println("typeof a[i] is $(typeof(a[i]))")
@@ -16,17 +21,21 @@ function test_equal(a, b, doassert = false)
                 end
             end
         end
-        if !sizesEqual || !contentEqual
-            println("########### Failed test: $(!sizesEqual ? : "size mismatch, " : "")$(!contentEqual ? "content mismatch" : "")")
-            # println(a)
-            println("\nShould have been: $b") 
-            #println($(esc(b)))
-            println("of size $(sizeb') \nof type $(typeof(b))")
-            println("\nwas $a")
-            #println($(esc(a)))
-            println("of size $(sizea') \nof type $(typeof(a))\n")
-            doassert && error("@assert_equal: test failed")
-        end
+    end
+    if !sizesEqual || !contentEqual
+        println("########### Failed test: $(!sizesEqual ? : "size mismatch, " : "")$(!contentEqual ? "content mismatch" : "")")
+        # println(a)
+        println("\nShould have been: $b") 
+        #println($(esc(b)))
+        println("of size $(sizeb') \nof type $(typeof(b))")
+        println("\nwas $a")
+        #println($(esc(a)))
+        println("of size $(sizea') \nof type $(typeof(a))\n")
+        doassert && error("@assert_equal: test failed")
+        return false
+    else
+        return true
+    end
 end
 
 macro test_equal(A,B)

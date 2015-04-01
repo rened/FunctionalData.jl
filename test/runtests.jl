@@ -131,8 +131,8 @@ shouldtest("basics") do
         @fact repeat("a",1) => "a"
         @fact repeat("a",3) => "aaa"
         @fact repeat(1,3)  => [1 1 1]
-        @fact repeat([1],3) => [1 1 1]
-        @fact repeat([1;2],3) => [1 1 1; 2 2 2]
+        @fact repeat([1],3) => [1,1,1]
+        @fact repeat([1 2]',3) => [1 1 1; 2 2 2]
     end
 end
 

@@ -9,9 +9,11 @@ export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtablean
 export sort, sortrev, unique
 export tee
 export *
+export typed
 
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
+sortrev(a) = sort(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
 
 import Base.unique
@@ -410,3 +412,6 @@ tee(a,f) = (f(a);a)
 
 import Base.*
 *(f::Function, g::Function) = h(a...) = f(g(a...))
+
+typed(a) = typeof(a[1])[x for x in a]
+

@@ -97,6 +97,11 @@ For each of these variants there are optimized functions available for in-place 
 
 ## News
 
+#### master
+
+* fixed repeat for numeric arrays
+* made test_equal more robust
+
 #### 0.0.6
 
 * added `localworkers` and `hostpids`

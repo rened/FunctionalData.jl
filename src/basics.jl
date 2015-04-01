@@ -49,7 +49,7 @@ import Base.*
 
 import Base.repeat
 repeat(a::Char,n::Int) = repeat(string(a), n)
-repeat(a, n) = flatten(map(1:n, x->a))
+repeat(a, n) = flatten(map(unstack(1:n), x->a))
 
 nop(a...) = return
 id(a) = a
