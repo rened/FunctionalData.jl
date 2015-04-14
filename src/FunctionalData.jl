@@ -1,6 +1,8 @@
 module FunctionalData
 using Compat
 
+assert(VERSION.minor == 3 || VERSION >= v"0.4.0-dev+4247")
+
 include("lensize.jl")
 include("accessors.jl")
 include("views.jl")
