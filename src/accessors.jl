@@ -1,5 +1,5 @@
 export at, setat!, fst, snd, third, last
-export part, trimmedpart, take, takelast, drop, droplast, partition, partsoflen
+export part, rowpart, trimmedpart, take, takelast, drop, droplast, partition, partsoflen
 export getindex
 export extract
 
@@ -56,11 +56,13 @@ part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
 part{T}(a::Dict, i::AbstractArray{T,1}) = Base.map(x->at(a,x),i)
 part{T<:Real}(a,i::DenseArray{T,2}) = map(i, x->at(a,x))
 
+rowpart(a::Matrix, i) = a[i, :]
+
 trimmedpart(a, i::UnitRange) = part(a, max(1, minimum(i)):min(len(a),maximum(i)))
 
 import Base.take
 take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
-takelast(a, n::Int) = part(a, max(1,len(a)-n+1):len(a))
+takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 
 drop(a,i) = part(a,i+1:len(a))
 
@@ -69,7 +71,7 @@ droplast(a,i) = part(a,1:max(1,len(a)-i))
 
 function partition(a,n) 
     n = min(n, len(a))
-    ind = int(linspace(1, len(a)+1, n+1))
+    ind = round(Int, linspace(1, len(a)+1, n+1))
     r = cell(n)
     for i = 1:n
         r[i] = part(a, ind[i]:ind[i+1]-1)
@@ -77,13 +79,11 @@ function partition(a,n)
     r
 end
 
-function partsoflen(a,n) 
-    s = size(a,ndims(a))
-
-    indices = Any[Base.map(x->1:x, size(a))...]
-    [part(a, indices[1:end-1]...,ceil(i):floor(min(s,i+n-1))) for i in 1:n:s]
+function partsoflen(a,n::Int)
+    s = len(a)
+    [part(a, i:floor(min(s,i+n-1))) for i in 1:n:s]
 end
-
+            
 extract(a::Array, x::Any, default = nothing) = map(a, y->extract(y, x, default))
 extract(a::Array, x::Symbol, default = nothing) = map(a, y->extract(y, x, default))
 extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)

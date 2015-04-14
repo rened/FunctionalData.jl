@@ -15,7 +15,7 @@ shouldtest("exports") do
 end   
 
 function checkcodeexamples(filename)
-    absname = Pkg.dir("FunctionalData")*"/doc/"*filename
+    absname = @p functionloc shouldtest | fst | dirname | joinpath "../doc/"*filename
     mdlines = @p read absname | lines
 
     startasserts = true
@@ -63,8 +63,8 @@ end
 
 shouldtest("views") do
     a = [1,2,3]
-    @fact view(a,1)  =>  row([1])
-    @fact view(a,3)  =>  row([3])
+    @fact view(a,1)  =>  [1]
+    @fact view(a,3)  =>  [3]
     a = [1 2 3]
     @fact view(a,1)  =>  row([1])
     @fact view(a,3)  =>  row([3])
@@ -109,7 +109,7 @@ shouldtest("basics") do
     shouldtestcontext("arraylike") do
         @fact size(FunctionalData.arraylike([1],2)) => (1,2)
         @fact size(FunctionalData.arraylike([1 2],2)) => (1,2,2)
-        @fact size(FunctionalData.arraylike(1,2)) => (1,2)
+        @fact size(FunctionalData.arraylike(1,2)) => (2,)
     end
     shouldtestcontext("ones") do
         @fact onessiz([2 3 4]') => ones(2,3,4)
@@ -130,7 +130,7 @@ shouldtest("basics") do
         @fact repeat("a",0) => ""
         @fact repeat("a",1) => "a"
         @fact repeat("a",3) => "aaa"
-        @fact repeat(1,3)  => [1 1 1]
+        @fact repeat(1,3)  => [1,1,1]
         @fact repeat([1],3) => [1,1,1]
         @fact repeat([1 2]',3) => [1 1 1; 2 2 2]
     end
@@ -204,14 +204,14 @@ shouldtest("accessors") do
         @fact part([1 2 3],[1,3]) => slicedim([1 2 3],2,[1,3])
         @fact part([1;2;3],[1,3]) => [1;3]
         @fact part([1 2 3; 4 5 6],[1,3]) => [1 3;4 6]
-        @fact part([1 2 3; 4 5 6],[1 2; 3 2]) => [3 5]
+        @fact part([1 2 3; 4 5 6],[1 2; 3 2]) => [3,5]
     end
 
     shouldtestcontext("trimmedpart") do
-        @fact trimmedpart([1:10], -1:3) => [1,2,3]
-        @fact trimmedpart([1:10], 1:3) => [1,2,3]
-        @fact trimmedpart([1:10], 8:13) => [8,9,10]
-        @fact trimmedpart([1:10], 13:15) => []
+        @fact trimmedpart(collect(1:10), -1:3) => [1,2,3]
+        @fact trimmedpart(collect(1:10), 1:3) => [1,2,3]
+        @fact trimmedpart(collect(1:10), 8:13) => [8,9,10]
+        @fact trimmedpart(collect(1:10), 13:15) => []
     end
 
     shouldtestcontext("fst") do
@@ -284,7 +284,7 @@ shouldtest("accessors") do
     shouldtestcontext("extract") do
         @fact extract(_somedummytype(1,2), :a)  =>  1
         @fact extract(_somedummytype(1,2), :b)  =>  2
-        @fact extract({_somedummytype(1,2), _somedummytype(3,4)}, :b)  =>  [2,4]
+        @fact extract([_somedummytype(1,2), _somedummytype(3,4)], :b)  =>  [2,4]
         d1 = @compat Dict(:a => 1)
         d2 = @compat Dict(:b => 2)
         @fact extract(d1, :a)  =>  1
@@ -299,9 +299,15 @@ shouldtest("computing") do
         @fact FunctionalData.sort([1 2 3], id) => [1 2 3]
         @fact FunctionalData.sort([1,2,3], x->-x) => [3,2,1]
         @fact FunctionalData.sort([1 2 3], x->-x) => [3 2 1]
-        @fact FunctionalData.sort("dcba", int) => "abcd"
-        @fact FunctionalData.sort("dcba", int; rev = true) => "dcba"
-        @fact FunctionalData.sortrev("dcba", int) => "dcba"
+        @fact FunctionalData.sort("dcba", x->convert(Int,x)) => "abcd"
+        @fact FunctionalData.sort("dcba", x->convert(Int,x); rev = true) => "dcba"
+        @fact FunctionalData.sortrev("dcba", x->convert(Int,x)) => "dcba"
+    end
+    shouldtestcontext("filter") do
+        @fact filter([1,2,3],x->isodd(x)) => [1,3]
+        @fact filter([1,2,3],x->iseven(x)) => [2]
+        @fact (@p filter Any[1,2,3] unequal 3) => [1,2]
+        @fact (@p filter [1,2,3] unequal 3) => [1,2]
     end
     shouldtestcontext("unique") do
         @fact sort(unique([1 2 3], id),id)  =>  [1 2 3]
@@ -312,16 +318,17 @@ shouldtest("computing") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) =>   [2 2 2]
         @fact map([1 2 3; 4 5 6], x->Any[size(x,1)]) =>   Any[2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) => [2 2 2; 2 2 2]
-        @fact map([1 2 3; 4 5 6], x->[size(x,1),size(x,1)]) => [2 2 2; 2 2 2]
+        @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) => [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) => cat(3,[2 2],[2 2],[2 2])
-        d = @compat Dict("a" => 1, :b => 2)
-        @fact map(d, x -> x*10) => @compat Dict("a" => 10, :b => 20)
+        @fact map((@compat Dict(1 => 2)), (k,v) -> (k, 10*v)) => @compat Dict(1 => 20)
+        VERSION.minor == 3 && @fact map((@compat Dict(1 => 2)), (k,v) -> [(k,v); (10*k, 10*v)]) => @compat Dict(1 => 2, 10 => 20)
+        @fact map((@compat Dict(1 => 2)), (k,v) -> nothing) => @compat Dict()
     end
     shouldtestcontext("map2") do
-        @fact map2(1:3,10:12, (+))  =>  [11,13,15]
+        @fact map2(1:3, 10:12, (+))  =>  [11,13,15]
     end
     shouldtestcontext("mapmap") do
-        @fact mapmap([[1 2], [3 4]], x -> x+1)  =>  [[2 3], [4 5]]
+        @fact mapmap([[1 2]; [3 4]], x -> x+1)  =>  [[2 3], [4 5]]
     end
     shouldtestcontext("map!") do
         f(x) = x*2
@@ -345,46 +352,46 @@ shouldtest("computing") do
         @fact r => 2*vcat(a,a)
     end
     shouldtestcontext("shmap") do
-        a = row([1:3])
+        a = row(collect(1:3))
         r = shmap(a, x->x+1)
         @fact r => a + 1
-        a = rand(10,int(1e3))
+        a = rand(10,round(Int,1e3))
         r = shmap(a, x->x+1)
         @fact r => a+1
     end
     shouldtestcontext("shmap!") do
-        a = share(row([1:3]))
+        a = share(row(collect(1:3)))
         orig = copy(a)
         shmap!(a, x->x[:] = x+1)
         @fact a => orig + 1
-        a = share(rand(10,int(1e3)))
+        a = share(rand(10,round(Int,1e3)))
         orig = copy(a)
         shmap!(a, x->x[:] = x+1)
         @fact a => orig + 1
     end
     shouldtestcontext("shmap!r") do
-        a = share(row([1:3]))
+        a = share(row(collect(1:3)))
         orig = copy(a)
         shmap!r(a, x-> x+1)
         @fact a => orig + 1
-        # a = share(rand(10,int(1e3)))
+        # a = share(rand(10,round(Int,1e3)))
         # orig = copy(a)
         # shmap!r(a, x-> x+1)
         # @fact a => orig + 1
     end
     shouldtestcontext("shmap2!") do
-        a = row([1:3])
+        a = row(collect(1:3))
         r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
         @fact r => a + 1
         r = shzerossiz(siz(a))
         shmap2!(a, r, (r,x)->r[:] = x+1)
         @fact r => a + 1
-        a = rand(10,int(1e3))
+        a = rand(10,round(Int,1e3))
         r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
         @fact r => a + 1
     end
     shouldtestcontext("pmap") do
-        a = row([1:3])
+        a = row(collect(1:3))
         r = pmap(a, x->x+1)
         @fact r => a + 1
         a = rand(2,10)
@@ -392,7 +399,7 @@ shouldtest("computing") do
         @fact r => a+1
     end
     shouldtestcontext("lmap") do
-        a = row([1:3])
+        a = row(collect(1:3))
         r = lmap(a, x->x+1)
         @fact r => a + 1
         a = rand(2,10)
@@ -445,7 +452,7 @@ shouldtest("dataflow") do
         @fact col(1,2,3)    =>  [1 2 3]'
     end
     shouldtestcontext("stack") do
-        @fact stack(Any[1,2]) => [1 2]
+        @fact stack(Any[1,2]) => [1,2]
         @fact stack(Any[[1 2],[3 4]]) => cat(3,[1 2], [3 4])
         @fact stack(Any[zeros(2,3,4),ones(2,3,4)]) => cat(4,zeros(2,3,4),ones(2,3,4))
     end
@@ -463,6 +470,16 @@ shouldtest("dataflow") do
         @fact flatten(["a" "b" "c"]) => "abc"
         @fact flatten(Any["a","b","c"]) => "abc"
         @fact flatten(Any["a" "b" "c"]) => "abc"
+    end
+    shouldtestcontext("concat") do
+        @fact concat([1,2]) => [1,2]
+        @fact concat([[1,2];]) => [1,2]
+        @fact concat([[1,2];3]) => [1,2,3]
+        VERSION.minor == 3 && begin  # to avoid false 0.4 deprecation warnings
+            @fact concat([[1,2];3],4) => [1,2,3,4]
+            @fact concat([[1,2],3],[4,5]) => [1,2,3,4,5]
+            @fact concat([[[1,2],3];[4,5]]) => [1,2,3,4,5]
+        end
     end
     shouldtestcontext("unstack") do
         @fact unstack(cat(3,[1 2],[2 3])) => Any[[1 2],[2 3]]
@@ -543,13 +560,13 @@ shouldtest("pipeline") do
         @fact (@p map [1 2 3] minus 1)  =>  [0 1 2]
 
         x = @p linspace 1 5 5 | map add 1
-        @fact x  =>  [2 3 4 5 6]
+        @fact x  =>  [2,3,4,5,6]
 
         x = @p add (1:5) 1 | map add 1 | map minus 1
-        @fact x  =>  [2 3 4 5 6]
+        @fact x  =>  [2,3,4,5,6]
 
         x = @p map (1:5) add 1 
-        @fact x  =>  [2 3 4 5 6]
+        @fact x  =>  [2,3,4,5,6]
 
         x = @p id [1] | map _ (x->x+_+_+_)
         @fact x  =>  row([4])

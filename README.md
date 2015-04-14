@@ -97,10 +97,15 @@ For each of these variants there are optimized functions available for in-place 
 
 ## News
 
-#### master
+#### 0.0.7
 
 * fixed repeat for numeric arrays
 * made test_equal more robust
+* reworked map and view for Array{T,1} / scalar return values
+* fix partsoflen, concat
+* add takelast(a), unequal, sortpermrev, filter
+* fix map for Dict
+
 
 #### 0.0.6
 
@@ -150,9 +155,9 @@ last(a)                             # last item
 part(a, ind)                        # items at indices ind
 trimmedpart(a, ind)                 # items at ind, no error if a is too short
 take(a, n)                          # the first up to n elements
-takelast(a, n)                      # the last up to elements
+takelast(a,n=1)                     # the last up to elements
 drop(a,n)                           # a, except for the first n elements
-droplast(a,n)                       # a, except for the last n elements
+droplast(a,n=1)                     # a, except for the last n elements
 partition(a, n)                     # partition into n parts
 partsoflen(a, n)                    # partition into parts of length n
 extract(a, field, default)          # get key x of dict or field x of composite type instance
@@ -223,6 +228,7 @@ any(a, f)                           # is any f(item) true
 anyequal(a, x)                      # is any item == x
 all(a, f)                           # are all f(item) true
 allequal(a, x)                      # are all items == x
+unequal(a,b)                        # shortcut for !isequal(a,b)
 sort(a, f; kargs...)                # sort a accorting to f(item)
 table(f, a...)                      # like [f(m,n) for m in a[1], n in a[2]], for any length of a
 ptable, ltable                      # parallel table using all workers, local workes

@@ -10,19 +10,21 @@ view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
 
 function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
     s = size(a)
-    if length(s)>2
+    if length(s) > 2
         s = s[1:end-1]
-    elseif length(s)==2
+    elseif length(s) == 2
         s = (s[1],1)
     else
-        s = (1, 1)
+        s = (1,)
     end
     view!(a, i, convert(View, pointer_to_array(pointer(a), s)))
 end
 
+const offset = VERSION.minor == 4 ? 1 : 2
+
 function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
     p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-    unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), 2)
+    unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
     v
 end
 
@@ -35,8 +37,8 @@ end
 
 @compat @inline function next!{T}(v::View{T})
     p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-    datap = unsafe_load(p, 2)
-    unsafe_store!(p, datap + length(v) * sizeof(T), 2)
+    datap = unsafe_load(p, offset)
+    unsafe_store!(p, datap + length(v) * sizeof(T), offset)
     v
 end
 

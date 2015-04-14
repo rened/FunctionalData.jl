@@ -4,7 +4,7 @@ export shzerossiz, shonessiz, shrandsiz, shrandnsiz
 export zeroel, oneel
 export +, *, repeat, nop, id,  istrue, isfalse, not, or, and, @dict
 export plus, minus, times, divby
-export any, anyequal, all, allequal
+export any, anyequal, all, allequal, unequal
 
 #######################################
 ##  zerossiz, onessiz, randsiz, randnsiz
@@ -82,7 +82,7 @@ function any(a::AbstractArray, f::Function)
     return false
 end
 
-anyequal(a::AbstractArray, x) = return any(a, y -> y == x)
+anyequal(a::AbstractArray, x) = return any(a, y -> isequal(y, x))
 
 import Base.all
 function all(a::AbstractArray, f::Function)
@@ -95,13 +95,14 @@ function all(a::AbstractArray, f::Function)
     return true
 end
 
-allequal(a::AbstractArray, x) = all(a, y -> y == x)
+allequal(a::AbstractArray, x) = all(a, y -> isequal(y, x))
 
 
 #######################################
 ##  internal data management
 
-function newarraysize(a,n)
+newarraysize(a::Number,n::Int) = (n,)
+function newarraysize(a,n::Int)
     s = siz(a)
     if s[end] == 1
         s = s[1:end-1]
@@ -131,4 +132,4 @@ plus(a,b) = a.+b
 minus(a,b) = a.-b
 times(a,b) = a.*b
 divby(a,b) = a./b
-
+unequal(a,b) = !(isequal(a,b))

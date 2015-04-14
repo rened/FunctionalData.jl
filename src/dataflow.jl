@@ -30,9 +30,9 @@ function reshape(a::AbstractArray)
     r2 = sqrt(length(a))
     r3 = cbrt(length(a))
     if round(r2)==r2
-        return Base.reshape(a, int(r2), int(r2))
+        return Base.reshape(a, round(Int,r2), round(Int,r2))
     elseif round(r3)==r3
-        return Base.reshape(a, int(r3), int(r3), int(r3))
+        return Base.reshape(a, round(Int,r3), round(Int,r3), round(Int,r3))
     else
         error("cannot reshape array of size $(size(a)) to a square or cube")
     end
@@ -59,14 +59,8 @@ function split(a::AbstractArray,f::Function)
     return r
 end
 
-function concat(a...) 
-    try
-        flatten(Any[a...])
-    catch
-        Any[a...]
-    end
-end
-
+concat(a) = flatten([a...])
+concat(a...) = @p map [a...] concat | concat
 
 #######################################
 ## subtoind, indtosub
@@ -112,7 +106,7 @@ end
 flatten{T<:Real,N}(a::AbstractArray{T,N}) = a
 function flatten{T}(a::Array{T,1})
     if isempty(a)
-        return arraylike(a)
+        return similar(a)
     end
     if isa(a[1], StringLike)
         return join(map(a,tostring))
@@ -261,11 +255,11 @@ _randperm = randperm
 randperm(a::Number) = _randperm(a)
 randperm(a) = part(a, randperm(len(a)))
 
-randsample(a, n = 1) = part(a, rand(1:len(a), int(n)))
+randsample(a, n = 1) = part(a, rand(1:len(a), round(Int,n)))
 
 flip(a) = part(a, len(a):-1:1)
 function flipdims(a,d1,d2)
-    dims = [1:ndims(a)]
+    dims = collect(1:ndims(a))
     dims[d1] = d2
     dims[d2] = d1
     permutedims(a, dims)

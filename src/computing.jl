@@ -1,12 +1,13 @@
 export map, map!, map!r, map2!, mapmap, work
 export map2, map3, map4, map5
+export mapprogress
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
 export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
 export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
-export sort, sortrev, unique
+export sort, sortrev, sortpermrev, unique, filter
 export tee
 export *
 export typed
@@ -14,6 +15,7 @@ export typed
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
 sortrev(a) = sort(a; rev = true)
+sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
 
 import Base.unique
@@ -29,8 +31,8 @@ map4(a, b, c, d, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:l
 map5(a, b, c, d, e_, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)]
 
 import Base.map
-map(a::String, f::Function) = flatten(map(unstack(a),f))
-function map{T,N}(a::AbstractArray{T,N}, f::Function)
+map(a::String, f::Function; kargs...) = flatten(map(unstack(a),f))
+function map{T,N}(a::AbstractArray{T,N}, f::Function; kargs...)
     isempty(a) && return Any[]
 
     r1 = f(fst(a))
@@ -48,11 +50,29 @@ end
     end
 end
 
-map(a::Dict, f::Function) = @compat Dict(Base.map((x) -> (x[1], f(x[2])), a))
+function map{T1<:Any,T2<:Any}(a::Dict{T1,T2}, f::Function; kargs...)
+    println("got here")
+    r = @p id map(x->f(x[1],x[2]),a) | filter unequal nothing | concat
+    @compat [fst(x) => snd(x) for x in r]
+end
+
 function mapmap(a, f)
     isempty(a) && return Any[]
     g = x -> map(x,f)
     map(a, g)
+end
+
+function map{T<:Real}(a::DenseArray{T,1},f::Function)
+    r1 = f(fst(a))
+    r = arraylike(r1, len(a), a)
+    rv = view(r,1)
+    rv[:] = r1
+    next!(rv)
+    for i = 2:len(a)
+        rv[:] = f(a[i]) 
+        next!(rv)
+    end
+    r
 end
 
 function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
@@ -265,13 +285,13 @@ function pmapparts(a, inds, n)
     end
 end
 
-function pmap_exec(g, a; kargs...)
+function pmap_exec(g, a; nworkers = typemax(Int), kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
     if VERSION.minor >= 4
-        r = Base.pmap(g, parts, pids = pids)
+        r = Base.pmap(g, parts, pids = take(pids, nworkers))
     else
-        r = pmapon(g, parts, pids = pids)
+        r = pmapon(g, parts, pids = take(pids, nworkers))
     end
     flatten(r)
 end
@@ -344,16 +364,16 @@ function pmap_internal2!(mapf::Function, a, f1::Function, f2::Function; kargs...
     pmap_exec(g, a; kargs...)
 end
 
-function pmap_internal2!(mapf::Function, a, r, f::Function; kargs...)
+function pmap_internal2!(mapf::Function, a, r, f::Function; nworkers = typemax(Int), kargs...)
     g(a) = mapf(fst(a), snd(a), f)
     pids, inds, n = pmapsetup(a; kargs...)
     partsa = pmapparts(a, inds, n)
     partsr = pmapparts(r, inds, n)
     parts = zip(partsa, partsr)
     if VERSION.minor >= 4
-        r = Base.pmap(g, parts, pids = pids)
+        r = Base.pmap(g, parts, pids = take(pids,nworkers))
     else
-        r = Base.pmap(g, parts)
+        r = Base.pmapon(g, parts, pids = take(pids,nworkers))
     end
     flatten(r)
 end
@@ -365,34 +385,34 @@ export hostpids
 hostpids() = @p map unstack(workers()) procs | map sort | unique | map x->x[1]==1 && len(x)>1 ? x[2] : x[1]
 
 export hmap, hmap!, hmap!r, hmap2!r
-hmap(a, f) = pmap_internal(mapper, a, f; pids = hostpids())
-hmap!(a, f) = pmap_internal(mapper!, a, f; pids = hostpids())
-hmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = hostpids())
-hmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = hostpids())
-hmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids())
+hmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = hostpids(), kargs...)
+hmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = hostpids(), kargs...)
+hmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = hostpids(), kargs...)
+hmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = hostpids(), kargs...)
+hmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids(), kargs...)
 
-lmap(a, f) = pmap_internal(mapper, a, f; pids = localworkers())
-lmap!(a, f) = pmap_internal(mapper!, a, f; pids = localworkers())
-lmap!r(a, f) = pmap_internal(mapper!r, a, f; pids = localworkers())
-lmap2!r(a, f1::Function, f2::Function) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers())
-lmap2!r(a, r, f::Function) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers())
+lmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = localworkers(), kargs...)
+lmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = localworkers(), kargs...)
+lmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = localworkers(), kargs...)
+lmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
+lmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers(), kargs...)
 
-table(f, a...) = table_internal(map, f, a...; flat = true)
-ptable(f, a...) = table_internal(pmap, f, a...; flat = true)
-ltable(f, a...) = table_internal(lmap, f, a...; flat = true)
+table(f, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
+ptable(f, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
+ltable(f, a...; kargs...) = table_internal(lmap, f, a...; flat = true, kargs...)
 
-tableany(f, a...) = table_internal(map, f, a...; flat = false)
-ptableany(f, a...) = table_internal(pmap, f, a...; flat = false)
-ltableany(f, a...) = table_internal(lmap, f, a...; flat = false)
+tableany(f, a...; kargs...) = table_internal(map, f, a...; flat = false, kargs...)
+ptableany(f, a...; kargs...) = table_internal(pmap, f, a...; flat = false, kargs...)
+ltableany(f, a...; kargs...) = table_internal(lmap, f, a...; flat = false, kargs...)
 
-function table_internal(mapf, f, args...; flat = true)
+function table_internal(mapf, f, args...; flat = true, kargs...)
     a = [isa(x,Range) ? collect(x) : x for x in args]
     s = @p col [len(x) for x in a]
     S = tuple(s...)
     getarg(sub) = [at(a[i],sub[i]) for i in 1:length(a)]
     args = [getarg(ind2sub(S,x)) for x in 1:prod(s)]
     g(x) = f(x...)
-    r = @p mapf args g
+    r = mapf(args,g; kargs...)
 
     if flat
         if length(fst(r))==1
@@ -411,7 +431,15 @@ end
 tee(a,f) = (f(a);a)
 
 import Base.*
-*(f::Function, g::Function) = h(a...) = f(g(a...))
+*(f::Function, g::Function) = (a...) -> f(g(a...))
 
-typed(a) = typeof(a[1])[x for x in a]
+typed{N}(a::Array{Any,N}) = convert(Array{typeof(a[1])}, a)
+typed(a) = a
+
+import Base.filter
+filter(r::Regex, f2::Function) = error()
+filter(f1::Function, f2::Function) = error()
+filter(a, f::Function) = part(a, vec(typed(map(a,f))))
+
+
 

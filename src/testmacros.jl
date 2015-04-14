@@ -23,7 +23,7 @@ function test_equal(a, b, doassert = false)
         end
     end
     if !sizesEqual || !contentEqual
-        println("########### Failed test: $(!sizesEqual ? : "size mismatch, " : "")$(!contentEqual ? "content mismatch" : "")")
+        println("########### Failed test: $(!sizesEqual ? "size mismatch, " : "")$(!contentEqual ? "content mismatch" : "")")
         # println(a)
         println("\nShould have been: $b") 
         #println($(esc(b)))
