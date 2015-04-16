@@ -63,7 +63,7 @@ isfalse(a) = !(istrue(a))
 #######################################
 ##  not, or, and
 
-not(a) = !(a)
+not = !
 or(a,b) =  a || b
 and(a,b) = a && b
 

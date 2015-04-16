@@ -447,7 +447,10 @@ typed(a) = a
 import Base.filter
 filter(r::Regex, f2::Function) = error()
 filter(f1::Function, f2::Function) = error()
-filter(a, f::Function) = part(a, vec(typed(map(a,f))))
+function filter(a, f::Function)
+    ind = vec(typed(map(a,f)))
+    isempty(ind) ? [] : part(a, ind)
+end
 
 
 
