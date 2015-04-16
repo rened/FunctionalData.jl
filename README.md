@@ -97,14 +97,20 @@ For each of these variants there are optimized functions available for in-place 
 
 ## News
 
-#### 0.0.7
+#### 0.0.9
 
-* fixed repeat for numeric arrays
-* made test_equal more robust
-* reworked map and view for Array{T,1} / scalar return values
-* fix partsoflen, concat
-* add takelast(a), unequal, sortpermrev, filter
-* fix map for Dict
+* version requirement for 0.4 build
+* `map` and `mapmap` for `Dict`
+* fix `typed`
+
+#### 0.0.7 / 0.0.8
+
+* fixed `repeat` for numeric arrays
+* made `test_equal` more robust
+* reworked `map` and `view` for `Array{T,1}` / scalar return values
+* fix `partsoflen`, `concat`
+* add `takelast(a)`, `unequal`, `sortpermrev`, `filter`
+* fix `map` for `Dict`
 
 
 #### 0.0.6

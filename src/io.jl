@@ -76,7 +76,7 @@ function readmat(filename,variables...)
             r[v] = read(mat, v)
         end
     finally
-            close(mat)
+        close(mat)
     end
 end
 

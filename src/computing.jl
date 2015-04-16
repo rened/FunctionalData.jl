@@ -33,7 +33,7 @@ map5(a, b, c, d, e_, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i))
 import Base.map
 map(a::String, f::Function; kargs...) = flatten(map(unstack(a),f))
 function map{T,N}(a::AbstractArray{T,N}, f::Function; kargs...)
-    isempty(a) && return Any[]
+    isempty(a) && return []
 
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
@@ -50,11 +50,13 @@ end
     end
 end
 
-function map{T1<:Any,T2<:Any}(a::Dict{T1,T2}, f::Function; kargs...)
-    println("got here")
+function map(a::Dict, f::Function; kargs...)
+    isempty(a) && return a
     r = @p id map(x->f(x[1],x[2]),a) | filter unequal nothing | concat
     @compat [fst(x) => snd(x) for x in r]
 end
+
+mapmap(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
 
 function mapmap(a, f)
     isempty(a) && return Any[]
@@ -63,6 +65,7 @@ function mapmap(a, f)
 end
 
 function map{T<:Real}(a::DenseArray{T,1},f::Function)
+    isempty(a) && return []
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
     rv = view(r,1)
@@ -76,6 +79,7 @@ function map{T<:Real}(a::DenseArray{T,1},f::Function)
 end
 
 function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
+    isempty(a) && return []
     v = view(a,1)
     r1 = f(v)
     r = arraylike(r1, len(a), a)
@@ -98,6 +102,7 @@ function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
 end
 
 function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Function, f2::Function)
+    isempty(a) && return []
     v = view(a,1)
     r1 = f1(v)
     r = arraylike(r1, len(a), a)
@@ -108,6 +113,7 @@ function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Function, f2::Function)
 end
 
 function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Function)
+    isempty(a) && return []
     v = view(a,1)
     rv = view(r,1)
     for i = 1:len(a)
@@ -118,6 +124,7 @@ function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f:
     r
 end
 function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
+    isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
         v[:] = f(v)
@@ -126,6 +133,7 @@ function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
     a
 end
 function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
+    isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
         f(v)
@@ -433,7 +441,7 @@ tee(a,f) = (f(a);a)
 import Base.*
 *(f::Function, g::Function) = (a...) -> f(g(a...))
 
-typed{N}(a::Array{Any,N}) = convert(Array{typeof(a[1])}, a)
+typed{N}(a::Array{Any,N}) = isempty(a) ? [] : convert(Array{typeof(a[1])}, a)
 typed(a) = a
 
 import Base.filter
