@@ -45,6 +45,8 @@ sizeo(a) = size(a,3)
 rangem(a) = 1:size(a,1)
 rangen(a) = 1:size(a,2)
 rangeo(a) = 1:size(a,3)
+
+import Base.range
 range(a) = 1:len(a)
 
 import Base.ndims

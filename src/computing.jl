@@ -123,6 +123,8 @@ function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f:
     end
     r
 end
+
+import Base.map!
 function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
     isempty(a) && return a
     v = view(a,1)
@@ -132,6 +134,7 @@ function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
     end
     a
 end
+
 function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
     isempty(a) && return a
     v = view(a,1)
