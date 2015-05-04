@@ -1,5 +1,5 @@
 export at, setat!, fst, snd, third, last
-export part, rowpart, trimmedpart, take, takelast, drop, droplast, partition, partsoflen
+export part, rowpart, trimmedpart, take, takelast, drop, dropat, droplast, partition, partsoflen
 export getindex
 export extract
 
@@ -65,6 +65,7 @@ take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
 takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 
 drop(a,i) = part(a,i+1:len(a))
+dropat(a, ind) = part(a, setdiff(1:len(a), ind))
 
 droplast(a) = part(a,1:max(1,len(a)-1))
 droplast(a,i) = part(a,1:max(1,len(a)-i))

@@ -242,6 +242,10 @@ shouldtest("accessors") do
         @fact drop([1 2 3; 4 5 6],2) => col([3; 6])
     end
 
+    shouldtestcontext("dropat") do
+        @fact dropat(1:10,3:9) => [1,2,10]
+    end
+
     shouldtestcontext("take") do
         @fact take(1:3,1) => 1:1
         @fact take([1 2 3],1) => col([1])
@@ -290,7 +294,7 @@ shouldtest("accessors") do
         d2 = @compat Dict(:b => 2)
         @fact extract(d1, :a)  =>  1
         @fact extract(d1, :b)  =>  nothing
-        @fact extract({d1,d2}, :a, 10)  =>  [1, 10]
+        @fact extract([d1,d2], :a, 10)  =>  [1, 10]
     end
 end
 
