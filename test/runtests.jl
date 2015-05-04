@@ -1,6 +1,7 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 addprocs(3)
-@everywhere using FactCheck, FunctionalData, Compat
+@everywhere using FactCheck, Compat
+@everywhere importall FunctionalData
 FactCheck.setstyle(:compact)
 
 

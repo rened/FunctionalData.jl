@@ -34,7 +34,6 @@ function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
     convert(View, pointer_to_array(p, tuple(s..., length(ind)) ))
 end
 
-
 @compat @inline function next!{T}(v::View{T})
     p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
     datap = unsafe_load(p, offset)
