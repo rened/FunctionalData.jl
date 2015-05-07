@@ -421,6 +421,9 @@ htableany(f, a...; kargs...) = table_internal(hmap, f, a...; flat = false, kargs
 function table_internal(mapf, f, args...; flat = true, kargs...)
     a = [isa(x,Range) ? collect(x) : x for x in args]
     s = @p col [len(x) for x in a]
+    if any(s.==0)
+        error("FunctionalData.xtable: empty arguments, lengths of the $(len(args)) arguments are $(vec(s))")
+    end
     S = tuple(s...)
     getarg(sub) = [at(a[i],sub[i]) for i in 1:length(a)]
     args = [getarg(ind2sub(S,x)) for x in 1:prod(s)]
