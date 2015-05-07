@@ -117,6 +117,15 @@ function arraylike(a, n::Int, array = nothing)
     r = Array(eltype(a), newarraysize(a,n)...)
 end
 
+# function arraylike(a::Array, n::Int, array = nothing)
+#     if isempty(a)
+#         return cell(n)
+#     end
+#     r = Array(eltype(a), newarraysize(a,n)...)
+# end
+
+# arraylike(a, n::Int, array = nothing) = return cell(n)
+
 sharraylike(a, n::Int) = SharedArray(eltype(a), newarraysize(a,n)...)
 
 function copy(from, to)

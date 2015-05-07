@@ -6,7 +6,7 @@ export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
 export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
-export table, ptable, ltable, shtable, tableany, ptableany, ltableany, shtableany
+export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, unique, filter
 export tee
 export *
@@ -411,10 +411,12 @@ lmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids =
 table(f, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
 ptable(f, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
 ltable(f, a...; kargs...) = table_internal(lmap, f, a...; flat = true, kargs...)
+htable(f, a...; kargs...) = table_internal(hmap, f, a...; flat = true, kargs...)
 
 tableany(f, a...; kargs...) = table_internal(map, f, a...; flat = false, kargs...)
 ptableany(f, a...; kargs...) = table_internal(pmap, f, a...; flat = false, kargs...)
 ltableany(f, a...; kargs...) = table_internal(lmap, f, a...; flat = false, kargs...)
+htableany(f, a...; kargs...) = table_internal(hmap, f, a...; flat = false, kargs...)
 
 function table_internal(mapf, f, args...; flat = true, kargs...)
     a = [isa(x,Range) ? collect(x) : x for x in args]

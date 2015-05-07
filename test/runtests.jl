@@ -427,6 +427,7 @@ shouldtest("computing") do
         @fact table(passarray,[1,2],1:3)  =>  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
         @fact tableany(passarray,[1,2],1:3)  =>  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
         @fact table(adder,[1 2; 3 4],1:3)  =>  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
+        @fact size(ptableany((x,y)->myid(), 1:3, 1:4, nworkers = 2)) => (3,4)
     end
     shouldtestcontext("tee") do
         a = Any[]
