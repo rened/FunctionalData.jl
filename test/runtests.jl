@@ -213,6 +213,7 @@ shouldtest("accessors") do
         @fact trimmedpart(collect(1:10), 1:3) => [1,2,3]
         @fact trimmedpart(collect(1:10), 8:13) => [8,9,10]
         @fact trimmedpart(collect(1:10), 13:15) => []
+        @fact trimmedpart(1:10, [1,3,30,2,-10]) => [1,3,2]
     end
 
     shouldtestcontext("fst") do
