@@ -59,8 +59,8 @@ function split(a::AbstractArray,f::Function)
     return r
 end
 
-concat(a) = flatten([a...])
-concat(a...) = @p map [a...] concat | concat
+concat(a) = flatten(vcat(a...))
+concat(a...) = @p map vcat(a...) concat | concat
 
 #######################################
 ## subtoind, indtosub

@@ -335,7 +335,7 @@ shouldtest("computing") do
         @fact map2(1:3, 10:12, (+))  =>  [11,13,15]
     end
     shouldtestcontext("mapmap") do
-        @fact mapmap([[1 2]; [3 4]], x -> x+1)  =>  [[2 3], [4 5]]
+        @fact mapmap([[1 2]; [3 4]], x -> x+1)  =>  [[2 3]; [4 5]]
     end
     shouldtestcontext("map!") do
         f(x) = x*2
@@ -497,7 +497,7 @@ shouldtest("dataflow") do
         @fact unstack((1,2,3)) => Any[1,2,3]
     end
     shouldtestcontext("riffle") do
-        @fact riffle([1:3],0) => [1,0,2,0,3]
+        @fact riffle([1,2,3],0) => [1,0,2,0,3]
         @fact riffle(1,0) => 1
         @fact riffle([1 2 3; 4 5 6],zeros(2,1)) => [1 0 2 0 3; 4 0 5 0 6]
         @fact riffle([1 2 3; 4 5 6],[8;9]) => [1 8 2 8 3; 4 9 5 9 6]
