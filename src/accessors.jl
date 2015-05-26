@@ -70,8 +70,8 @@ takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 drop(a,i) = part(a,i+1:len(a))
 dropat(a, ind) = part(a, setdiff(1:len(a), ind))
 
-droplast(a) = part(a,1:max(1,len(a)-1))
-droplast(a,i) = part(a,1:max(1,len(a)-i))
+droplast(a) = isempty(a) ? a : part(a,1:max(1,len(a)-1))
+droplast(a,i) = isempty(a) ? a : part(a,1:max(1,len(a)-i))
 
 function partition(a,n) 
     n = min(n, len(a))
