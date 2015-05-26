@@ -1,11 +1,11 @@
-export at, setat!, fst, snd, third, last
+export at, atend, setat!, fst, snd, third, last
 export part, rowpart, trimmedpart, take, takelast, drop, dropat, droplast, partition, partsoflen
 export getindex
 export extract
 
 
 #######################################
-##  at
+##  at, atend
 
 @compat @inline at{T,N}(a::NTuple{T,N},i) = a[i]
 @compat @inline at(a::AbstractArray, ind::Tuple) = a[ind...]
@@ -21,6 +21,7 @@ export extract
 @compat @inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
 @compat @inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
 @compat @inline at(a,i) = a[i]
+atend(a, i) = at(a, len(a)-i+1)
 
 
 #######################################

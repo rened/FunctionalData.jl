@@ -160,6 +160,11 @@ shouldtest("accessors") do
         @fact size(at(rand(2,3,4),(1:2,))) => (2,)
         @fact size(at(rand(2,3,4),([1,2],1:2))) => (2,2)
     end
+    shouldtestcontext("atend") do
+        @fact atend(1:10,1) => 10
+        @fact atend(1:10,2) => 9
+    end
+
 
     shouldtestcontext("setat") do
         a = [1,2,3]
