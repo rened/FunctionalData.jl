@@ -236,6 +236,7 @@ all(a, f)                           # are all f(item) true
 allequal(a, x)                      # are all items == x
 unequal(a,b)                        # shortcut for !isequal(a,b)
 sort(a, f; kargs...)                # sort a accorting to f(item)
+uniq(a[, f])                        # unique elements of a or uniq(a,map(a,f))
 table(f, a...)                      # like [f(m,n) for m in a[1], n in a[2]], for any length of a
 ptable, ltable                      # parallel table using all workers, local workes
 tableany, ptableany, ltableany      # like table, but does not flatten result
