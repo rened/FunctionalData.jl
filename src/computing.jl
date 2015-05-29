@@ -7,7 +7,7 @@ export pmap, pmap!, pmap!r, pmap2!, pwork
 export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
-export sort, sortrev, sortpermrev, unique, filter
+export sort, sortrev, sortpermrev, uniq, filter
 export tee
 export *
 export typed
@@ -18,8 +18,15 @@ sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
 
-import Base.unique
-unique(a,f) = @p part a unique(map(a,f))
+uniq(a) = uniq(a,id)
+function uniq(a,f)
+    d = Dict()
+    h = @p map a f
+    for i = len(a):-1:1
+        d[h[i]] = i
+    end
+    @p values d | part a _
+end
 
 #######################################
 ## map, pmap

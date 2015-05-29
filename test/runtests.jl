@@ -322,10 +322,10 @@ shouldtest("computing") do
         @fact (@p filter Any[1,2,3] unequal 3) => [1,2]
         @fact (@p filter [1,2,3] unequal 3) => [1,2]
     end
-    shouldtestcontext("unique") do
-        @fact sort(unique([1 2 3], id),id)  =>  [1 2 3]
-        @fact sort(unique([1 2 1], id),id)  =>  [1 2]
-        @fact sort(unique([-1 2 1], abs),id)  =>  [-1 2]
+    shouldtestcontext("uniq") do
+        @fact sort(uniq([10 20 30], id),id)  =>  [10 20 30]
+        @fact sort(uniq([10 20 10], id),id)  =>  [10 20]
+        @fact sort(uniq([-10 20 10], abs),id)  =>  [-10 20]
     end
     shouldtestcontext("map") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) =>   [2 2 2]

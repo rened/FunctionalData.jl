@@ -56,6 +56,7 @@ part{T,T2,N}(a::AbstractArray{T2,N}, i::AbstractArray{T,1}) = slicedim(a,max(2,n
 part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
 part{T}(a::Dict, i::AbstractArray{T,1}) = Base.map(x->at(a,x),i)
 part{T<:Real}(a,i::DenseArray{T,2}) = map(i, x->at(a,x))
+part(a,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
 rowpart(a::Matrix, i) = a[i, :]
 
