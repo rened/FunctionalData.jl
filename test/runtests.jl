@@ -490,6 +490,7 @@ shouldtest("dataflow") do
         @fact concat([1,2]) => [1,2]
         @fact concat([[1,2];]) => [1,2]
         @fact concat([[1,2];3]) => [1,2,3]
+        @fact concat(ones(2,3),zeros(2,4)) => hcat(ones(2,3),zeros(2,4))
         VERSION.minor == 3 && begin  # to avoid false 0.4 deprecation warnings
             @fact concat([[1,2];3],4) => [1,2,3,4]
             @fact concat([[1,2],3],[4,5]) => [1,2,3,4,5]
