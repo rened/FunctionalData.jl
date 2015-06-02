@@ -1,5 +1,6 @@
 export map, map!, map!r, map2!, mapmap, work
 export map2, map3, map4, map5
+export work2, work3, work4, work5
 export mapprogress
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
@@ -72,7 +73,7 @@ mapmap(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
 
 function mapmap(a, f)
     isempty(a) && return Any[]
-    g = x -> map(x,f)
+    g(x) = map(x,f)
     map(a, g)
 end
 
@@ -170,6 +171,11 @@ lwork(a, f) = (g(x) = (f(x);uint8(0)); lmap(a, g); nothing)
 pwork(a, f) = (g(x) = (f(x);uint8(0)); pmap(a, g); nothing)
 shwork(a, f) = (g(x) = (f(x);uint8(0)); shmap(a, g); nothing)
 workwork(a, f) = (g(x) = (f(x);uint8(0)); mapmap(a, g); nothing)
+
+work2(a, b, f::Function) = [(f(at(a,i),at(b,i)); nothing) for i in 1:len(a)]
+work3(a, b, c, f::Function) = [(f(at(a,i),at(b,i),at(c,i)); nothing) for i in 1:len(a)]
+work4(a, b, c, d, f::Function) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) for i in 1:len(a)]
+work5(a, b, c, d, e_, f::Function) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
  
 share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a
