@@ -5,6 +5,7 @@ export zeroel, oneel
 export +, *, repeat, nop, id,  istrue, isfalse, not, or, and, @dict
 export plus, minus, times, divby
 export any, anyequal, all, allequal, unequal
+export minimum, maximum
 
 #######################################
 ##  zerossiz, onessiz, randsiz, randnsiz
@@ -142,3 +143,12 @@ minus(a,b) = a.-b
 times(a,b) = a.*b
 divby(a,b) = a./b
 unequal(a,b) = !(isequal(a,b))
+
+if VERSION >= v"0.4-"
+    import Base: minimum, maximum
+    minimum{T<:FloatingPoint}(::Type{T}) = -realmax(T)
+    maximum{T<:FloatingPoint}(::Type{T}) =  realmax(T)
+    minimum{T<:Number}(::Type{T}) = typemin(T)
+    maximum{T<:Number}(::Type{T}) = typemax(T)
+end
+

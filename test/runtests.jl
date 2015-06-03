@@ -135,6 +135,14 @@ shouldtest("basics") do
         @fact repeat([1],3) => [1,1,1]
         @fact repeat([1 2]',3) => [1 1 1; 2 2 2]
     end
+if VERSION >= v"0.4-"
+    shouldtestcontext("minimum") do
+        @fact minimum(Float32)+maximum(Float32) => 0f0
+        @fact minimum(Float64)+maximum(Float64) => 0.0
+        @fact minimum(Int)+maximum(Int) => -1
+    end
+end
+
 end
 
 type _somedummytype
