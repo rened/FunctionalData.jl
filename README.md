@@ -198,7 +198,8 @@ flipdims(a,d1,d2)                   # flip dims d1 and d2
 ###### Pipeline Syntax [[details]](doc/pipeline.md)
 
 ```jl
-r = @p f1 a b | f2 | f3 e           # pipeline macro, equals f3(f2(f1(a,b)),e)
+r = @p f1 a b | f2 | f3 c           # pipeline macro, equals f3(f2(f1(a,b)),c)
+r = @p f1 a | f2 b _ | f3 e         # equals f3(f2(b,f1(a)),c)
 ```
 
 ###### Efficient Views [[details]](doc/computing.md)
