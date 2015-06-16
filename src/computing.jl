@@ -21,12 +21,12 @@ sortrev(a, f) = sort(a,f; rev = true)
 
 uniq(a) = uniq(a,id)
 function uniq(a,f)
-    d = Dict()
+    d = Dict{Any,Int}()
     h = @p map a f
     for i = len(a):-1:1
-        d[h[i]] = i
+        d[at(h,i)] = i
     end
-    @p values d | part a _
+    @p values d | collect | sort | part a _
 end
 
 #######################################
