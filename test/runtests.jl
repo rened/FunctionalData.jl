@@ -294,7 +294,7 @@ shouldtest("accessors") do
     shouldtestcontext("partition") do
         @fact partition(1:3,1)  => Any[1:3]
         a = partition(1:3,2)
-        @fact a == Any[1:2, 3:3] || a == Any[1:1, 2:3]  =>  true  # Julia v0.3 and v0.4 work differently
+        @fact (a == Any[1:2, 3:3] || a == Any[1:1, 2:3])  =>  true  # Julia v0.3 and v0.4 work differently
         @fact partition(1:3,3)  => Any[1:1, 2:2, 3:3]
         @fact partition(1:3,4)  => Any[1:1, 2:2, 3:3]
     end
@@ -524,8 +524,8 @@ shouldtest("dataflow") do
     end
     shouldtestcontext("matrix") do
         a = Any[ones(2,3), zeros(2,3)]
-        @fact size(matrix(a))  =>  6,2
-        @fact size(matrix(zeros(2,3,4))) => 6,4
+        @fact size(matrix(a))  =>  (6,2)
+        @fact size(matrix(zeros(2,3,4))) => (6,4)
         @fact unmatrix(matrix(a),a)  =>  a
     end
     shouldtestcontext("lines") do
