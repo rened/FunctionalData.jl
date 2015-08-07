@@ -68,6 +68,7 @@ import Base.take
 take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
 takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 
+import Base.drop
 drop(a,i) = part(a,i+1:len(a))
 dropat(a, ind) = part(a, setdiff(1:len(a), ind))
 
