@@ -111,6 +111,7 @@ function newarraysize(a,n::Int)
     tuple(s...,n)
 end
  
+arraylike{T<:String}(a::T, n::Int, array = nothing) = Array(T, n)
 function arraylike(a, n::Int, array = nothing)
     if a == nothing || (array != nothing && !(eltype(array) <: Number))
         return cell(n)

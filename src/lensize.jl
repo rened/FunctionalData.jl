@@ -3,7 +3,7 @@ export len, siz, siz3, sizem, sizen, sizeo, rangem, rangen, rangeo, range
 len(a) = length(a)
 len{T,N}(a::AbstractArray{T,N}) = size(a,N)
 
-siz(a::Number) = ones(Int, 2, 1)
+siz(a) = ones(Int, 2, 1)
 
 function siz(a::Tuple)
     r = ones(Int, 2, 1)

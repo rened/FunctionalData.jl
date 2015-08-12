@@ -81,14 +81,20 @@ function map{T<:Real}(a::DenseArray{T,1},f::Function)
     isempty(a) && return []
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
-    rv = view(r,1)
-    rv[:] = r1
-    next!(rv)
-    for i = 2:len(a)
-        rv[:] = f(a[i]) 
+    if isviewable(r)
+        rv = view(r,1)
+        rv[:] = r1
         next!(rv)
+        for i = 2:len(a)
+            rv[:] = f(a[i]) 
+            next!(rv)
+        end
+        r
+    else
+        setat!(r, 1, r1)
+        map_(f,a,r)
+        r
     end
-    r
 end
 
 function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
