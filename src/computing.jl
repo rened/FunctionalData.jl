@@ -325,6 +325,9 @@ function pmap_exec(g, a; nworkers = typemax(Int), kargs...)
     parts = pmapparts(a, inds, n)
     if VERSION.minor >= 4
         r = Base.pmap(g, parts, pids = take(pids, nworkers))
+        for x in r
+            isa(x,RemoteException) && rethrow(x)
+        end
     else
         r = pmapon(g, parts, pids = take(pids, nworkers))
     end
