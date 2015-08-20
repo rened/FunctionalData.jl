@@ -3,7 +3,7 @@ export shzeros, shones, shrand, shrandn
 export shzerossiz, shonessiz, shrandsiz, shrandnsiz
 export zeroel, oneel
 export +, *, repeat, nop, id,  istrue, isfalse, not, or, and, @dict
-export plus, minus, times, divby
+export plus, minus, times, divby, square, power
 export any, anyequal, all, allequal, unequal
 export minimum, maximum
 
@@ -144,6 +144,8 @@ minus(a,b) = a.-b
 times(a,b) = a.*b
 divby(a,b) = a./b
 unequal(a,b) = !(isequal(a,b))
+square(a) = a.*a
+power(a,n) = a.^n
 
 if VERSION >= v"0.4-"
     import Base: minimum, maximum

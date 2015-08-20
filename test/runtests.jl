@@ -594,6 +594,9 @@ shouldtest("pipeline") do
 
         x = @p id [1] | map _ (x->x+_+_+_)
         @fact x  -->  row([4])
+
+        @fact square(2)  --> 4
+        @fact power(2,3)  --> 8
     end
 
     add2(a,b) = a+b
