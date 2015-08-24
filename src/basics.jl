@@ -5,6 +5,7 @@ export zeroel, oneel
 export +, *, repeat, nop, id,  istrue, isfalse, not, or, and, @dict
 export plus, minus, times, divby, square, power
 export any, anyequal, all, allequal, unequal
+export inside
 export minimum, maximum
 
 #######################################
@@ -146,6 +147,8 @@ divby(a,b) = a./b
 unequal(a,b) = !(isequal(a,b))
 square(a) = a.*a
 power(a,n) = a.^n
+
+inside = in
 
 if VERSION >= v"0.4-"
     import Base: minimum, maximum
