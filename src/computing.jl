@@ -33,10 +33,10 @@ end
 ## map, pmap
 
 
-map2(a, b, f::Function) = [f(at(a,i),at(b,i)) for i in 1:len(a)]
-map3(a, b, c, f::Function) = [f(at(a,i),at(b,i),at(c,i)) for i in 1:len(a)]
-map4(a, b, c, d, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:len(a)]
-map5(a, b, c, d, e_, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)]
+map2(a, b, f::Function) = flatten([f(at(a,i),at(b,i)) for i in 1:len(a)])
+map3(a, b, c, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i)) for i in 1:len(a)])
+map4(a, b, c, d, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:len(a)])
+map5(a, b, c, d, e_, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)])
 
 import Base.map
 map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
