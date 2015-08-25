@@ -174,10 +174,7 @@ function flatten{T}(a::Array{T,2})
 end
 
 
-unstack{T,N}(a::AbstractArray{T,N}) = Any[at(a,i) for i in 1:len(a)]
-unstack(a::Tuple) = Any[at(a,i) for i in 1:len(a)]
-
-unstack(a::String) = Any[at(a,i) for i in 1:len(a)]
+unstack(a) = Any[at(a,i) for i in 1:len(a)]
 
 
 

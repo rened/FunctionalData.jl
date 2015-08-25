@@ -39,6 +39,7 @@ map4(a, b, c, d, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:l
 map5(a, b, c, d, e_, f::Function) = [f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)]
 
 import Base.map
+map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
 map(a::String, f::Function; kargs...) = flatten(map(unstack(a),f))
 function map{T,N}(a::AbstractArray{T,N}, f::Function; kargs...)
     isempty(a) && return []
