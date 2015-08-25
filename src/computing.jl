@@ -1,5 +1,6 @@
-export map, map!, map!r, map2!, mapmap, work
+export map, mapvec, map!, map!r, map2!, mapmap, work
 export map2, map3, map4, map5
+export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
 export mapprogress
 export share, unshare
@@ -33,15 +34,21 @@ end
 ## map, pmap
 
 
-map2(a, b, f::Function) = flatten([f(at(a,i),at(b,i)) for i in 1:len(a)])
-map3(a, b, c, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i)) for i in 1:len(a)])
-map4(a, b, c, d, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i),at(d,i)) for i in 1:len(a)])
-map5(a, b, c, d, e_, f::Function) = flatten([f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)) for i in 1:len(a)])
+mapvec(a, f::Function) = [f(trytoview(a,i)) for i in 1:len(a)]
+mapvec2(a, b, f::Function) = [f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
+mapvec3(a, b, c, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i)) for i in 1:len(a)]
+mapvec4(a, b, c, d, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i)) for i in 1:len(a)]
+mapvec5(a, b, c, d, e, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i),trytoview(e,i)) for i in 1:len(a)]
+
+map2(a, b, f::Function) = flatten(mapvec2(a,b,f))
+map3(a, b, c, f::Function) = flatten(mapvec3(a,b,c,f))
+map4(a, b, c, d, f::Function) = flatten(mapvec4(a,b,c,d,f))
+map5(a, b, c, d, e, f::Function) = flatten(mapvec5(a,b,c,d,e,f))
 
 import Base.map
 map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
-map(a::String, f::Function; kargs...) = flatten(map(unstack(a),f))
-function map{T,N}(a::AbstractArray{T,N}, f::Function; kargs...)
+map(a::String, f::Function) = flatten(map(unstack(a),f))
+function map{T,N}(a::AbstractArray{T,N}, f::Function)
     isempty(a) && return []
 
     r1 = f(fst(a))

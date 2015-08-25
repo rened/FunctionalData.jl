@@ -612,6 +612,9 @@ shouldtest("pipeline") do
         @fact (@p map4 o z z z (a,b,c,d)->a+b+c+d) --> ones(2,3)
         @fact (@p map5 o z z z z (a,b,c,d,e)->a+b+c+d+e) --> ones(2,3)
 
+        @fact (@p mapvec2 (1:2) [3,4] (a,b)->"$a$b") --> ["13","24"]
+        @fact (@p map2 (1:2) [3,4] (a,b)->"$a$b") --> "1324"
+
         Z = ones(Int,3)
         add3(a,b,c) = a+b+c
         x = @p map3 1:3 10:12 100Z add3

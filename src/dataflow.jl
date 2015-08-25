@@ -111,6 +111,9 @@ function flatten{T}(a::Array{T,1})
     if isa(a[1], StringLike)
         return join(map(a,tostring))
     end
+    if !method_exists(ndims,Tuple{typeof(fst(a))})
+        return a
+    end
     if ndims(fst(a)) == 1
         return vcat(a...)
     end
