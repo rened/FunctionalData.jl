@@ -152,8 +152,8 @@ inside = in
 
 if VERSION >= v"0.4-"
     import Base: minimum, maximum
-    minimum{T<:FloatingPoint}(::Type{T}) = -realmax(T)
-    maximum{T<:FloatingPoint}(::Type{T}) =  realmax(T)
+    minimum{T<:FloatingPoint}(::Type{T} = Float64) = -realmax(T)
+    maximum{T<:FloatingPoint}(::Type{T} = Float64) =  realmax(T)
     minimum{T<:Number}(::Type{T}) = typemin(T)
     maximum{T<:Number}(::Type{T}) = typemax(T)
 end

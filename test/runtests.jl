@@ -140,6 +140,8 @@ if VERSION >= v"0.4-"
         @fact minimum(Float32)+maximum(Float32) --> 0f0
         @fact minimum(Float64)+maximum(Float64) --> 0.0
         @fact minimum(Int)+maximum(Int) --> -1
+        @fact maximum() --> maximum(Float64)
+        @fact minimum() --> minimum(Float64)
     end
 end
 
