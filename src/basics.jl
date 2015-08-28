@@ -42,8 +42,8 @@ shrandn(typ::Type, a...) = fillrandn(SharedArray(typ, a...))
 zeroel(a) = zero(eltype(a))
 oneel(a) = one(eltype(a))
 
-macro dict(syms...)
-    Expr(:typed_dict, :(Any=>Any), Any[ :($(string(s))=>$(esc(s))) for s in syms ]...)
+macro dict(a...)
+    esc(Expr(:call, :Dict, [Expr(:(=>), QuoteNode(x), x) for x in a]...))
 end
 
 import Base.*
