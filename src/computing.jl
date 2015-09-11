@@ -13,6 +13,7 @@ export sort, sortrev, sortpermrev, uniq, filter
 export tee
 export *
 export typed
+export call
 
 import Base.sort
 sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
@@ -495,5 +496,6 @@ function filter(a, f::Function)
     isempty(ind) ? [] : part(a, ind)
 end
 
-
+import Base.call
+call(f::Function, args...) = f(args...)
 

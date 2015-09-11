@@ -475,6 +475,12 @@ shouldtest("computing") do
         @fact (join*split)("a b c")  -->  "abc"
         @fact (last*join*split)("a b c")  -->  'c'
     end
+    shouldtestcontext("call") do
+        f(a,b) = a+b
+        g() = 1
+        @fact call(f,1,2) --> 3
+        @fact call(g) --> 1
+    end
 end
 
 shouldtest("dataflow") do
