@@ -263,7 +263,6 @@ dirnames
 dirpaths
 readmat
 writemat
-@snapshot
 ```
 
 ###### Helpers [[details]](doc/helpers.md)

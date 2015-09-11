@@ -1,7 +1,6 @@
 export read, write, existsfile, mkdir 
 export filenames, filepaths, dirnames, dirpaths
 export readmat, writemat
-export @snapshot
 # using MAT
 
 existsfile(filename::String) = (s = stat(filename); s.inode!=0)
