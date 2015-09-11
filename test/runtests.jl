@@ -170,7 +170,7 @@ shouldtest("accessors") do
         @fact size(at(rand(2,3,4),(1:2,))) --> (2,)
         @fact size(at(rand(2,3,4),([1,2],1:2))) --> (2,2)
 
-        d = Dict(:a => 1, :b => Dict(:c => 2))
+        d = @compat Dict(:a => 1, :b => @compat Dict(:c => 2))
         @fact at(d,:a) --> 1
         @fact at(d,:b,:c) --> 2
     end
@@ -449,6 +449,15 @@ shouldtest("computing") do
         r = lmap(a, x->x+1)
         @fact r --> a+1
     end
+    shouldtestcontext("amap") do
+        a = row(collect(1:30))
+        r = amap(a, x->x+1)
+        @fact r --> a + 1
+        a = rand(2,10)
+        r = amap(a, x->x+1)
+        @fact r --> a+1
+    end
+
     shouldtestcontext("table") do
         adder(x,y) = x+y
         pass(x,y) = [x,y]

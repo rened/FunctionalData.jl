@@ -8,6 +8,7 @@ export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
 export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
+export amap
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter
 export tee
@@ -443,6 +444,17 @@ lmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = localworkers(), karg
 lmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = localworkers(), kargs...)
 lmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
 lmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers(), kargs...)
+
+amapvec(a,f; kargs...) = amap(a,f; n = 10, mapper = mapvec)
+function amap(a,f; n = 10, mapper = map)
+    n = min(len(a),n)
+    a = @p partition a n
+    r = cell(n)
+    @sync for i in 1:n 
+        @async r[i] = mapper(a[i], f)
+    end
+    flatten(r)
+end
 
 table(f, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
 ptable(f, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
