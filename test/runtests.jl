@@ -169,6 +169,10 @@ shouldtest("accessors") do
         @fact size(at(rand(2,3,4),(1,))) --> ()
         @fact size(at(rand(2,3,4),(1:2,))) --> (2,)
         @fact size(at(rand(2,3,4),([1,2],1:2))) --> (2,2)
+
+        d = Dict(:a => 1, :b => Dict(:c => 2))
+        @fact at(d,:a) --> 1
+        @fact at(d,:b,:c) --> 2
     end
     shouldtestcontext("atend") do
         @fact atend(1:10,1) --> 10
@@ -288,6 +292,7 @@ shouldtest("accessors") do
         @fact takewhile(1:10,x->x<5) --> 1:4
         @fact (@p takewhile (1:10) isless 5) --> 1:4
         @fact (@p takewhile (1:10) isless 50) --> 1:10
+        @fact (@p takewhile (1:10) isless 0) --> []
     end
 
     shouldtestcontext("droplast") do
@@ -303,6 +308,7 @@ shouldtest("accessors") do
         @fact dropwhile(1:10,x->x<5) --> 5:10
         @fact (@p dropwhile (1:10) isless 5) --> 5:10
         @fact (@p dropwhile (1:10) isless 50) --> []
+        @fact (@p dropwhile (1:10) isless 0) --> 1:10
     end
 
 

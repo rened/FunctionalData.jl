@@ -22,6 +22,8 @@ export extract
 @compat @inline at{T}(a::AbstractArray{T,6},i::Number) = a[:,:,:,:,:,i]
 @compat @inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
 @compat @inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
+@compat @inline at(a::Dict,i) = a[i]
+@compat @inline at(a::Dict,ind...) = a[ind[1]][ind[2:end]...]
 @compat @inline at(a,i) = a[i]
 atend(a, i) = at(a, len(a)-i+1)
 
@@ -72,6 +74,7 @@ takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 function takewhile(a, f)
     for i in 1:len(a)
         if !f(at(a,i))
+            i == 1 && return []
             return take(a,i-1)
         end
     end
