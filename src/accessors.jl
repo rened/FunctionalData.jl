@@ -1,5 +1,7 @@
 export at, atend, setat!, fst, snd, third, last
-export part, rowpart, trimmedpart, take, takelast, drop, dropat, droplast, partition, partsoflen
+export part, rowpart, trimmedpart, take, takelast, takewhile
+export drop, dropat, droplast, dropwhile
+export partition, partsoflen
 export getindex
 export extract
 
@@ -67,6 +69,14 @@ trimmedpart(a, i::AbstractArray) = part(a, i[(i .>= 1) & (i .<= len(a))])
 import Base.take
 take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
 takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
+function takewhile(a, f)
+    for i in 1:len(a)
+        if !f(at(a,i))
+            return take(a,i-1)
+        end
+    end
+    a
+end
 
 import Base.drop
 drop(a::AbstractString,i::Int) = part(a,i+1:len(a))
@@ -75,6 +85,15 @@ dropat(a, ind) = part(a, setdiff(1:len(a), ind))
 
 droplast(a) = isempty(a) ? a : part(a,1:max(1,len(a)-1))
 droplast(a,i) = isempty(a) ? a : part(a,1:max(1,len(a)-i))
+function dropwhile(a, f)
+    for i in 1:len(a)
+        if !f(at(a,i))
+            return drop(a,i-1)
+        end
+    end
+    []
+end
+
 
 function partition(a,n) 
     n = min(n, len(a))

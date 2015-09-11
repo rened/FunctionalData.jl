@@ -284,6 +284,12 @@ shouldtest("accessors") do
         @fact takelast("asdf",10) --> "asdf"
     end
 
+    shouldtestcontext("takewhile") do
+        @fact takewhile(1:10,x->x<5) --> 1:4
+        @fact (@p takewhile (1:10) isless 5) --> 1:4
+        @fact (@p takewhile (1:10) isless 50) --> 1:10
+    end
+
     shouldtestcontext("droplast") do
         @fact droplast(1:3,1) --> 1:2
         @fact droplast([1 2 3],1) --> [1 2]
@@ -292,6 +298,13 @@ shouldtest("accessors") do
         @fact droplast([]) --> []
         @fact droplast([],2) --> []
     end
+
+    shouldtestcontext("dropwhile") do
+        @fact dropwhile(1:10,x->x<5) --> 5:10
+        @fact (@p dropwhile (1:10) isless 5) --> 5:10
+        @fact (@p dropwhile (1:10) isless 50) --> []
+    end
+
 
     shouldtestcontext("partition") do
         @fact partition(1:3,1)  --> Any[1:3]
