@@ -365,7 +365,11 @@ shouldtest("computing") do
         @fact map((@compat Dict(1 => 2)), (k,v) -> (k, 10*v)) --> @compat Dict(1 => 20)
         VERSION.minor == 3 && @fact map((@compat Dict(1 => 2)), (k,v) -> [(k,v); (10*k, 10*v)]) --> @compat Dict(1 => 2, 10 => 20)
         @fact map((@compat Dict(1 => 2)), (k,v) -> nothing) --> @compat Dict()
-        @fact mapmap((@compat Dict(1 => 2)), x -> 2x) --> @compat Dict(1 => 4)
+        @fact mapkeys((@compat Dict(1 => 2)), x -> 2x) --> @compat Dict(2 => 2)
+        @fact mapvalues((@compat Dict(1 => 2)), x -> 2x) --> @compat Dict(1 => 4)
+    end
+    shouldtestcontext("mapi") do
+        @fact reduce(&, mapi(0:9, (x,i)->x+1==i)) --> true
     end
     shouldtestcontext("map2") do
         @fact map2(1:3, 10:12, (+))  -->  [11,13,15]

@@ -1,8 +1,8 @@
-export map, mapvec, map!, map!r, map2!, mapmap, work
+export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, work
 export map2, map3, map4, map5
 export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
-export mapprogress
+export mapprogress, mapkeys, mapvalues
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
@@ -47,6 +47,8 @@ map3(a, b, c, f::Function) = flatten(mapvec3(a,b,c,f))
 map4(a, b, c, d, f::Function) = flatten(mapvec4(a,b,c,d,f))
 map5(a, b, c, d, e, f::Function) = flatten(mapvec5(a,b,c,d,e,f))
 
+mapi(a, f::Function ) = map2(a, 1:len(a), f)
+
 import Base.map
 map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
 map(a::String, f::Function) = flatten(map(unstack(a),f))
@@ -79,11 +81,18 @@ function map(a::Dict, f::Function; kargs...)
     @compat [fst(x) => snd(x) for x in r]
 end
 
-mapmap(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
+mapkeys(a::Dict, f) = map(a, (k,v) -> (f(k),v))
+mapvalues(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
 
 function mapmap(a, f)
     isempty(a) && return Any[]
     g(x) = map(x,f)
+    map(a, g)
+end
+
+function mapmapvec(a, f)
+    isempty(a) && return Any[]
+    g(x) = mapvec(x,f)
     map(a, g)
 end
 
