@@ -170,9 +170,11 @@ shouldtest("accessors") do
         @fact size(at(rand(2,3,4),(1:2,))) --> (2,)
         @fact size(at(rand(2,3,4),([1,2],1:2))) --> (2,2)
 
-        d = @compat Dict(:a => 1, :b => @compat Dict(:c => 2))
+        d = @compat Dict(:a => 1, :b => @compat Dict(:c => 2, :d => Dict(:e => 3)))
         @fact at(d,:a) --> 1
         @fact at(d,:b,:c) --> 2
+        @fact at(d,:b,:c) --> 2
+        @fact at(d,:b,:d,:e) --> 3
     end
     shouldtestcontext("atend") do
         @fact atend(1:10,1) --> 10

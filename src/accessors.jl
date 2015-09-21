@@ -23,7 +23,7 @@ export extract
 @compat @inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
 @compat @inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
 @compat @inline at(a::Dict,i) = a[i]
-@compat @inline at(a::Dict,ind...) = a[ind[1]][ind[2:end]...]
+@compat @inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
 @compat @inline at(a,i) = a[i]
 atend(a, i) = at(a, len(a)-i+1)
 
