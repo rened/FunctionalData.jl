@@ -47,7 +47,7 @@ macro dict(a...)
 end
 
 import Base.*
-*(a::Union(Char,String)...) = string(a...)
+*(a::Union{Char,AbstractString}...) = string(a...)
 
 import Base.repeat
 repeat(a::Char,n::Int) = repeat(string(a), n)
@@ -112,7 +112,7 @@ function newarraysize(a,n::Int)
     tuple(s...,n)
 end
  
-arraylike{T<:String}(a::T, n::Int, array = nothing) = Array(T, n)
+arraylike{T<:AbstractString}(a::T, n::Int, array = nothing) = Array(T, n)
 function arraylike(a, n::Int, array = nothing)
     if a == nothing || (array != nothing && !(eltype(array) <: Number))
         return cell(n)
@@ -152,8 +152,8 @@ inside = in
 
 if VERSION >= v"0.4-"
     import Base: minimum, maximum
-    minimum{T<:FloatingPoint}(::Type{T} = Float64) = -realmax(T)
-    maximum{T<:FloatingPoint}(::Type{T} = Float64) =  realmax(T)
+    minimum{T<:AbstractFloat}(::Type{T} = Float64) = -realmax(T)
+    maximum{T<:AbstractFloat}(::Type{T} = Float64) =  realmax(T)
     minimum{T<:Number}(::Type{T}) = typemin(T)
     maximum{T<:Number}(::Type{T}) = typemax(T)
 end

@@ -59,7 +59,7 @@ macro test_almostequal(A,B,MAXDIFF)
     #println(A) 
     quote
         local a = $(esc(A))
-        #if isequal(a,Nothing)   # FIXME this check does not actually work
+        #if isequal(a,Void)   # FIXME this check does not actually work
         #    error("test_equal: the following function does not return any output! \n\n $A \n\n")
         #end
         local b = $(esc(B))

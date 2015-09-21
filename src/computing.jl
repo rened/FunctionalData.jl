@@ -51,7 +51,7 @@ mapi(a, f::Function ) = map2(a, 1:len(a), f)
 
 import Base.map
 map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
-map(a::String, f::Function) = flatten(map(unstack(a),f))
+map(a::AbstractString, f::Function) = flatten(map(unstack(a),f))
 function map{T,N}(a::AbstractArray{T,N}, f::Function)
     isempty(a) && return []
 
@@ -72,10 +72,10 @@ end
 
 function map(a::Dict, f::Function; kargs...)
     isempty(a) && return a
-    makeentry(a::Nothing) = []
+    makeentry(a::Void) = []
     makeentry(a::Tuple) = [a]
     makeentry{T<:Tuple}(a::Array{T}) = a
-    makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Nothing, Tuple{Symbol,Any}, Array{Tuple}")
+    makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
 
     r = @p id map(x->f(x[1],x[2]),a) | map makeentry | flatten
     @compat [fst(x) => snd(x) for x in r]

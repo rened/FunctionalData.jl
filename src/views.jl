@@ -2,7 +2,7 @@ export View, isviewable, view, view!, next!, trytoview
 
 typealias View Array
 
-isviewable{T<:Real}(a::Union(DenseArray,SharedArray){T}) = true
+isviewable{T<:Real}(a::Union{DenseArray,SharedArray}{T}) = true
 isviewable(a) = false
 
 view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)

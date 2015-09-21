@@ -46,15 +46,15 @@ atend(a, i) = at(a, len(a)-i+1)
 @compat @inline third(a) = at(a,3)
 
 import Base.last
-@compat @inline last(a::Union(AbstractArray,String)) = at(a,len(a))
-@compat @inline last(a::Union(AbstractArray,String), n) = trimmedpart(a,(-n+1:0)+len(a))
+@compat @inline last(a::Union{AbstractArray,AbstractString}) = at(a,len(a))
+@compat @inline last(a::Union{AbstractArray,AbstractString}, n) = trimmedpart(a,(-n+1:0)+len(a))
 
 #######################################
 ##  part
 
 part(a::AbstractArray, i::Real) = part(a,[i])
 part{T}(a::Vector, i::AbstractArray{T,1}) = a[i]
-part{T}(a::String, i::AbstractArray{T,1}) = string(a[i])
+part{T}(a::AbstractString, i::AbstractArray{T,1}) = string(a[i])
 part{T}(a::NTuple{T},i::Int) = a[i]
 part{T,T2,N}(a::AbstractArray{T2,N}, i::AbstractArray{T,1}) = slicedim(a,max(2,ndims(a)),i)
 part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
@@ -69,7 +69,7 @@ trimmedpart(a, i::UnitRange) = part(a, max(1, minimum(i)):min(len(a),maximum(i))
 trimmedpart(a, i::AbstractArray) = part(a, i[(i .>= 1) & (i .<= len(a))])
 
 import Base.take
-take(a::Union(Array, UnitRange, String), n::Int) = part(a, 1:min(n, len(a)))
+take(a::Union{Array, UnitRange, AbstractString}, n::Int) = part(a, 1:min(n, len(a)))
 takelast(a, n::Int = 1) = part(a, max(1,len(a)-n+1):len(a))
 function takewhile(a, f)
     for i in 1:len(a)

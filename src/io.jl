@@ -3,7 +3,7 @@ export filenames, filepaths, dirnames, dirpaths
 export readmat, writemat
 # using MAT
 
-existsfile(filename::String) = (s = stat(filename); s.inode!=0)
+existsfile(filename::AbstractString) = (s = stat(filename); s.inode!=0)
 
 #import Base.mkdir
 #function amkdir(a)
@@ -27,7 +27,7 @@ existsfile(filename::String) = (s = stat(filename); s.inode!=0)
 #end
 
 import Base.read
-function read(filename::String)
+function read(filename::AbstractString)
     io = open(filename)
     finalizer(io,close)
     r = readall(io)
@@ -35,12 +35,12 @@ function read(filename::String)
     return r
 end
 
-#function readlines(filename::String)
+#function readlines(filename::AbstractString)
 #    lines(read(filename))
 #end
 
 import Base.write
-function write(data::String,filename::String)
+function write(data::AbstractString,filename::AbstractString)
     io = open(filename,"w")
     finalizer(io,close)
     write(io,data)

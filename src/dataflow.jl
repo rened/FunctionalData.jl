@@ -75,7 +75,7 @@ function subtoind(subs, a)
 end
 
 indtosub(i::Int, a) = indtosub([i], a)
-function indtosub(inds::AbstractArray, a::Union(Array,BitArray)) 
+function indtosub(inds::AbstractArray, a::Union{Array,BitArray}) 
     @p ind2sub size(a) inds | unstack | map row | col | flatten
 end
 
@@ -92,7 +92,7 @@ function stack{T}(a::Array{T,1})
 end
 stack{T<:Real}(a::DenseArray{T}) = a
 
-typealias StringLike Union(Char, AbstractString)
+typealias StringLike Union{Char, AbstractString}
 tostring(a) = string(a)
 tostring(a::AbstractString) = a
 flatten(a::StringLike) = a
@@ -185,7 +185,7 @@ unstack(a) = Any[at(a,i) for i in 1:len(a)]
 #######################################
 ##  riffle
 
-function riffle(a::String,x::Union(Char,String))
+function riffle(a::AbstractString,x::Union{Char,AbstractString})
     join(a,x)
 end
 
@@ -291,6 +291,6 @@ end
 #####################################################
 ##   find
 
-findsub(a::Union(Array,BitArray)) = indtosub(find(a.!=0), a)
+findsub(a::Union{Array,BitArray}) = indtosub(find(a.!=0), a)
 
 

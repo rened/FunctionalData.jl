@@ -76,8 +76,8 @@ shouldtest("views") do
     v[2] = 10
     @fact a --> [1 2 3; 4 10 6]
     a = UInt8[1 2 3; 4 5 6]
-    @fact view(a,1)  -->  col(Uint8[1,4])
-    @fact view(a,3)  -->  col(Uint8[3,6])
+    @fact view(a,1)  -->  col(UInt8[1,4])
+    @fact view(a,3)  -->  col(UInt8[3,6])
     @fact view(a,2:3)  --> part(a,2:3)
 end
 

@@ -1,14 +1,14 @@
 export showinfo
 
-showinfo(io::IO, a::String) = showinfo(io, a, "")
-function showinfo(io::IO, a, comment::String = ""; showheader = true)
+showinfo(io::IO, a::AbstractString) = showinfo(io, a, "")
+function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
     v(a::Number) = [a]
     v(a) = vec(a)
-    s(a::String) = length(a)
+    s(a::AbstractString) = length(a)
     s(a) = size(a)
-    med(a::String) = @p map a uint8 | median | round Int _ | char
+    med(a::AbstractString) = @p map a uint8 | median | round Int _ | char
     med(a) = median(a)
-    if isa(a, Union(Number, Array, SharedArray, String))
+    if isa(a, Union{Number, Array, SharedArray, AbstractString})
         showheader && print(io,  length(comment)==0 ? "----  " : comment*"  --  ")
         println(io, "    type: $(typeof(a))   size: $(s(a))")
         try
