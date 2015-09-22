@@ -1,9 +1,6 @@
-VERSION >= v"0.4.0-dev+6521" && __precompile__()
+isdefined(:__precompile__) && __precompile__()
 
 module FunctionalData
-using Compat
-
-assert(VERSION.minor == 3 || VERSION >= v"0.4.0-dev+4238")
 
 include("lensize.jl")
 include("accessors.jl")

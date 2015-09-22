@@ -63,7 +63,7 @@ function map{T,N}(a::AbstractArray{T,N}, f::Function)
     return r
 end
 
-@compat @inline function map_{Tin,Nin,Tout,Nout}(f::Function,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout})
+@inline function map_{Tin,Nin,Tout,Nout}(f::Function,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout})
     for i = 2:len(a)
         b = f(at(a,i))
         setat!(r,i,b)
@@ -78,7 +78,7 @@ function map(a::Dict, f::Function; kargs...)
     makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
 
     r = @p id map(x->f(x[1],x[2]),a) | map makeentry | flatten
-    @compat [fst(x) => snd(x) for x in r]
+    [fst(x) => snd(x) for x in r]
 end
 
 mapkeys(a::Dict, f) = map(a, (k,v) -> (f(k),v))

@@ -9,45 +9,45 @@ export extract
 #######################################
 ##  at, atend
 
-@compat @inline at{T,N}(a::NTuple{T,N},i) = a[i]
-@compat @inline at(a::AbstractArray, ind::Tuple) = a[ind...]
-@compat @inline at{T}(a::AbstractArray{T},i::AbstractArray) = 
+@inline at{T,N}(a::NTuple{T,N},i) = a[i]
+@inline at(a::AbstractArray, ind::Tuple) = a[ind...]
+@inline at{T}(a::AbstractArray{T},i::AbstractArray) = 
     len(i) == 1 ? (size(i,1) == 1 ? at(a, i[1]) : a[subtoind(i,a)]) : error("index has len>1")
-@compat @inline at{T}(a::AbstractArray{T,1},i::Number) = a[i]
+@inline at{T}(a::AbstractArray{T,1},i::Number) = a[i]
 #at{T,N}(a::AbstractArray{T,N},i) = slicedim(a,N,i)
-@compat @inline at{T}(a::AbstractArray{T,2},i::Number) = col(a[:,i])
-@compat @inline at{T}(a::AbstractArray{T,3},i::Number) = a[:,:,i]
-@compat @inline at{T}(a::AbstractArray{T,4},i::Number) = a[:,:,:,i]
-@compat @inline at{T}(a::AbstractArray{T,5},i::Number) = a[:,:,:,:,i]
-@compat @inline at{T}(a::AbstractArray{T,6},i::Number) = a[:,:,:,:,:,i]
-@compat @inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
-@compat @inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
-@compat @inline at(a::Dict,i) = a[i]
-@compat @inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
-@compat @inline at(a,i) = a[i]
+@inline at{T}(a::AbstractArray{T,2},i::Number) = col(a[:,i])
+@inline at{T}(a::AbstractArray{T,3},i::Number) = a[:,:,i]
+@inline at{T}(a::AbstractArray{T,4},i::Number) = a[:,:,:,i]
+@inline at{T}(a::AbstractArray{T,5},i::Number) = a[:,:,:,:,i]
+@inline at{T}(a::AbstractArray{T,6},i::Number) = a[:,:,:,:,:,i]
+@inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
+@inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
+@inline at(a::Dict,i) = a[i]
+@inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
+@inline at(a,i) = a[i]
 atend(a, i) = at(a, len(a)-i+1)
 
 
 #######################################
 ##  setat!
 
-@compat @inline setat!{T}(a::AbstractArray{T,1},i::Number,v) = (a[i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,2},i::Number,v) = (a[:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,3},i::Number,v) = (a[:,:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,4},i::Number,v) = (a[:,:,:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,5},i::Number,v) = (a[:,:,:,:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,6},i::Number,v) = (a[:,:,:,:,:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,7},i::Number,v) = (a[:,:,:,:,:,:,i] = v; a)
-@compat @inline setat!{T}(a::AbstractArray{T,8},i::Number,v) = (a[:,:,:,:,:,:,:,i] = v; a)
-@compat @inline setat!(a,i,v) = (a[i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,1},i::Number,v) = (a[i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,2},i::Number,v) = (a[:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,3},i::Number,v) = (a[:,:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,4},i::Number,v) = (a[:,:,:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,5},i::Number,v) = (a[:,:,:,:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,6},i::Number,v) = (a[:,:,:,:,:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,7},i::Number,v) = (a[:,:,:,:,:,:,i] = v; a)
+@inline setat!{T}(a::AbstractArray{T,8},i::Number,v) = (a[:,:,:,:,:,:,:,i] = v; a)
+@inline setat!(a,i,v) = (a[i] = v; a)
 
-@compat @inline fst(a) = at(a,1)
-@compat @inline snd(a) = at(a,2)
-@compat @inline third(a) = at(a,3)
+@inline fst(a) = at(a,1)
+@inline snd(a) = at(a,2)
+@inline third(a) = at(a,3)
 
 import Base.last
-@compat @inline last(a::Union{AbstractArray,AbstractString}) = at(a,len(a))
-@compat @inline last(a::Union{AbstractArray,AbstractString}, n) = trimmedpart(a,(-n+1:0)+len(a))
+@inline last(a::Union{AbstractArray,AbstractString}) = at(a,len(a))
+@inline last(a::Union{AbstractArray,AbstractString}, n) = trimmedpart(a,(-n+1:0)+len(a))
 
 #######################################
 ##  part

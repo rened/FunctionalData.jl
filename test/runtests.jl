@@ -1,6 +1,6 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 addprocs(3)
-using FactCheck, Compat
+using FactCheck
 importall FunctionalData
 FactCheck.setstyle(:compact)
 
@@ -170,7 +170,7 @@ shouldtest("accessors") do
         @fact size(at(rand(2,3,4),(1:2,))) --> (2,)
         @fact size(at(rand(2,3,4),([1,2],1:2))) --> (2,2)
 
-        d = @compat Dict(:a => 1, :b => @compat Dict(:c => 2, :d => Dict(:e => 3)))
+        d = Dict(:a => 1, :b => Dict(:c => 2, :d => Dict(:e => 3)))
         @fact at(d,:a) --> 1
         @fact at(d,:b,:c) --> 2
         @fact at(d,:b,:c) --> 2
@@ -329,8 +329,8 @@ shouldtest("accessors") do
         @fact extract(_somedummytype(1,2), :a)  -->  1
         @fact extract(_somedummytype(1,2), :b)  -->  2
         @fact extract([_somedummytype(1,2), _somedummytype(3,4)], :b)  -->  [2,4]
-        d1 = @compat Dict(:a => 1)
-        d2 = @compat Dict(:b => 2)
+        d1 = Dict(:a => 1)
+        d2 = Dict(:b => 2)
         @fact extract(d1, :a)  -->  1
         @fact extract(d1, :b)  -->  nothing
         @fact extract([d1,d2], :a, 10)  -->  [1, 10]
@@ -364,11 +364,11 @@ shouldtest("computing") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) --> [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) --> [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) --> cat(3,[2 2],[2 2],[2 2])
-        @fact map((@compat Dict(1 => 2)), (k,v) -> (k, 10*v)) --> @compat Dict(1 => 20)
-        VERSION.minor == 3 && @fact map((@compat Dict(1 => 2)), (k,v) -> [(k,v); (10*k, 10*v)]) --> @compat Dict(1 => 2, 10 => 20)
-        @fact map((@compat Dict(1 => 2)), (k,v) -> nothing) --> @compat Dict()
-        @fact mapkeys((@compat Dict(1 => 2)), x -> 2x) --> @compat Dict(2 => 2)
-        @fact mapvalues((@compat Dict(1 => 2)), x -> 2x) --> @compat Dict(1 => 4)
+        @fact map((Dict(1 => 2)), (k,v) -> (k, 10*v)) --> Dict(1 => 20)
+        VERSION.minor == 3 && @fact map((Dict(1 => 2)), (k,v) -> [(k,v); (10*k, 10*v)]) --> Dict(1 => 2, 10 => 20)
+        @fact map((Dict(1 => 2)), (k,v) -> nothing) --> Dict()
+        @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
+        @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
     end
     shouldtestcontext("mapi") do
         @fact reduce(&, mapi(0:9, (x,i)->x+1==i)) --> true
