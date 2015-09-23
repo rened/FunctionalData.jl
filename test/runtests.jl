@@ -227,6 +227,9 @@ shouldtest("accessors") do
         @fact part([1;2;3],[1,3]) --> [1;3]
         @fact part([1 2 3; 4 5 6],[1,3]) --> [1 3;4 6]
         @fact part([1 2 3; 4 5 6],[1 2; 3 2]) --> [3,5]
+        d = Dict(:a => 1, :b => 2)
+        @fact part(d, :a) --> [1]
+        @fact part(d, :a, :b) --> [1,2]
     end
 
     shouldtestcontext("trimmedpart") do

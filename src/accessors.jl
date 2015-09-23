@@ -58,7 +58,8 @@ part{T}(a::AbstractString, i::AbstractArray{T,1}) = string(a[i])
 part{T}(a::NTuple{T},i::Int) = a[i]
 part{T,T2,N}(a::AbstractArray{T2,N}, i::AbstractArray{T,1}) = slicedim(a,max(2,ndims(a)),i)
 part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
-part{T}(a::Dict, i::AbstractArray{T,1}) = Base.map(x->at(a,x),i)
+part(a::Dict, i::AbstractVector) = Base.map(x->at(a,x),i)
+part(a::Dict, inds...) = mapvec(inds, x->at(a,x))
 part{T<:Real}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
