@@ -1,5 +1,5 @@
 export at, atend, setat!, fst, snd, third, last
-export part, values, rowpart, trimmedpart, take, takelast, takewhile
+export part, values, vec, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile
 export partition, partsoflen
 export getindex
@@ -64,10 +64,13 @@ part(a::Dict, inds...) = dictpart(a, inds)
 part{T<:Real}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
-dictvalues(a, inds) = map(inds,x->at(a,x))
+dictvalues(a, inds) = mapvec(inds,x->at(a,x))
 import Base.values
 values(a::Dict, ind, inds...) = dictvalues(a, [ind; inds...])
 values(a::Dict, inds::AbstractVector) = dictvalues(a, inds)
+
+import Base.vec
+vec(a::Dict) = [Pair(k,v) for (k,v) in a]
 
 rowpart(a::Matrix, i) = a[i, :]
 

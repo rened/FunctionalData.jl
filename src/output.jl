@@ -1,6 +1,5 @@
 export showinfo
 
-showinfo(io::IO, a::AbstractString) = showinfo(io, a, "")
 function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
     v(a::Number) = [a]
     v(a) = vec(a)
