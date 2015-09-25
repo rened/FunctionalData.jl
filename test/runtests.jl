@@ -228,8 +228,10 @@ shouldtest("accessors") do
         @fact part([1 2 3; 4 5 6],[1,3]) --> [1 3;4 6]
         @fact part([1 2 3; 4 5 6],[1 2; 3 2]) --> [3,5]
         d = Dict(:a => 1, :b => 2)
-        @fact part(d, :a) --> [1]
-        @fact part(d, :a, :b) --> [1,2]
+        @fact part(d, :a) --> Dict(:a => 1)
+        @fact part(d, :a, :b) --> d
+        @fact values(d, :a) --> [1]
+        @fact values(d, :a, :b) --> [1,2]
     end
 
     shouldtestcontext("trimmedpart") do
@@ -372,6 +374,8 @@ shouldtest("computing") do
         @fact map((Dict(1 => 2)), (k,v) -> nothing) --> Dict()
         @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
+        d = Dict(:a => 1, :b => 2)
+        @fact (@p mapmap d id | sort) --> [1,2]
     end
     shouldtestcontext("mapi") do
         @fact reduce(&, mapi(0:9, (x,i)->x+1==i)) --> true

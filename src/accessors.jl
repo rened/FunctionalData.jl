@@ -1,5 +1,5 @@
 export at, atend, setat!, fst, snd, third, last
-export part, rowpart, trimmedpart, take, takelast, takewhile
+export part, values, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile
 export partition, partsoflen
 export getindex
@@ -58,10 +58,16 @@ part{T}(a::AbstractString, i::AbstractArray{T,1}) = string(a[i])
 part{T}(a::NTuple{T},i::Int) = a[i]
 part{T,T2,N}(a::AbstractArray{T2,N}, i::AbstractArray{T,1}) = slicedim(a,max(2,ndims(a)),i)
 part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
-part(a::Dict, i::AbstractVector) = Base.map(x->at(a,x),i)
-part(a::Dict, inds...) = mapvec(inds, x->at(a,x))
+dictpart(a, inds) = Dict(map(filter(collect(keys(a)), x->in(x,inds)), x->Pair(x,at(a,x))))
+part(a::Dict, inds::AbstractVector) = dictpart(a, inds)
+part(a::Dict, inds...) = dictpart(a, inds)
 part{T<:Real}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
+
+dictvalues(a, inds) = map(inds,x->at(a,x))
+import Base.values
+values(a::Dict, ind, inds...) = dictvalues(a, [ind; inds...])
+values(a::Dict, inds::AbstractVector) = dictvalues(a, inds)
 
 rowpart(a::Matrix, i) = a[i, :]
 

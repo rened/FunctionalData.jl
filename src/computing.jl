@@ -83,6 +83,7 @@ end
 
 mapkeys(a::Dict, f) = map(a, (k,v) -> (f(k),v))
 mapvalues(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
+mapmap(a::Dict, f) = [f(v) for (k,v) in a]
 
 function mapmap(a, f)
     isempty(a) && return Any[]
