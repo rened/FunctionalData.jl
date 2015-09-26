@@ -40,8 +40,9 @@ end
 #end
 
 import Base.write
-function write(data::AbstractString,filename::AbstractString)
-    io = open(filename,"w")
+write(data::AbstractString, filename::AbstractString) = write(data, filename, "w")
+function write(data::AbstractString, filename::AbstractString, mode)
+    io = open(filename, mode)
     finalizer(io,close)
     write(io,data)
     close(io)

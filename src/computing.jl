@@ -73,8 +73,8 @@ end
 function map(a::Dict, f::Function; kargs...)
     isempty(a) && return a
     makeentry(a::Void) = []
-    makeentry(a::Tuple) = [a]
-    makeentry{T<:Tuple}(a::Array{T}) = a
+    makeentry(a::Union{Tuple,Pair}) = [a]
+    makeentry{T<:Union{Tuple,Pair}}(a::Array{T}) = a
     makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
 
     r = @p id map(x->f(x[1],x[2]),a) | map makeentry | flatten

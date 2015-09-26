@@ -2,6 +2,9 @@ isdefined(:__precompile__) && __precompile__()
 
 module FunctionalData
 
+FD = FunctionalData
+export FD
+
 include("lensize.jl")
 include("accessors.jl")
 include("views.jl")
