@@ -505,7 +505,7 @@ end
 tee(a,f) = (f(a);a)
 
 import Base.*
-*(f::Function, g::Function) = (a...) -> f(g(a...))
+*(f::Union{Function,Type}, g::Union{Function,Type}) = (a...) -> f(g(a...))
 
 typed{N}(a::Array{Any,N}) = isempty(a) ? [] : convert(Array{typeof(a[1])}, a)
 typed(a) = a

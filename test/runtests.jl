@@ -343,6 +343,14 @@ shouldtest("accessors") do
         @fact extract(d1, :b)  -->  nothing
         @fact extract([d1,d2], :a, 10)  -->  [1, 10]
     end
+    shouldtestcontext("isnil") do
+        @fact isnil(Void) --> true
+        @fact isnil(nothing) --> true
+        @fact isnil(Nullable()) --> true
+        @fact isnil(Nullable(1)) --> false
+        @fact isnil(1) --> false
+        @fact isnil("asdf") --> false
+    end
 end
 
 shouldtest("computing") do

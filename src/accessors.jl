@@ -4,6 +4,7 @@ export drop, dropat, droplast, dropwhile
 export partition, partsoflen
 export getindex
 export extract
+export isnil
 
 
 #######################################
@@ -129,4 +130,4 @@ extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)
 extract(a::Dict, x, default = nothing) = get(a, x, default)
 extract(a, x::Symbol, default = nothing) = a.(x)
 
-
+isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
