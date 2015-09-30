@@ -311,6 +311,7 @@ shouldtest("accessors") do
         @fact droplast([1 2 3; 4 5 6],1) --> [1 2 ; 4 5 ]
         @fact droplast([1 2 3; 4 5 6],2) --> col([1; 4])
         @fact droplast([]) --> []
+        @fact droplast([1]) --> []
         @fact droplast([],2) --> []
     end
 
