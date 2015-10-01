@@ -48,14 +48,21 @@ function write(data::AbstractString, filename::AbstractString, mode)
     close(io)
 end
 
-function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath = false)
+function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath = false, recursive = false)
     # @show path selector hidden withpath
     files = readdir(path)
     r = filter(x->selector(joinpath(path,x)) && (hidden || x[1]!='.'), files)
     # @show r
     r = sort(r)
     r = withpath ? map(r, x->joinpath(path,x)) : r
-    map(r, utf8)
+    r = map(r, utf8)
+    if recursive
+        f(x) = filedirnames(x; 
+            selector = selector, hidden = hidden, withpath = withpath, recursive = true)
+        @p dirpaths path | map f | flatten | concat r _
+    else
+        r
+    end
 end
 dirnames(path = pwd(); kargs...) = filedirnames(path; selector = isdir, kargs...)
 dirpaths(path = pwd(); kargs...) = dirnames(path; withpath = true, kargs...)
