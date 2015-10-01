@@ -1,4 +1,4 @@
-isdefined(:__precompile__) && __precompile__()
+__precompile__()
 
 module FunctionalData
 
