@@ -22,8 +22,7 @@ sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
 
-uniq(a) = uniq(a,id)
-function uniq(a,f)
+function uniq(a,f = id)
     d = Dict{Any,Int}()
     h = @p map a f
     for i = len(a):-1:1
@@ -35,24 +34,25 @@ end
 #######################################
 ## map, pmap
 
+typealias Callable Union{Function, Type}
 
-mapvec(a, f::Function) = [f(trytoview(a,i)) for i in 1:len(a)]
-mapvec2(a, b, f::Function) = [f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
-mapvec3(a, b, c, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i)) for i in 1:len(a)]
-mapvec4(a, b, c, d, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i)) for i in 1:len(a)]
-mapvec5(a, b, c, d, e, f::Function) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i),trytoview(e,i)) for i in 1:len(a)]
+mapvec(a, f::Callable) = [f(trytoview(a,i)) for i in 1:len(a)]
+mapvec2(a, b, f::Callable) = [f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
+mapvec3(a, b, c, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i)) for i in 1:len(a)]
+mapvec4(a, b, c, d, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i)) for i in 1:len(a)]
+mapvec5(a, b, c, d, e, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i),trytoview(e,i)) for i in 1:len(a)]
 
-map2(a, b, f::Function) = flatten(mapvec2(a,b,f))
-map3(a, b, c, f::Function) = flatten(mapvec3(a,b,c,f))
-map4(a, b, c, d, f::Function) = flatten(mapvec4(a,b,c,d,f))
-map5(a, b, c, d, e, f::Function) = flatten(mapvec5(a,b,c,d,e,f))
+map2(a, b, f::Callable) = flatten(mapvec2(a,b,f))
+map3(a, b, c, f::Callable) = flatten(mapvec3(a,b,c,f))
+map4(a, b, c, d, f::Callable) = flatten(mapvec4(a,b,c,d,f))
+map5(a, b, c, d, e, f::Callable) = flatten(mapvec5(a,b,c,d,e,f))
 
-mapi(a, f::Function ) = map2(a, 1:len(a), f)
+mapi(a, f::Callable ) = map2(a, 1:len(a), f)
 
 import Base.map
-map(a, f::Function) = map(unstack(1:len(a)), i->f(at(a,i)))
-map(a::AbstractString, f::Function) = flatten(map(unstack(a),f))
-function map{T,N}(a::AbstractArray{T,N}, f::Function)
+map(a, f::Callable) = map(unstack(1:len(a)), i->f(at(a,i)))
+map(a::AbstractString, f::Callable) = flatten(map(unstack(a),f))
+function map{T,N}(a::AbstractArray{T,N}, f::Callable)
     isempty(a) && return []
 
     r1 = f(fst(a))
@@ -63,14 +63,14 @@ function map{T,N}(a::AbstractArray{T,N}, f::Function)
     return r
 end
 
-@inline function map_{Tin,Nin,Tout,Nout}(f::Function,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout})
+@inline function map_{Tin,Nin,Tout,Nout}(f::Callable,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout})
     for i = 2:len(a)
         b = f(at(a,i))
         setat!(r,i,b)
     end
 end
 
-function map(a::Dict, f::Function; kargs...)
+function map(a::Dict, f::Callable; kargs...)
     isempty(a) && return a
     makeentry(a::Void) = []
     makeentry(a::Union{Tuple,Pair}) = [a]
@@ -97,7 +97,7 @@ function mapmapvec(a, f)
     map(a, g)
 end
 
-function map{T<:Real}(a::DenseArray{T,1},f::Function)
+function map{T<:Real}(a::DenseArray{T,1},f::Callable)
     isempty(a) && return []
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
@@ -117,7 +117,7 @@ function map{T<:Real}(a::DenseArray{T,1},f::Function)
     end
 end
 
-function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
+function map{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return []
     v = view(a,1)
     r1 = f(v)
@@ -140,7 +140,7 @@ function map{T<:Real,N}(a::DenseArray{T,N},f::Function)
     end
 end
 
-function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Function, f2::Function)
+function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
     isempty(a) && return []
     v = view(a,1)
     r1 = f1(v)
@@ -151,7 +151,7 @@ function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Function, f2::Function)
     r
 end
 
-function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Function)
+function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable)
     isempty(a) && return []
     v = view(a,1)
     rv = view(r,1)
@@ -164,7 +164,7 @@ function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f:
 end
 
 import Base.map!
-function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
+function map!r{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -174,7 +174,7 @@ function map!r{T<:Real,N}(a::DenseArray{T,N},f::Function)
     a
 end
 
-function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
+function map!{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -184,8 +184,8 @@ function map!{T<:Real,N}(a::DenseArray{T,N},f::Function)
     a
 end
  
-work(a,f::Function) = for i in 1:len(a) f(at(a,i)) end
-function work{T<:Real,N}(a::DenseArray{T,N},f::Function)
+work(a,f::Callable) = for i in 1:len(a) f(at(a,i)) end
+function work{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     len(a)==0 && return
     v = view(a,1)
     for i = 1:len(a)
@@ -198,16 +198,16 @@ pwork(a, f) = (g(x) = (f(x);uint8(0)); pmap(a, g); nothing)
 shwork(a, f) = (g(x) = (f(x);uint8(0)); shmap(a, g); nothing)
 workwork(a, f) = (g(x) = (f(x);uint8(0)); mapmap(a, g); nothing)
 
-work2(a, b, f::Function) = [(f(at(a,i),at(b,i)); nothing) for i in 1:len(a)]
-work3(a, b, c, f::Function) = [(f(at(a,i),at(b,i),at(c,i)); nothing) for i in 1:len(a)]
-work4(a, b, c, d, f::Function) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) for i in 1:len(a)]
-work5(a, b, c, d, e_, f::Function) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
+work2(a, b, f::Callable) = [(f(at(a,i),at(b,i)); nothing) for i in 1:len(a)]
+work3(a, b, c, f::Callable) = [(f(at(a,i),at(b,i),at(c,i)); nothing) for i in 1:len(a)]
+work4(a, b, c, d, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) for i in 1:len(a)]
+work5(a, b, c, d, e_, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
  
 share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a
 unshare(a::SharedArray) = sdata(a)
 
-function loopovershared(r::View, a::View, f::Function)
+function loopovershared(r::View, a::View, f::Callable)
     v = view(a,1)
     rv = view(r,1)
     for i = 1:len(a)
@@ -217,7 +217,7 @@ function loopovershared(r::View, a::View, f::Function)
     end
 end
 
-function loopovershared!(a::View, f::Function)
+function loopovershared!(a::View, f::Callable)
     v = view(a, 1)
     for i = 1:len(a)
         f(v)
@@ -225,7 +225,7 @@ function loopovershared!(a::View, f::Function)
     end
 end
 
-function loopovershared!r(a::View, f::Function)
+function loopovershared!r(a::View, f::Callable)
     v = view(a, 1)
     for i = 1:len(a)
         v[:] = f(v)
@@ -233,7 +233,7 @@ function loopovershared!r(a::View, f::Function)
     end
 end
 
-function loopovershared2!(r::View, a::View, f::Function)
+function loopovershared2!(r::View, a::View, f::Callable)
     v = view(a,1)
     rv = view(r,1)
     for i = 1:len(a)
@@ -254,8 +254,8 @@ function shsetup(a::SharedArray; withfirst = false)
     pids, inds, n
 end
 
-shmap{T<:Real,N}(a::DenseArray{T,N}, f::Function) = shmap(share(a), f)
-function shmap{T<:Real,N}(a::SharedArray{T,N}, f::Function)
+shmap{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap(share(a), f)
+function shmap{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a)
 
     r1 = f(view(a,1))
@@ -269,8 +269,8 @@ function shmap{T<:Real,N}(a::SharedArray{T,N}, f::Function)
     r
 end
 
-shmap!{T<:Real,N}(a::DenseArray{T,N}, f::Function) = shmap!(share(a), f)
-function shmap!{T<:Real,N}(a::SharedArray{T,N}, f::Function)
+shmap!{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap!(share(a), f)
+function shmap!{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -279,8 +279,8 @@ function shmap!{T<:Real,N}(a::SharedArray{T,N}, f::Function)
     a
 end
 
-shmap!r{T<:Real,N}(a::DenseArray{T,N}, f::Function) = shmap!r(share(a), f)
-function shmap!r{T<:Real,N}(a::SharedArray{T,N}, f::Function)
+shmap!r{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap!r(share(a), f)
+function shmap!r{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -289,8 +289,8 @@ function shmap!r{T<:Real,N}(a::SharedArray{T,N}, f::Function)
     a
 end
 
-shmap2!{T<:Real, N}(a::DenseArray{T,N}, f1::Function, f2::Function) = shmap2!(share(a), f1, f2)
-function shmap2!{T<:Real, N}(a::SharedArray{T,N}, f1::Function, f2::Function)
+shmap2!{T<:Real, N}(a::DenseArray{T,N}, f1::Callable, f2::Callable) = shmap2!(share(a), f1, f2)
+function shmap2!{T<:Real, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
     r1 = f1(view(a,1))
     r = sharraylike(r1, len(a))
     rv = view(r,1)
@@ -299,8 +299,8 @@ function shmap2!{T<:Real, N}(a::SharedArray{T,N}, f1::Function, f2::Function)
     r
 end
 
-shmap2!{T<:Real,N, T2<:Real, M}(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Function) = shmap2!(share(a), r, f)
-function shmap2!{T<:Real,N, T2<:Real, M}(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Function; withfirst = true)
+shmap2!{T<:Real,N, T2<:Real, M}(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Callable) = shmap2!(share(a), r, f)
+function shmap2!{T<:Real,N, T2<:Real, M}(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Callable; withfirst = true)
     pids, inds, n = shsetup(a, withfirst = withfirst)
     @sync for i in 1:n
         @spawnat pids[i] loopovershared2!(view(r, inds[i]), view(a, inds[i]), f)
@@ -315,13 +315,13 @@ import Base.pmap
 mapper(a, f) = map(a,f)
 mapper!(a, f) = map!(a,f)
 mapper!r(a, f) = map!r(a,f)
-mapper2!(a, f1::Function, f2) = map2!(a,f1,f2)
+mapper2!(a, f1::Callable, f2) = map2!(a,f1,f2)
 mapper2!(a, r, f) = map2!(a,r,f)
-pmap(a, f::Function; kargs...) = pmap_internal(mapper, a, f; kargs...)
+pmap(a, f::Callable; kargs...) = pmap_internal(mapper, a, f; kargs...)
 pmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; kargs...)
 pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
-pmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
-pmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; kargs...)
+pmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
+pmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; kargs...)
 
 function pmapsetup(a; pids = workers())
     if length(pids) > 1
@@ -412,17 +412,17 @@ function pmapon(f, lsts...; err_retry=true, err_stop=false, pids = workers())
 end
 
 
-function pmap_internal(mapf::Function, a, f::Function; kargs...)
+function pmap_internal(mapf::Callable, a, f::Callable; kargs...)
     g(a) = mapf(a,f)
     pmap_exec(g, a; kargs...)
 end
 
-function pmap_internal2!(mapf::Function, a, f1::Function, f2::Function; kargs...)
+function pmap_internal2!(mapf::Callable, a, f1::Callable, f2::Callable; kargs...)
     g(a) = mapf(a,f1,f2)
     pmap_exec(g, a; kargs...)
 end
 
-function pmap_internal2!(mapf::Function, a, r, f::Function; nworkers = typemax(Int), kargs...)
+function pmap_internal2!(mapf::Callable, a, r, f::Callable; nworkers = typemax(Int), kargs...)
     g(a) = mapf(fst(a), snd(a), f)
     pids, inds, n = pmapsetup(a; kargs...)
     partsa = pmapparts(a, inds, n)
@@ -446,14 +446,14 @@ export hmap, hmap!, hmap!r, hmap2!r
 hmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = hostpids(), kargs...)
 hmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = hostpids(), kargs...)
 hmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = hostpids(), kargs...)
-hmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = hostpids(), kargs...)
-hmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids(), kargs...)
+hmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = hostpids(), kargs...)
+hmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids(), kargs...)
 
 lmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = localworkers(), kargs...)
 lmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = localworkers(), kargs...)
 lmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = localworkers(), kargs...)
-lmap2!r(a, f1::Function, f2::Function; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
-lmap2!r(a, r, f::Function; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers(), kargs...)
+lmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
+lmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = localworkers(), kargs...)
 
 amapvec(a,f; kargs...) = amap(a,f; n = 10, mapper = mapvec)
 function amap(a,f; n = 10, mapper = map)
@@ -505,19 +505,19 @@ end
 tee(a,f) = (f(a);a)
 
 import Base.*
-*(f::Union{Function,Type}, g::Union{Function,Type}) = (a...) -> f(g(a...))
+*(f::Callable, g::Callable) = (a...) -> f(g(a...))
 
-typed{N}(a::Array{Any,N}) = isempty(a) ? [] : convert(Array{typeof(a[1])}, a)
+typed{N}(a::Array{Any,N}) = isempty(a) ? [] : convert(Array{typeof(a[1]),N}, a)
 typed(a) = a
 
 import Base.filter
-filter(r::Regex, f2::Function) = error()
-filter(f1::Function, f2::Function) = error()
-function filter(a, f::Function)
+filter(r::Regex, f2::Callable) = error()
+filter(f1::Callable, f2::Callable) = error()
+function filter(a, f::Callable)
     ind = vec(typed(map(a,f)))
     isempty(ind) ? [] : part(a, ind)
 end
 
 import Base.call
-call(f::Function, args...) = f(args...)
+call(f::Callable, args...) = f(args...)
 
