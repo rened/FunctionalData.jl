@@ -1,6 +1,7 @@
 export at, atend, setat!, fst, snd, third, last
 export part, values, vec, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile
+export every
 export partition, partsoflen
 export getindex
 export extract
@@ -108,6 +109,7 @@ function dropwhile(a, f)
     []
 end
 
+every(a,n) = part(a,1:n:len(a))
 
 function partition(a,n) 
     n = min(n, len(a))

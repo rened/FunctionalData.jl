@@ -7,7 +7,7 @@ function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
     s(a) = size(a)
     med(a::AbstractString) = @p map a uint8 | median | round Int _ | char
     med(a) = median(a)
-    if isa(a, Union{Number, Array, SharedArray, AbstractString})
+    if isa(a, Union{Number, AbstractArray, AbstractString})
         showheader && print(io,  length(comment)==0 ? "----  " : comment*"  --  ")
         println(io, "    type: $(typeof(a))   size: $(s(a))")
         try
