@@ -66,10 +66,9 @@ part(a::Dict, inds...) = dictpart(a, inds)
 part{T<:Real}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
-dictvalues(a, inds) = mapvec(inds,x->at(a,x))
 import Base.values
-values(a::Dict, ind, inds...) = dictvalues(a, [ind; inds...])
-values(a::Dict, inds::AbstractVector) = dictvalues(a, inds)
+values(a::Dict, ind, inds...) = values(a, [ind; inds...])
+values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
 
 import Base.vec
 vec(a::Dict) = [Pair(k,v) for (k,v) in a]
