@@ -360,6 +360,8 @@ shouldtest("computing") do
         @fact FunctionalData.sort([1 2 3], id) --> [1 2 3]
         @fact FunctionalData.sort([1,2,3], x->-x) --> [3,2,1]
         @fact FunctionalData.sort([1 2 3], x->-x) --> [3 2 1]
+        local D = [Dict(:id => x, :a => string(x)) for x in 1:3]
+        @fact FunctionalData.sort(D, :id) --> D
         @fact FunctionalData.sort("dcba", x->convert(Int,x)) --> "abcd"
         @fact FunctionalData.sort("dcba", x->convert(Int,x); rev = true) --> "dcba"
         @fact FunctionalData.sortrev("dcba", x->convert(Int,x)) --> "dcba"

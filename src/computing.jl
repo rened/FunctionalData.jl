@@ -17,7 +17,8 @@ export typed
 export call
 
 import Base.sort
-sort(a, f; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
+sort(a, f::Function; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
+sort(a, key; kargs...) = part(a, sortperm(vec(extract(a, key)); kargs...))
 sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
