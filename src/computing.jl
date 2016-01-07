@@ -10,7 +10,7 @@ export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
 export amap
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
-export sort, sortrev, sortpermrev, uniq, filter
+export sort, sortrev, sortpermrev, uniq, filter, select, reject
 export tee
 export *
 export typed
@@ -518,6 +518,8 @@ function filter(a, f::Callable)
     ind = vec(typed(map(a,f)))
     isempty(ind) ? [] : part(a, ind)
 end
+select = filter
+reject(a, f) = select(a, not*f)
 
 import Base.call
 call(f::Callable, args...) = f(args...)

@@ -371,6 +371,8 @@ shouldtest("computing") do
         @fact filter([1,2,3],x->iseven(x)) --> [2]
         @fact (@p filter Any[1,2,3] unequal 3) --> [1,2]
         @fact (@p filter [1,2,3] unequal 3) --> [1,2]
+        @fact (@p select [1,2,3] unequal 3) --> [1,2]
+        @fact (@p reject [1,2,3] unequal 3) --> [3]
     end
     shouldtestcontext("uniq") do
         @fact sort(uniq([10 20 30], id),id)  -->  [10 20 30]
