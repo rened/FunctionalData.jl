@@ -485,6 +485,9 @@ shouldtest("computing") do
         a = rand(2,10)
         r = amap(a, x->x+1)
         @fact r --> a+1
+        @fact amap2(1:10, 1:10, +) --> collect(2*(1:10))
+        @fact amap2("abc", 1:10, (x,y)->"$x$y") --> map(utf8,["a1","b2","c3"])
+        @fact amapvec2(1:10, 1:10, +) --> unstack(2*(1:10))
     end
 
     shouldtestcontext("table") do

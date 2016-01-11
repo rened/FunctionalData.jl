@@ -8,7 +8,7 @@ export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
 export lmap, lmap!, lmap!r, lmap2!, lwork
 export hmap, hmap!, hmap!r, hmap2!, hwork
-export amap
+export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter, select, reject
 export tee
@@ -466,6 +466,8 @@ function amap(a,f; n = 10, mapper = map)
     end
     flatten(r)
 end
+amap2(a,b,f; kargs...) = amap(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
+amapvec2(a,b,f; kargs...) = amapvec(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
 
 table(f, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
 ptable(f, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
