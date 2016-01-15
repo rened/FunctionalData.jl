@@ -243,7 +243,14 @@ end
 #######################################
 ##  lines, unlines
 
-lines(a) = split(a,r"\r\n|\n")
+function lines(a)
+    r = split(a,r"\r\n|\n")
+    if !isempty(r) && last(r)==""
+        droplast(r)
+    else
+        r
+    end
+end
 unlines(a) = join(a,'\n')
 
 
