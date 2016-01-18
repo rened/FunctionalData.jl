@@ -4,7 +4,7 @@ export drop, dropat, droplast, dropwhile
 export every
 export partition, partsoflen
 export getindex
-export extract
+export extract, extractnested
 export isnil
 
 
@@ -129,6 +129,7 @@ extract(a::Array, x::Any, default = nothing) = map(a, y->extract(y, x, default))
 extract(a::Array, x::Symbol, default = nothing) = map(a, y->extract(y, x, default))
 extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)
 extract(a::Dict, x, default = nothing) = get(a, x, default)
+extractnested(a::Array, args...) = map(a, x->at(x,args...))
 extract(a, x::Symbol, default = nothing) = a.(x)
 
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))

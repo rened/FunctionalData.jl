@@ -344,6 +344,10 @@ shouldtest("accessors") do
         @fact extract(d1, :b)  -->  nothing
         @fact extract([d1,d2], :a, 10)  -->  [1, 10]
     end
+    shouldtestcontext("extractnested") do
+        a = [Dict(:a => 1, :b => Dict(:c => 1)), Dict(:a => 2, :b => Dict(:c => 3))]
+        @fact extractnested(a,:b,:c) --> Any[1,3]
+    end
     shouldtestcontext("isnil") do
         @fact isnil(Void) --> true
         @fact isnil(nothing) --> true
