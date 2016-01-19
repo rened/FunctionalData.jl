@@ -6,7 +6,7 @@ export riffle
 export matrix, unmatrix
 export lines, unlines, unzip
 export findsub
-export randsample, flip, flipdims
+export randsample, flip, flip!, flipdims
 
 #######################################
 ## row, col, reshape
@@ -264,6 +264,7 @@ randperm(a) = part(a, randperm(len(a)))
 
 randsample(a, n = 1) = part(a, rand(1:len(a), round(Int,n)))
 
+flip!(a::Array) = a[:] = flip(a)
 flip(a) = part(a, len(a):-1:1)
 function flipdims(a,d1,d2)
     dims = collect(1:ndims(a))

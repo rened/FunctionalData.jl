@@ -625,6 +625,9 @@ shouldtest("dataflow") do
         @fact flip([])  -->  []
         @fact flip("abc")  -->  "cba"
         @fact flip(1:10)  -->  10:-1:1
+        b = [1,2,3]
+        flip!(b)
+        @fact b --> [3,2,1]
     end
     shouldtestcontext("flipdims") do
         @fact size(flipdims(rand(2,3,4),1,1))  -->  (2,3,4)
