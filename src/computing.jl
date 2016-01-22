@@ -520,8 +520,10 @@ function filter(a, f::Callable)
     ind = vec(typed(map(a,f)))
     isempty(ind) ? [] : part(a, ind)
 end
-select = filter
-reject(a, f) = select(a, not*f)
+
+import Base.select
+select(a, f::Callable) = filter(a, f)
+reject(a, f::Callable) = select(a, not*f)
 
 import Base.call
 call(f::Callable, args...) = f(args...)
