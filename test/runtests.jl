@@ -8,6 +8,11 @@ FactCheck.setstyle(:compact)
 shouldtest(f, a) = length(ARGS) == 0 || a == ARGS[1] ? facts(f, a) : nothing
 shouldtestcontext(f, a) = length(ARGS) < 2 || a == ARGS[2] ? facts(f, a) : nothing
 
+type A
+    a
+    b
+end
+
 shouldtest("exports") do
     # Check whether all exported symbols really exist
     for a in names(FunctionalData)
@@ -347,6 +352,10 @@ shouldtest("accessors") do
     shouldtestcontext("extractnested") do
         a = [Dict(:a => 1, :b => Dict(:c => 1)), Dict(:a => 2, :b => Dict(:c => 3))]
         @fact extractnested(a,:b,:c) --> Any[1,3]
+    end
+    shouldtestcontext("fieldvalues") do
+        @fact fieldvalues(A(1,2)) --> [1,2]
+        @fact dict(A(1,2)) --> Dict(:a => 1, :b => 2)
     end
     shouldtestcontext("isnil") do
         @fact isnil(Void) --> true

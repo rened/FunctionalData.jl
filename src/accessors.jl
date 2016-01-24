@@ -5,6 +5,7 @@ export every
 export partition, partsoflen
 export getindex
 export extract, extractnested
+export fieldvalues, dict
 export isnil
 
 
@@ -132,4 +133,10 @@ extract(a::Dict, x, default = nothing) = get(a, x, default)
 extractnested(a::Array, args...) = map(a, x->at(x,args...))
 extract(a, x::Symbol, default = nothing) = a.(x)
 
+fieldvalues(a) = [getfield(a,x) for x in sort(fieldnames(a))]
+dict(a) = Dict([Pair(k,a.(k)) for k in sort(fieldnames(a))])
+
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
+
+
+
