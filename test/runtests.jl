@@ -541,6 +541,15 @@ shouldtest("computing") do
         @fact call(f,1,2) --> 3
         @fact call(g) --> 1
     end
+    shouldtestcontext("min") do
+        d = [Dict(:a => 1), Dict(:a => 2), Dict(:a => 3)]
+        @fact min(d,x->at(x,:a)) --> Dict(:a => 1)
+        @fact (@p min d at :a) --> Dict(:a => 1)
+        @fact max(d,x->at(x,:a)) --> Dict(:a => 3)
+        @fact (@p max d at :a) --> Dict(:a => 3)
+        @fact extrema(d,x->at(x,:a)) --> [Dict(:a => 1), Dict(:a => 3)]
+        @fact (@p extrema d at :a) --> [Dict(:a => 1), Dict(:a => 3)]
+    end
 end
 
 shouldtest("dataflow") do

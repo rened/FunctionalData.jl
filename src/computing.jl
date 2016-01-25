@@ -11,17 +11,39 @@ export hmap, hmap!, hmap!r, hmap2!, hwork
 export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter, select, reject
+export min, max, extrema
 export tee
 export *
 export typed
-export call
+export call, apply
+
+typealias Callable Union{Function, Type}
 
 import Base.sort
-sort(a, f::Function; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
+sort(a, f::Callable; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
 sort(a, key; kargs...) = part(a, sortperm(vec(extract(a, key)); kargs...))
 sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
+
+import Base: min, max, extrema
+function min(a, f::Callable)
+    b = map(a,f)
+    at(a, findfirst(b .== minimum(b)))
+end
+
+function max(a, f::Callable)
+    b = map(a,f)
+    at(a, findfirst(b .== maximum(b)))
+end
+
+function extrema(a, f::Callable)
+    b = map(a,f)
+    mi = minimum(b)
+    ma = maximum(b)
+    [at(a, findfirst(b .== mi)), at(a, findfirst(b .== ma))]
+end
+
 
 function uniq(a,f = id)
     d = Dict{Any,Int}()
@@ -35,7 +57,6 @@ end
 #######################################
 ## map, pmap
 
-typealias Callable Union{Function, Type}
 
 mapvec(a, f::Callable) = [f(trytoview(a,i)) for i in 1:len(a)]
 mapvec2(a, b, f::Callable) = [f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
@@ -527,4 +548,7 @@ reject(a, f::Callable) = select(a, not*f)
 
 import Base.call
 call(f::Callable, args...) = f(args...)
+
+import Base.apply
+apply(args, f::Callable) = f(args...)
 
