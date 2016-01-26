@@ -11,7 +11,7 @@ export hmap, hmap!, hmap!r, hmap2!, hwork
 export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter, select, reject
-export min, max, extrema
+export minelem, maxelem, extremaelem
 export tee
 export *
 export typed
@@ -26,18 +26,17 @@ sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
 
-import Base: min, max, extrema
-function min(a, f::Callable)
+function minelem(a, f::Callable)
     b = map(a,f)
     at(a, findfirst(b .== minimum(b)))
 end
 
-function max(a, f::Callable)
+function maxelem(a, f::Callable)
     b = map(a,f)
     at(a, findfirst(b .== maximum(b)))
 end
 
-function extrema(a, f::Callable)
+function extremaelem(a, f::Callable)
     b = map(a,f)
     mi = minimum(b)
     ma = maximum(b)
