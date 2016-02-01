@@ -45,23 +45,28 @@ macro p(a...)
     part = parts[1]
     if len(part) > 2 && in(part[1],currying) # ==:map
         length(part) < 3 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
-        f = :(x -> $(part[3])(x, $(part[4:end]...)) )
+        x = gensym()
+        f = :($x -> $(part[3])($x, $(part[4:end]...)) )
         ex = :( $(part[1])($(part[2]), $f) )
      elseif len(part) > 3 && in(part[1], currying2) # ==:map2
          length(part) < 4 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
-         f = :((x,y) -> $(part[4])(x, y, $(part[5:end]...)) )
+         x = gensym(); y = gensym()
+         f = :(($x,$y) -> $(part[4])($x, $y, $(part[5:end]...)) )
          ex = :( $(part[1])($(part[2]), $(part[3]), $f) )
      elseif len(part) > 4 && in(part[1], currying3) # ==:map3
          length(part) < 5 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
-         f = :((x,y,z) -> $(part[5])(x, y, z, $(part[6:end]...)) )
+         x = gensym(); y = gensym(); z = gensym()
+         f = :(($x,$y,$z) -> $(part[5])($x, $y, $z, $(part[6:end]...)) )
          ex = :( $(part[1])($(part[2]), $(part[3]),$(part[4]), $f) )
      elseif len(part) > 5 && in(part[1], currying2) # ==:map2
          length(part) < 6 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
-         f = :((x,y,z,z2) -> $(part[6])(x, y, z, z2, $(part[7:end]...)) )
+         x = gensym(); y = gensym(); z = gensym(); z2 = gensym()
+         f = :(($x,$y,$z,$z2) -> $(part[6])($x, $y, $z, $z2, $(part[7:end]...)) )
          ex = :( $(part[1])($(part[2]), $(part[3]), $(part[4]), $(part[5]), $f) )
      elseif len(part) > 6 && in(part[1], currying2) # ==:map2
          length(part) < 7 && error("FunctionalData.@p: trying to use $(part[1]), but too few parameters given: $parts")
-         f = :((x,y,z,z2,z3) -> $(part[7])(x, y, z, z2, z3, $(part[8:end]...)) )
+         x = gensym(); y = gensym(); z = gensym(); z2 = gensym(); z3 = gensym()
+         f = :(($x,$y,$z,$z2,$z3) -> $(part[7])($x, $y, $z, $z2, $z3, $(part[8:end]...)) )
          ex = :( $(part[1])($(part[2]), $(part[3]), $(part[4]), $(part[5]), $(part[6]), $f) )
     else
         ex = :( $(part[1])($(part[2:end]...)) )
@@ -109,19 +114,24 @@ macro p(a...)
             #println("fany==false")
             #println("### part[1] $(part[1]))")
             if len(part) > 1 && in(part[1],currying) # ==:map
-                f = :( x-> $(part[2])(x, $(part[3:end]...)) )
+                x = gensym()
+                f = :( $x-> $(part[2])($x, $(part[3:end]...)) )
                 ex = :( $(part[1])($ex, $f) )
             elseif len(part) > 2 && in(part[1], currying2) # ==:map2
-                f = :( (x,y) -> $(part[3])(x, y, $(part[4:end]...)) )
+                x = gensym(); y = gensym()
+                f = :( ($x,$y) -> $(part[3])($x, $y, $(part[4:end]...)) )
                 ex = :( $(part[1])($ex, $(part[2]), $f) )
             elseif len(part) > 3 && in(part[1], currying3) # ==:map3
-                f = :( (x,y,z) -> $(part[4])(x, y, z, $(part[5:end]...)) )
+                x = gensym(); y = gensym(); z = gensym()
+                f = :( ($x,$y,$z) -> $(part[4])($x, $y, $z, $(part[5:end]...)) )
                 ex = :( $(part[1])($ex, $(part[2]), $(part[3]), $f) )
             elseif len(part) > 4 && in(part[1], currying4) # ==:map4
-                f = :( (x,y,z,z2) -> $(part[5])(x, y, z, z2, $(part[6:end]...)) )
+                x = gensym(); y = gensym(); z = gensym(); z2 = gensym()
+                f = :( ($x,$y,$z,$z2) -> $(part[5])($x, $y, $z, $z2, $(part[6:end]...)) )
                 ex = :( $(part[1])($ex, $(part[2]), $(part[3]),  $(part[4]), $f) )
             elseif len(part) > 5 && in(part[1], currying5) # ==:map5
-                f = :( (x,y,z,z2,z3) -> $(part[6])(x, y, z, z2, z3, $(part[7:end]...)) )
+                x = gensym(); y = gensym(); z = gensym(); z2 = gensym(); z3 = gensym()
+                f = :( ($x,$y,$z,$z2,$z3) -> $(part[6])($x, $y, $z, $z2, $z3, $(part[7:end]...)) )
                 ex = :( $(part[1])($ex, $(part[2]), $(part[3]), $(part[4]), $(part[5]), $f) )
             else
                 ex = :( $(part[1])($ex, $(part[2:end]...)) )

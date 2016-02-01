@@ -549,6 +549,7 @@ shouldtest("computing") do
         @fact (@p maxelem d at :a) --> Dict(:a => 3)
         @fact extremaelem(d,x->at(x,:a)) --> [Dict(:a => 1), Dict(:a => 3)]
         @fact (@p extremaelem d at :a) --> [Dict(:a => 1), Dict(:a => 3)]
+        @fact (@p map [10,11,12] x->@p minelem [10,0,12,13] y->(abs(y-x))) --> [10,10,12]
     end
     shouldtestcontext("isany") do
         @fact isany(zeros(3), x->x==0) --> true
