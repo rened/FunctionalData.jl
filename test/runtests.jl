@@ -550,6 +550,14 @@ shouldtest("computing") do
         @fact extremaelem(d,x->at(x,:a)) --> [Dict(:a => 1), Dict(:a => 3)]
         @fact (@p extremaelem d at :a) --> [Dict(:a => 1), Dict(:a => 3)]
     end
+    shouldtestcontext("isany") do
+        @fact isany(zeros(3), x->x==0) --> true
+        @fact areall(zeros(3), x->x==0) --> true
+        @fact isany(zeros(3), x->x!=0) --> false
+        @fact areall(zeros(3), x->x!=0) --> false
+        @fact (@p zeros 3 | areall unequal 0) --> false
+        @fact (@p zeros 3 | isany unequal 0) --> false
+    end
 end
 
 shouldtest("dataflow") do

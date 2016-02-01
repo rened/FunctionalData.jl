@@ -12,6 +12,7 @@ export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter, select, reject
 export minelem, maxelem, extremaelem
+export isany, areall
 export tee
 export *
 export typed
@@ -523,6 +524,15 @@ function table_internal(mapf, f, args...; flat = true, kargs...)
     else
         @p reshape r s
     end
+end
+
+areall(a, f::Callable) = !any(a, not*f)
+
+function isany(a, f::Callable)
+    for i in 1:len(a)
+        f(at(a,i)) && return true
+    end
+    return false
 end
 
 tee(a,f) = (f(a);a)
