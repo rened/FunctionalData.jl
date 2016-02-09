@@ -215,11 +215,11 @@ function work{T<:Real,N}(a::DenseArray{T,N},f::Callable)
         next!(v)
     end
 end
-lwork(a, f) = (g(x) = (f(x);uint8(0)); lmap(a, g); nothing)
-pwork(a, f) = (g(x) = (f(x);uint8(0)); pmap(a, g); nothing)
-hwork(a, f) = (g(x) = (f(x);uint8(0)); hmap(a, g); nothing)
-shwork(a, f) = (g(x) = (f(x);uint8(0)); shmap(a, g); nothing)
-workwork(a, f) = (g(x) = (f(x);uint8(0)); mapmap(a, g); nothing)
+lwork(a, f) = (g(x) = (f(x);nothing); lmap(a, g); nothing)
+pwork(a, f) = (g(x) = (f(x);nothing); pmap(a, g); nothing)
+hwork(a, f) = (g(x) = (f(x);nothing); hmap(a, g); nothing)
+shwork(a, f) = (g(x) = (f(x);nothing); shmap(a, g); nothing)
+workwork(a, f) = (g(x) = (f(x);nothing); mapmap(a, g); nothing)
 
 work2(a, b, f::Callable) = [(f(at(a,i),at(b,i)); nothing) for i in 1:len(a)]
 work3(a, b, c, f::Callable) = [(f(at(a,i),at(b,i),at(c,i)); nothing) for i in 1:len(a)]
