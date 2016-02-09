@@ -217,6 +217,7 @@ function work{T<:Real,N}(a::DenseArray{T,N},f::Callable)
 end
 lwork(a, f) = (g(x) = (f(x);uint8(0)); lmap(a, g); nothing)
 pwork(a, f) = (g(x) = (f(x);uint8(0)); pmap(a, g); nothing)
+hwork(a, f) = (g(x) = (f(x);uint8(0)); hmap(a, g); nothing)
 shwork(a, f) = (g(x) = (f(x);uint8(0)); shmap(a, g); nothing)
 workwork(a, f) = (g(x) = (f(x);uint8(0)); mapmap(a, g); nothing)
 
