@@ -47,7 +47,7 @@ end
 
 function uniq(a,f = id)
     d = Dict{Any,Int}()
-    h = @p map a f
+    h = @p mapvec a f
     for i = len(a):-1:1
         d[at(h,i)] = i
     end
