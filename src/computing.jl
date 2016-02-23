@@ -560,5 +560,5 @@ import Base.call
 call(f::Callable, args...) = f(args...)
 
 import Base.apply
-apply(args, f::Callable) = f(args...)
+apply(args, f::Callable) = f(args)
 
