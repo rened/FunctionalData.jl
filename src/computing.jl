@@ -11,6 +11,7 @@ export hmap, hmap!, hmap!r, hmap2!, hwork
 export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
 export sort, sortrev, sortpermrev, uniq, filter, select, reject
+export groupdict, groupby
 export minelem, maxelem, extremaelem
 export isany, areall
 export tee
@@ -555,6 +556,16 @@ end
 import Base.select
 select(a, f::Callable) = filter(a, f)
 reject(a, f::Callable) = select(a, not*f)
+
+function groupdict(a,f::Function)
+    d = Dict()
+    for x in a
+        k = f(x)
+        d[k] = push!(get(d,k,[]), x)
+    end
+    d
+end
+groupby(a,f) = @p groupdict a f | vec | sort fst | map snd
 
 import Base.call
 call(f::Callable, args...) = f(args...)

@@ -379,6 +379,14 @@ shouldtest("computing") do
         @fact FunctionalData.sort("dcba", x->convert(Int,x); rev = true) --> "dcba"
         @fact FunctionalData.sortrev("dcba", x->convert(Int,x)) --> "dcba"
     end
+    shouldtestcontext("groupdict") do
+        a = [1,2,3,2,3,3]
+        @fact (@p groupdict a id) --> Dict(1 => Any[1], 2 => Any[2,2], 3 => Any[3,3,3])
+    end
+     shouldtestcontext("groupby") do
+        a = [1,2,3,2,3,3]
+        @fact (@p groupby a id) --> Any[Any[1],Any[2,2],Any[3,3,3]]
+    end
     shouldtestcontext("filter") do
         @fact filter([1,2,3],x->isodd(x)) --> [1,3]
         @fact filter([1,2,3],x->iseven(x)) --> [2]
