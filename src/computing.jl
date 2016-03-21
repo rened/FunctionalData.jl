@@ -1,4 +1,4 @@
-export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, work
+export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, mapveci, work
 export map2, map3, map4, map5
 export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
@@ -71,6 +71,7 @@ map4(a, b, c, d, f::Callable) = flatten(mapvec4(a,b,c,d,f))
 map5(a, b, c, d, e, f::Callable) = flatten(mapvec5(a,b,c,d,e,f))
 
 mapi(a, f::Callable ) = map2(a, 1:len(a), f)
+mapveci(a, f::Callable ) = mapvec2(a, 1:len(a), f)
 
 import Base.map
 map(a, f::Callable) = map(unstack(1:len(a)), i->f(at(a,i)))
