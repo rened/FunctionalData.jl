@@ -327,6 +327,13 @@ shouldtest("accessors") do
         @fact (@p dropwhile (1:10) isless 0) --> 1:10
     end
 
+    shouldtestcontext("cut") do
+        a = [1,2,3,4,5]
+        b = [1 2 3; 4 5 6]
+        @fact cut(a,3)  -->  ([1,2,4,5],[3])
+        @fact cut(b,1)  -->  ([2 3; 5 6], col([1,4]))
+        @fact cut(b,2:3)  -->  (col([1,4]), [2 3; 5 6])
+    end
 
     shouldtestcontext("partition") do
         @fact partition(1:3,1)  --> Any[1:3]

@@ -1,6 +1,6 @@
 export at, atend, setat!, fst, snd, third, last
 export part, values, vec, rowpart, trimmedpart, take, takelast, takewhile
-export drop, dropat, droplast, dropwhile
+export drop, dropat, droplast, dropwhile, cut
 export every
 export partition, partsoflen
 export getindex
@@ -72,7 +72,7 @@ values(a::Dict, ind, inds...) = values(a, [ind; inds...])
 values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
 
 import Base.vec
-vec(a::Dict) = [Pair(k,v) for (k,v) in a]
+vec(a::Dict) = sort([Pair(k,v) for (k,v) in a],fst)
 
 rowpart(a::Matrix, i) = a[i, :]
 
@@ -108,6 +108,8 @@ function dropwhile(a, f)
     end
     []
 end
+
+cut(a, i) = (dropat(a,i),part(a,i))
 
 every(a,n) = part(a,1:n:len(a))
 

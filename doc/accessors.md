@@ -12,7 +12,7 @@ at(ones(2,3,4),3)                   =>  ones(2,3)
 ```
 
 ##### setat!(a, i, value)
-`setat!` allows to modify items in a collection. It return the collection.
+`setat!` allows to modify items in a collection. It returns the collection.
 ```jl
 a = [1 2 3; 4 5 6]
 setat!(a, 2, [0, 1])                => [1 0 3; 4 1 6]
