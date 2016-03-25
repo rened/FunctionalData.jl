@@ -1,7 +1,7 @@
 export row, col, reshape
 export split, concat
 export subtoind, indtosub
-export stack, flatten, unstack
+export stack, flatten, unstack, vflatten
 export riffle
 export matrix, unmatrix
 export lines, unlines, unzip
@@ -176,6 +176,7 @@ function flatten{T}(a::Array{T,2})
     r
 end
 
+vflatten(a) = @p transpose a | flatten | transpose
 
 unstack(a) = Any[at(a,i) for i in 1:len(a)]
 

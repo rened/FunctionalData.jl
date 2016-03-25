@@ -1,4 +1,4 @@
-export at, atend, setat!, fst, snd, third, last
+export at, atend, atrow, setat!, fst, snd, third, last
 export part, values, vec, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile, cut
 export every
@@ -7,6 +7,7 @@ export getindex
 export extract, extractnested
 export fieldvalues, dict
 export isnil
+export czip
 
 
 #######################################
@@ -29,6 +30,7 @@ export isnil
 @inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
 @inline at(a,i) = a[i]
 atend(a, i) = at(a, len(a)-i+1)
+atrow(a,i) = a[i,:]
 
 
 #######################################
@@ -140,5 +142,5 @@ dict(a) = Dict([Pair(k,a.(k)) for k in sort(fieldnames(a))])
 
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
 
-
+czip(a...) = collect(zip(map(a,unstack)...))
 
