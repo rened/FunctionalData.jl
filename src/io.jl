@@ -63,7 +63,8 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
         r = @p dirpaths path | map f | flatten | concat r _
     end
     if !isempty(suffix)
-        r = @p filter r x->@p takelast x len(suffix) | isequal suffix
+        suffix = isa(suffix, AbstractString) ? [suffix] : suffix
+        r = @p mapvec suffix (suf->@p filter r x->@p takelast x len(suf) | isequal suf) | flatten
     end
     if regex != Void
         r = @p filter r x->@p ismatch regex x

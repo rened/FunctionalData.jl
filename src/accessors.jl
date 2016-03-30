@@ -1,5 +1,5 @@
 export at, atend, atrow, setat!, fst, snd, third, last
-export part, values, vec, rowpart, trimmedpart, take, takelast, takewhile
+export part, values, cvalues, vec, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile, cut
 export every
 export partition, partsoflen
@@ -72,6 +72,7 @@ part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 import Base.values
 values(a::Dict, ind, inds...) = values(a, [ind; inds...])
 values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
+cvalues(a::Dict) = collect(values(a))
 
 import Base.vec
 vec(a::Dict) = sort([Pair(k,v) for (k,v) in a],fst)
