@@ -52,7 +52,12 @@ function uniq(a,f = id)
     for i = len(a):-1:1
         d[at(h,i)] = i
     end
-    @p values d | collect | sort | part a _
+    r = @p values d | collect | sort | part a _
+    try
+        return sort(r)
+    catch
+        return r
+    end
 end
 
 #######################################
