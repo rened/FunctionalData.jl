@@ -72,10 +72,11 @@ part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 import Base.values
 values(a::Dict, ind, inds...) = values(a, [ind; inds...])
 values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
-cvalues(a::Dict) = collect(values(a))
+ckeys(a::Dict) = sort(collect(keys(a)))
+cvalues(a::Dict) = mapvec(vec(a),snd)
 
 import Base.vec
-vec(a::Dict) = sort([Pair(k,v) for (k,v) in a],fst)
+vec(a::Dict) = [Pair(k,a[k]) for k in ckeys(a)]
 
 rowpart(a::Matrix, i) = a[i, :]
 
