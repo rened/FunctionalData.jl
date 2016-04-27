@@ -52,7 +52,7 @@ function uniq(a,f = id)
     for i = len(a):-1:1
         d[at(h,i)] = i
     end
-    r = @p values d | collect | sort | part a _
+    r = @p values d | collect | sort | part a _ # FIXME do we want this?
     try
         return sort(r)
     catch

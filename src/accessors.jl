@@ -1,5 +1,5 @@
 export at, atend, atrow, setat!, fst, snd, third, last
-export part, values, cvalues, vec, rowpart, trimmedpart, take, takelast, takewhile
+export part, values, ckeys, cvalues, vec, rowpart, trimmedpart, take, takelast, takewhile
 export drop, dropat, droplast, dropwhile, cut
 export every
 export partition, partsoflen
@@ -72,7 +72,7 @@ part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 import Base.values
 values(a::Dict, ind, inds...) = values(a, [ind; inds...])
 values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
-ckeys(a::Dict) = sort(collect(keys(a)))
+ckeys(a::Dict) = (r = collect(keys(a)); try sort(r) catch r end)
 cvalues(a::Dict) = mapvec(vec(a),snd)
 
 import Base.vec
@@ -144,5 +144,6 @@ dict(a) = Dict([Pair(k,a.(k)) for k in sort(fieldnames(a))])
 
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
 
-czip(a...) = collect(zip(map(a,unstack)...))
+czip(a) = czip(a...)
+czip(a,b...) = collect(zip(a, map(b,unstack)...))
 
