@@ -498,15 +498,25 @@ end
 amap2(a,b,f; kargs...) = amap(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
 amapvec2(a,b,f; kargs...) = amapvec(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
 
-table(f, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
-ptable(f, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
-ltable(f, a...; kargs...) = table_internal(lmap, f, a...; flat = true, kargs...)
-htable(f, a...; kargs...) = table_internal(hmap, f, a...; flat = true, kargs...)
+table(a...; kargs...) = table_internal(map, a[end], a[1:end-1]...; flat = true, kargs...)
+ptable(a...; kargs...) = table_internal(pmap, a[end], a[1:end-1]...; flat = true, kargs...)
+ltable(a...; kargs...) = table_internal(lmap, a[end], a[1:end-1]...; flat = true, kargs...)
+htable(a...; kargs...) = table_internal(hmap, a[end], a[1:end-1]...; flat = true, kargs...)
 
-tableany(f, a...; kargs...) = table_internal(map, f, a...; flat = false, kargs...)
-ptableany(f, a...; kargs...) = table_internal(pmap, f, a...; flat = false, kargs...)
-ltableany(f, a...; kargs...) = table_internal(lmap, f, a...; flat = false, kargs...)
-htableany(f, a...; kargs...) = table_internal(hmap, f, a...; flat = false, kargs...)
+table(f::Callable, a...; kargs...) = table_internal(map, f, a...; flat = true, kargs...)
+ptable(f::Callable, a...; kargs...) = table_internal(pmap, f, a...; flat = true, kargs...)
+ltable(f::Callable, a...; kargs...) = table_internal(lmap, f, a...; flat = true, kargs...)
+htable(f::Callable, a...; kargs...) = table_internal(hmap, f, a...; flat = true, kargs...)
+
+tableany(a...; kargs...) = table_internal(map, a[end], a[1:end-1]...; flat = false, kargs...)
+ptableany(a...; kargs...) = table_internal(pmap, a[end], a[1:end-1]...; flat = false, kargs...)
+ltableany(a...; kargs...) = table_internal(lmap, a[end], a[1:end-1]...; flat = false, kargs...)
+htableany(a...; kargs...) = table_internal(hmap, a[end], a[1:end-1]...; flat = false, kargs...)
+
+tableany(f::Callable, a...; kargs...) = table_internal(map, f, a...; flat = false, kargs...)
+ptableany(f::Callable, a...; kargs...) = table_internal(pmap, f, a...; flat = false, kargs...)
+ltableany(f::Callable, a...; kargs...) = table_internal(lmap, f, a...; flat = false, kargs...)
+htableany(f::Callable, a...; kargs...) = table_internal(hmap, f, a...; flat = false, kargs...)
 
 function table_internal(mapf, f, args...; flat = true, kargs...)
     a = [isa(x,Range) ? collect(x) : x for x in args]
