@@ -575,13 +575,21 @@ reject(a, f::Callable) = select(a, not*f)
 
 function groupdict(a,f::Function)
     d = Dict()
-    for x in a
-        k = f(x)
-        d[k] = push!(get(d,k,[]), x)
+    inds = @p map a f
+    for (i,ind) in enumerate(inds)
+        d[ind] = push!(get(d,ind,[]), at(a,i))
     end
-    d
+    mapvalues(d,flatten)
 end
-groupby(a,f) = @p groupdict a f | vec | sort fst | map snd
+
+function groupby(a,f)
+    r = groupdict(a,f)
+    ks = collect(keys(r))
+    try
+        ks = sort(ks)
+    end
+    values(r,ks)
+end
 
 import Base.call
 call(f::Callable, args...) = f(args...)

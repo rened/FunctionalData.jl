@@ -393,6 +393,8 @@ shouldtest("computing") do
      shouldtestcontext("groupby") do
         a = [1,2,3,2,3,3]
         @fact (@p groupby a id) --> Any[Any[1],Any[2,2],Any[3,3,3]]
+        a = [2 1 3 2 3 3; 20 10 30 20 30 30]
+        @fact (@p groupby a getindex 2) --> Any[[1 10]', [2 2; 20 20], [3 3 3; 30 30 30]]
     end
     shouldtestcontext("filter") do
         @fact filter([1,2,3],x->isodd(x)) --> [1,3]
