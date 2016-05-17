@@ -26,6 +26,7 @@ export czip
 @inline at{T}(a::AbstractArray{T,6},i::Number) = a[:,:,:,:,:,i]
 @inline at{T}(a::AbstractArray{T,7},i::Number) = a[:,:,:,:,:,:,i]
 @inline at{T}(a::AbstractArray{T,8},i::Number) = a[:,:,:,:,:,:,:,i]
+@inline at{T,N}(a::AbstractArray{T,N},i::Number,args...) = at(at(a,i), args...)
 @inline at(a::Dict,i) = a[i]
 @inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
 @inline at(a,i) = a[i]
