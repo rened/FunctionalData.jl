@@ -409,6 +409,8 @@ shouldtest("computing") do
         @fact uniq([20 20 10], id)  -->  [20 10]
         @fact uniq([20 -10 10], abs)  -->  [20 -10]
         @fact uniq([20 10 -10], abs)  -->  [20 10]
+        @fact (@p uniq [20 10 -10] abs)  -->  [20 10]
+        @fact (@p uniq [20 10 -10] getindex 1)  -->  [20 10 -10]
     end
     shouldtestcontext("map") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) -->   [2 2 2]
