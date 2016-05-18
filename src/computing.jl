@@ -48,16 +48,11 @@ end
 
 function uniq(a,f = id)
     d = Dict{Any,Int}()
-    h = @p mapvec a f
-    for i = len(a):-1:1
+    h = f == id ? a : @p mapvec a f
+    for i = len(h):-1:1
         d[at(h,i)] = i
     end
-    r = @p values d | collect | sort | part a _ # FIXME do we want this?
-    try
-        return sort(r)
-    catch
-        return r
-    end
+    @p vec d | sort snd | map snd | part a _
 end
 
 #######################################

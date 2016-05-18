@@ -405,9 +405,10 @@ shouldtest("computing") do
         @fact (@p reject [1,2,3] unequal 3) --> [3]
     end
     shouldtestcontext("uniq") do
-        @fact sort(uniq([10 20 30], id),id)  -->  [10 20 30]
-        @fact sort(uniq([10 20 10], id),id)  -->  [10 20]
-        @fact sort(uniq([-10 20 10], abs),id)  -->  [-10 20]
+        @fact uniq([10 20 30])  -->  [10 20 30]
+        @fact uniq([20 20 10], id)  -->  [20 10]
+        @fact uniq([20 -10 10], abs)  -->  [20 -10]
+        @fact uniq([20 10 -10], abs)  -->  [20 10]
     end
     shouldtestcontext("map") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1)]) -->   [2 2 2]
