@@ -1,7 +1,7 @@
 export row, col, reshape
 export split, concat
 export subtoind, indtosub
-export stack, flatten, unstack, vflatten
+export stack, flatten, unstack, vflatten, unflatten
 export riffle
 export matrix, unmatrix
 export lines, unlines, unzip
@@ -80,7 +80,7 @@ function indtosub(inds::AbstractArray, a::Union{Array,BitArray})
 end
 
 #######################################
-## flatten, stack, unstack
+## flatten, stack, unstack, unflatten
 
 
 function stack{T}(a::Array{T,1})
@@ -180,6 +180,13 @@ vflatten(a) = @p transpose a | flatten | transpose
 
 unstack(a) = Any[at(a,i) for i in 1:len(a)]
 
+
+function unflatten(a,template)
+    lens = @p mapvec template len
+    ends = cumsum(lens)
+    starts = @p droplast [1; ends+1]
+    @p mapvec2 starts ends (i,j)->part(a,i:j)
+end
 
 
 

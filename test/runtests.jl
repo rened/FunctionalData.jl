@@ -594,6 +594,10 @@ shouldtest("computing") do
 end
 
 shouldtest("dataflow") do
+    shouldtestcontext("unflatten") do
+        a = Any[[1],[2,3,4],[5,6]]
+        @fact unflatten(flatten(a,),a)  -->  a
+    end
     shouldtestcontext("reshape") do
         @fact size(reshape(rand(9)))  -->  (3,3)
     end
