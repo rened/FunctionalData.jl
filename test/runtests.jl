@@ -240,6 +240,7 @@ shouldtest("accessors") do
         @fact part(d, :a, :b) --> d
         @fact values(d, :a) --> [1]
         @fact values(d, :a, :b) --> [1,2]
+        @fact values(A(1,2), :a, :b)  -->  [1,2]
     end
 
     shouldtestcontext("trimmedpart") do

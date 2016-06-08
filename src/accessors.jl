@@ -4,7 +4,7 @@ export drop, dropat, droplast, dropwhile, cut
 export every
 export partition, partsoflen
 export getindex
-export extract, extractnested
+export extract, extractvec, extractnested
 export fieldvalues, dict
 export isnil
 export czip
@@ -75,6 +75,7 @@ values(a::Dict, ind, inds...) = values(a, [ind; inds...])
 values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
 ckeys(a::Dict) = collect(keys(a))
 cvalues(a::Dict) = collect(values(a))
+values(a, inds...) = Any[getfield(a,x) for x in inds]
 
 import Base.vec
 vec(a::Dict) = [Pair(k,a[k]) for k in keys(a)]
@@ -135,10 +136,12 @@ end
             
 extract(a::Array, x::Any, default = nothing) = map(a, y->extract(y, x, default))
 extract(a::Array, x::Symbol, default = nothing) = map(a, y->extract(y, x, default))
+extractvec(a::Array, x::Any, default = nothing) = mapvec(a, y->extract(y, x, default))
+extractvec(a::Array, x::Symbol, default = nothing) = mapvec(a, y->extract(y, x, default))
 extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)
 extract(a::Dict, x, default = nothing) = get(a, x, default)
-extractnested(a::Array, args...) = map(a, x->at(x,args...))
 extract(a, x::Symbol, default = nothing) = a.(x)
+extractnested(a::Array, args...) = map(a, x->at(x,args...))
 
 fieldvalues(a) = [getfield(a,x) for x in sort(fieldnames(a))]
 dict(a) = Dict([Pair(k,a.(k)) for k in sort(fieldnames(a))])
