@@ -568,16 +568,17 @@ import Base.select
 select(a, f::Callable) = filter(a, f)
 reject(a, f::Callable) = select(a, not*f)
 
-function groupdict(a,f::Function)
+function groupdict(a,f::Function = id)
     d = Dict()
     inds = @p map a f
-    for (i,ind) in enumerate(inds)
+    for i in 1:len(a)
+        ind = @p at inds i
         d[ind] = push!(get(d,ind,[]), at(a,i))
     end
     mapvalues(d,flatten)
 end
 
-function groupby(a,f)
+function groupby(a,f = id)
     r = groupdict(a,f)
     ks = collect(keys(r))
     try
