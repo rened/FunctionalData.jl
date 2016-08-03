@@ -692,6 +692,8 @@ shouldtest("dataflow") do
         b = [1,2,3]
         flip!(b)
         @fact b --> [3,2,1]
+        @fact flip(Pair(1,2))  -->  Pair(2,1)
+        @fact flip(Dict(1=>2,3=>4))  -->  Dict(2=>1, 4=>3)
     end
     shouldtestcontext("flipdims") do
         @fact size(flipdims(rand(2,3,4),1,1))  -->  (2,3,4)

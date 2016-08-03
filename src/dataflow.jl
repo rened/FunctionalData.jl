@@ -60,7 +60,7 @@ function split(a::AbstractArray,f::Function)
 end
 
 concat(a) = concat(a...)
-concat(a...) = @p flatten Any[a...]
+concat(a...) = @p flatten Any[reject(collect(a),isempty)...]
 
 #######################################
 ## subtoind, indtosub
@@ -273,6 +273,8 @@ randperm(a) = part(a, randperm(len(a)))
 randsample(a, n = 1) = part(a, rand(1:len(a), round(Int,n)))
 
 flip!(a::Array) = a[:] = flip(a)
+flip(a::Pair) = Pair(snd(a),fst(a))
+flip(a::Dict) = @p vec a | map flip | Dict
 flip(a) = part(a, len(a):-1:1)
 function flipdims(a,d1,d2)
     dims = collect(1:ndims(a))
