@@ -149,5 +149,8 @@ dict(a) = Dict([Pair(k,getfield(a,k)) for k in sort(fieldnames(a))])
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
 
 czip(a) = czip(a...)
-czip(a,b...) = collect(zip(a, map(b,unstack)...))
+function czip(a,b...)
+    temp = Any[a, b...]
+    mapvec(1:len(a), i->mapvec(temp, x->at(x,i)))
+end
 
