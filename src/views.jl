@@ -1,135 +1,55 @@
 export View, isviewable, view!, next!, trytoview
 
-if VERSION.minor < 5
-    typealias View Array
-
-    isviewable{T<:Real}(a::Union{DenseArray,SharedArray}{T}) = true
-    isviewable(a) = false
-
-    view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
-    view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
-
-    offset = 1
-
-    function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
-        s = size(a)
-        if length(s) > 2
-            s = s[1:end-1]
-        elseif length(s) == 2
-            s = (s[1],1)
-        else
-            s = (1,)
-        end
-        view!(a, i, convert(View, pointer_to_array(pointer(a), s)))
-    end
-
-    function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
-        p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-        unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
-        v
-    end
-
-    function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
-        s = size(a)[1:end-1]
-        p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
-        convert(View, pointer_to_array(p, tuple(s..., length(ind)) ))
-    end
-
-    @inline function next!{T}(v::View{T})
-        p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-        datap = unsafe_load(p, offset)
-        unsafe_store!(p, datap + length(v) * sizeof(T), offset)
-        v
-    end
-
-    trytoview{T<:Real}(a::DenseVector{T}, i = 1) = at(a,i)
-    trytoview{T<:Real}(a::DenseVector{T}, i, v::View) = at(a,i)
-    trytoview{T<:Real}(a::DenseArray{T}, i = 1) = view(a, i)
-    trytoview{T<:Real}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
-    trytoview(a, i) = at(a, i)
-    trytoview(a, i, v) = at(a, i)
-
+if VERSION < v"0.5-"
+    unsafe_view = pointer_to_array
 else
-    typealias View Array
-
-    isviewable{T<:Real}(a::Union{DenseArray,SharedArray}{T}) = true
-    isviewable(a) = false
-
-    view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
-    view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
-
-    offset = 1
-
-    function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
-        s = size(a)
-        if length(s) > 2
-            s = s[1:end-1]
-        elseif length(s) == 2
-            s = (s[1],1)
-        else
-            s = (1,)
-        end
-        # view!(a, i, convert(View, pointer_to_array(pointer(a), s)))
-        view!(a, i, convert(View, unsafe_wrap(Array,pointer(a), s)))
-    end
-
-    function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
-        p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-        unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
-        v
-    end
-
-    function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
-        s = size(a)[1:end-1]
-        p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
-        # convert(View, pointer_to_array(p, tuple(s..., length(ind)) ))
-        convert(View, unsafe_wrap(Array, p, tuple(s..., length(ind)) ))
-    end
-
-    @inline function next!{T}(v::View{T})
-        p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-        datap = unsafe_load(p, offset)
-        unsafe_store!(p, datap + length(v) * sizeof(T), offset)
-        v
-    end
-
-    trytoview{T<:Real}(a::DenseVector{T}, i = 1) = at(a,i)
-    trytoview{T<:Real}(a::DenseVector{T}, i, v::View) = at(a,i)
-    trytoview{T<:Real}(a::DenseArray{T}, i = 1) = FD.view(a, i)
-    trytoview{T<:Real}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
-    trytoview(a, i) = at(a, i)
-    trytoview(a, i, v) = at(a, i)
-
-
+    unsafe_view(p,s) = unsafe_wrap(Array, p, s)
 end
 
-    # typealias View SubArray
-    # # view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
-    # # view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
+typealias View Array
+offset = 1
 
-    # isviewable{T<:Real}(a::Union{DenseArray{T},SharedArray{T},SubArray{T}}) = true
-    # isviewable(a) = false
+isviewable{T<:Real}(a::Union{DenseArray,SharedArray}{T}) = true
+isviewable(a) = false
 
-    # function view{T<:Real,N}(a::DenseArray{T,N}, i::Int = 1)
-    #     Base.view(a, [repeat(Colon(), N-1)..., i:i]...)
-    # end
+view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
+view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
 
-    # function view{T<:Real,N}(a::DenseArray{T,N}, ind::UnitRange)
-    #     Base.view(a, [repeat(Colon(), N-1)..., ind]...)
-    # end
+function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
+    s = size(a)
+    if length(s) > 2
+        s = s[1:end-1]
+    elseif length(s) == 2
+        s = (s[1],1)
+    else
+        s = (1,)
+    end
+    view!(a, i, convert(View, unsafe_view(pointer(a), s)))
+end
 
-    # @inline function next!(v::SubArray)
-    #     t = [parentindexes(v)...]
-    #     t[end] += 1
-    #     @show t
-    #     Base.view(parent(v), t...)
-    # end
+function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
+    p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
+    unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
+    v
+end
 
-    # trytoview{T<:Real}(a::DenseVector{T}, i = 1) = at(a,i)
-    # trytoview{T<:Real}(a::DenseVector{T}, i, v::View) = at(a,i)
-    # trytoview{T<:Real}(a::DenseArray{T}, i = 1) = view(a, i)
-    # trytoview{T<:Real}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
-    # trytoview(a, i) = at(a, i)
-    # trytoview(a, i, v) = at(a, i)
+function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
+    s = size(a)[1:end-1]
+    p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
+    convert(View, unsafe_view(p, tuple(s..., length(ind)) ))
+end
 
+@inline function next!{T}(v::View{T})
+    p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
+    datap = unsafe_load(p, offset)
+    unsafe_store!(p, datap + length(v) * sizeof(T), offset)
+    v
+end
+
+trytoview{T<:Real}(a::DenseVector{T}, i = 1) = at(a,i)
+trytoview{T<:Real}(a::DenseVector{T}, i, v::View) = at(a,i)
+trytoview{T<:Real}(a::DenseArray{T}, i = 1) = view(a, i)
+trytoview{T<:Real}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
+trytoview(a, i) = at(a, i)
+trytoview(a, i, v) = at(a, i)
 

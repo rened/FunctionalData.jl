@@ -46,7 +46,7 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
     # @show r
     r = sort(r)
     r = withpath ? map(r, x->joinpath(path,x)) : r
-    f = @compat((VERSION < v"0.5-") ? utf8 : String)
+    f = (VERSION < v"0.5-") ? utf8 : AbstractString
     r = map(r, f)
     if recursive
         f(x) = filedirnames(x; 
