@@ -115,19 +115,19 @@ end
 arraylike{T<:AbstractString}(a::T, n::Int, array = nothing) = Array(T, n)
 function arraylike(a, n::Int, array = nothing)
     if a == nothing || (array != nothing && !(eltype(array) <: Number))
-        return cell(n)
+        return Array{Any}(n)
     end
     r = Array(eltype(a), newarraysize(a,n)...)
 end
 
 # function arraylike(a::Array, n::Int, array = nothing)
 #     if isempty(a)
-#         return cell(n)
+#         return Array{Any}(n)
 #     end
 #     r = Array(eltype(a), newarraysize(a,n)...)
 # end
 
-# arraylike(a, n::Int, array = nothing) = return cell(n)
+# arraylike(a, n::Int, array = nothing) = return Array{Any}(n)
 
 sharraylike(a, n::Int) = SharedArray(eltype(a), newarraysize(a,n)...)
 

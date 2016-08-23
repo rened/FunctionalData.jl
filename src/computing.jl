@@ -101,8 +101,12 @@ function map(a::Dict, f::Callable; kargs...)
     makeentry{T<:Union{Tuple,Pair}}(a::Array{T}) = a
     makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
 
-    r = @p id map(x->f(x[1],x[2]),a) | map makeentry | flatten
-    [fst(x) => snd(x) for x in r]
+    r = @p vec a | map (x->f(fst(x),snd(x))) | map makeentry | flatten
+    d = Dict()
+    for x in r
+        d[fst(x)] = snd(x)
+    end
+    d
 end
 
 mapkeys(a::Dict, f) = map(a, (k,v) -> (f(k),v))
@@ -348,6 +352,8 @@ pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
 pmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
 pmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; kargs...)
 
+workerpool(pids) =  VERSION < v"0.5-" ? pids : WorkerPool(pids)
+
 function pmapsetup(a; pids = workers())
     if length(pids) > 1
         pids = pids[pids .!= 1]
@@ -368,83 +374,26 @@ end
 function pmap_exec(g, a; nworkers = typemax(Int), kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
-    if VERSION.minor >= 4
-        r = Base.pmap(x->(yield();g(x)), parts, pids = take(pids, nworkers))
-        for x in r
-            isa(x,RemoteException) && rethrow(x)
-        end
+    pids = workerpool(take(pids, nworkers))
+    if VERSION < v"0.5-" 
+        r = Base.pmap(x->(yield();g(x)), parts, pids = pids)
     else
-        r = pmapon(g, parts, pids = take(pids, nworkers))
+        r = Base.pmap(pids, x->(yield();g(x)), parts)
+    end
+    for x in r
+        isa(x,RemoteException) && rethrow(x)
     end
     flatten(r)
 end
 
-function pmapon(f, lsts...; err_retry=true, err_stop=false, pids = workers())
-    len = length(lsts)
-    results = Dict{Int,Any}()
-    retryqueue = Any[]
-    task_in_err = false
-    is_task_in_error() = task_in_err
-    set_task_in_error() = (task_in_err = true)
-    nextidx = 0
-    getnextidx() = (nextidx += 1)
-    states = [start(lsts[idx]) for idx in 1:len]
-    function getnext_tasklet()
-        if is_task_in_error() && err_stop
-            return nothing
-        elseif !any(idx->done(lsts[idx],states[idx]), 1:len)
-            nxts = [next(lsts[idx],states[idx]) for idx in 1:len]
-            for idx in 1:len; states[idx] = nxts[idx][2]; end
-                nxtvals = [x[1] for x in nxts]
-                return (getnextidx(), nxtvals)
-            elseif !isempty(retryqueue)
-                return shift!(retryqueue)
-            else
-                return nothing
-            end
-        end
-        @sync begin
-            for wpid in pids
-                @async begin
-                    tasklet = getnext_tasklet()
-                    while (tasklet != nothing)
-                        (idx, fvals) = tasklet
-                        try
-                            result = remotecall_fetch(wpid, f, fvals...)
-                            if isa(result, Exception)
-                                ((wpid == myid()) ? rethrow(result) : throw(result))
-                            else
-                                results[idx] = result
-                            end
-                        catch ex
-                        if err_retry
-                            push!(retryqueue, (idx,fvals, ex))
-                        else
-                            results[idx] = ex
-                        end
-                        set_task_in_error()
-                        break # remove this worker from accepting any more tasks
-                    end
-                    tasklet = getnext_tasklet()
-                end
-            end
-        end
-    end
-    for failure in retryqueue
-        results[failure[1]] = failure[3]
-    end
-    [results[x] for x in 1:nextidx]
-end
-
-
-function pmap_internal(mapf::Callable, a, f::Callable; kargs...)
+function pmap_internal(mapf::Callable, a, f::Callable; pids = workers(), kargs...)
     g(a) = mapf(a,f)
-    pmap_exec(g, a; kargs...)
+    pmap_exec(g, a; pids = pids, kargs...)
 end
 
-function pmap_internal2!(mapf::Callable, a, f1::Callable, f2::Callable; kargs...)
+function pmap_internal2!(mapf::Callable, a, f1::Callable, f2::Callable; pids = workers(), kargs...)
     g(a) = mapf(a,f1,f2)
-    pmap_exec(g, a; kargs...)
+    pmap_exec(g, a; pids = pids, kargs...)
 end
 
 function pmap_internal2!(mapf::Callable, a, r, f::Callable; nworkers = typemax(Int), kargs...)
@@ -453,11 +402,9 @@ function pmap_internal2!(mapf::Callable, a, r, f::Callable; nworkers = typemax(I
     partsa = pmapparts(a, inds, n)
     partsr = pmapparts(r, inds, n)
     parts = zip(partsa, partsr)
-    if VERSION.minor >= 4
-        r = Base.pmap(g, parts, pids = take(pids,nworkers))
-    else
-        r = Base.pmapon(g, parts, pids = take(pids,nworkers))
-    end
+    pids = workerpool(take(pids,nworkers))
+    @show pids
+    r = Base.pmap(g, parts, pids = pids)
     flatten(r)
 end
 
@@ -484,14 +431,14 @@ amapvec(a,f; kargs...) = amap(a,f; n = 10, mapper = mapvec)
 function amap(a,f; n = 10, mapper = map)
     n = min(len(a),n)
     a = @p partition a n
-    r = cell(n)
+    r = Array{Any}(n)
     @sync for i in 1:n 
         @async r[i] = mapper(a[i], f)
     end
     flatten(r)
 end
-amap2(a,b,f; kargs...) = amap(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
-amapvec2(a,b,f; kargs...) = amapvec(collect(zip(unstack(a),unstack(b))), x->f(fst(x),snd(x)); kargs...)
+amap2(a,b,f; kargs...) = amap(czip(unstack(a),unstack(b)), x->f(fst(x),snd(x)); kargs...)
+amapvec2(a,b,f; kargs...) = amapvec(czip(unstack(a),unstack(b)), x->f(fst(x),snd(x)); kargs...)
 
 table(a...; kargs...) = table_internal(map, a[end], a[1:end-1]...; flat = true, kargs...)
 ptable(a...; kargs...) = table_internal(pmap, a[end], a[1:end-1]...; flat = true, kargs...)
@@ -587,9 +534,7 @@ function groupby(a,f = id)
     values(r,ks)
 end
 
-import Base.call
-call(f::Callable, args...) = f(args...)
-
-import Base.apply
+apply(f::Callable, f2::Callable) = error("undefined")
+apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)
 

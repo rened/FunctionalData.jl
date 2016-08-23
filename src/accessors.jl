@@ -122,7 +122,7 @@ every(a,n) = part(a,1:n:len(a))
 function partition(a,n) 
     n = min(n, len(a))
     ind = round(Int, linspace(1, len(a)+1, n+1))
-    r = cell(n)
+    r = Array{Any}(n)
     for i = 1:n
         r[i] = part(a, ind[i]:ind[i+1]-1)
     end
@@ -140,11 +140,11 @@ extractvec(a::Array, x::Any, default = nothing) = mapvec(a, y->extract(y, x, def
 extractvec(a::Array, x::Symbol, default = nothing) = mapvec(a, y->extract(y, x, default))
 extract(a::Dict, x::Symbol, default = nothing) = get(a, x, default)
 extract(a::Dict, x, default = nothing) = get(a, x, default)
-extract(a, x::Symbol, default = nothing) = a.(x)
+extract(a, x::Symbol, default = nothing) = getfield(a,x)
 extractnested(a::Array, args...) = map(a, x->at(x,args...))
 
 fieldvalues(a) = [getfield(a,x) for x in sort(fieldnames(a))]
-dict(a) = Dict([Pair(k,a.(k)) for k in sort(fieldnames(a))])
+dict(a) = Dict([Pair(k,getfield(a,k)) for k in sort(fieldnames(a))])
 
 isnil(a) = a == nothing || a == Void || (isa(a, Nullable) && isnull(a))
 

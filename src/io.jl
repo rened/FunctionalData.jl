@@ -27,17 +27,7 @@ existsfile(filename::AbstractString) = (s = stat(filename); s.inode!=0)
 #end
 
 import Base.read
-function read(filename::AbstractString)
-    io = open(filename)
-    finalizer(io,close)
-    r = readall(io)
-    close(io)
-    return r
-end
-
-#function readlines(filename::AbstractString)
-#    lines(read(filename))
-#end
+read(filename::AbstractString) = open(read, filename)
 
 import Base.write
 write(data::AbstractString, filename::AbstractString) = write(data, filename, "w")
@@ -56,7 +46,8 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
     # @show r
     r = sort(r)
     r = withpath ? map(r, x->joinpath(path,x)) : r
-    r = map(r, utf8)
+    f = @compat((VERSION < v"0.5-") ? utf8 : String)
+    r = map(r, f)
     if recursive
         f(x) = filedirnames(x; 
             selector = selector, hidden = hidden, withpath = withpath, recursive = true)

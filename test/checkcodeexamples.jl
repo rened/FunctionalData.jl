@@ -1,5 +1,5 @@
 function checkcodeexamples(filename)
-    mdlines = @p read filename | lines
+    mdlines = @p readstring filename | lines
 
     startasserts = true
     insidecode = false
