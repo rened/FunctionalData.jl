@@ -1,6 +1,9 @@
 ## FunctionalData
 
 [![Build Status](https://travis-ci.org/rened/FunctionalData.jl.png)](https://travis-ci.org/rened/FunctionalData.jl)
+[![Build Status](http://pkg.julialang.org/badges/DeclarativePackages_0.4.svg)](http://pkg.julialang.org/?pkg=DeclarativePackages&ver=0.4)
+[![Build Status](http://pkg.julialang.org/badges/DeclarativePackages_0.5.svg)](http://pkg.julialang.org/?pkg=DeclarativePackages&ver=0.5)
+
 
 `FunctionalData` is a package for fast and expressive data modification. 
 
@@ -9,7 +12,8 @@ Built around a simple memory layout convention, it provides a small set of gener
 Optionally, it supplies a [syntax](doc/pipeline.md) for clean, concise code:
  
 ```jl
-wordcount(filename) = @p read filename | lines | map split | flatten | length
+wordcount(filename) = @p readstring filename | lines | map split | flatten | length
+# note: use readsting on 0.5, readall on 0.4
 ```
  
 #### Memory Layout 
