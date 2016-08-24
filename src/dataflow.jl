@@ -60,7 +60,7 @@ function split(a::AbstractArray,f::Function)
 end
 
 concat(a) = concat(a...)
-concat(a...) = @p flatten Any[reject(collect(a),isempty)...]
+concat(a...) = @p flatten Any[reject(collect(a),x->(!isa(x,Symbol) && isempty(x)))...]
 
 #######################################
 ## subtoind, indtosub
