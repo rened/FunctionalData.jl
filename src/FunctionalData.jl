@@ -2,8 +2,6 @@ __precompile__()
 
 module FunctionalData
 
-using Compat
-
 FD = FunctionalData
 export FD
 
