@@ -1,4 +1,4 @@
-export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, mapveci, work
+export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, mapveci, work, worki
 export map2, map3, map4, map5
 export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
@@ -213,6 +213,7 @@ function map!{T<:Real,N}(a::DenseArray{T,N},f::Callable)
 end
  
 work(a,f::Callable) = for i in 1:len(a) f(at(a,i)) end
+work(a::Dict,f::Callable) = map(vec(a),(k,v)->(f;nothing))
 function work{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     len(a)==0 && return
     v = view(a,1)
@@ -231,6 +232,7 @@ work2(a, b, f::Callable) = [(f(at(a,i),at(b,i)); nothing) for i in 1:len(a)]
 work3(a, b, c, f::Callable) = [(f(at(a,i),at(b,i),at(c,i)); nothing) for i in 1:len(a)]
 work4(a, b, c, d, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) for i in 1:len(a)]
 work5(a, b, c, d, e_, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
+worki(a, f) = mapi(a,(x,i)->(f(x,i);nothing))
  
 share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a
@@ -534,6 +536,7 @@ function groupby(a,f = id)
     values(r,ks)
 end
 
+import Base.apply
 apply(f::Callable, f2::Callable) = error("undefined")
 apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)

@@ -425,6 +425,10 @@ shouldtest("computing") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) --> cat(3,[2 2],[2 2],[2 2])
         @fact map((Dict(1 => 2)), (k,v) -> (k, 10*v)) --> Dict(1 => 20)
         @fact map((Dict(1 => 2)), (k,v) -> nothing) --> Dict()
+
+        @fact map(Dict(1 => 2, 3 => 4), (k,v) -> (k,10*k+v)) --> Dict(1=>12,3=>34)
+        # @fact (@p map Dict(1 => 2, 3 => 4), (k,v) -> (k,10*k+v)) --> Dict()
+
         @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
         d = Dict(:a => 1, :b => 2)
@@ -432,6 +436,11 @@ shouldtest("computing") do
     end
     shouldtestcontext("mapi") do
         @fact reduce(&, mapi(0:9, (x,i)->x+1==i)) --> true
+    end
+    shouldtestcontext("worki") do
+        a = zeros(Int,3)
+        worki(a,(x,i)->a[i]=2*i)
+        @fact a  -->  [2,4,6]
     end
     shouldtestcontext("map2") do
         @fact map2(1:3, 10:12, (+))  -->  [11,13,15]
