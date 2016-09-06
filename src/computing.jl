@@ -542,7 +542,7 @@ apply(f::Callable, f2::Callable) = error("undefined")
 apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)
 
-function fold(a, f)
+function fold(a, f::Callable)
     r = f(fst(a), snd(a))
     for i = 3:len(a)
         r = f(r,at(a,i))
