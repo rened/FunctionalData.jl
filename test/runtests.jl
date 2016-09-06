@@ -380,6 +380,10 @@ shouldtest("accessors") do
 end
 
 shouldtest("computing") do
+    shouldtestcontext("fold") do
+        @fact fold([1,2,3], max)  -->  3
+        @fact fold(["1","2","3"], concat)  -->  "123"
+    end
     shouldtestcontext("sort") do
         @fact FunctionalData.sort([1,2,3], id) --> [1,2,3]
         @fact FunctionalData.sort([1 2 3], id) --> [1 2 3]
