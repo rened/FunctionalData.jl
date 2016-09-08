@@ -543,6 +543,12 @@ apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)
 
 function fold(a, f::Callable)
+    if isempty(a)
+        return a
+    end
+    if len(a) == 1 
+        return fst(a)
+    end
     r = f(fst(a), snd(a))
     for i = 3:len(a)
         r = f(r,at(a,i))

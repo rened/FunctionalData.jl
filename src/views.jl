@@ -34,6 +34,9 @@ function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
 end
 
 function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
+    if len(ind) == 0
+        return []
+    end
     s = size(a)[1:end-1]
     p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
     convert(View, unsafe_view(p, tuple(s..., length(ind)) ))
