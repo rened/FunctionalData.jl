@@ -35,7 +35,7 @@ end
 
 function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
     if len(ind) == 0
-        return []
+        return Array{T}([size(a)...][1:end-1]...,0)
     end
     s = size(a)[1:end-1]
     p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
