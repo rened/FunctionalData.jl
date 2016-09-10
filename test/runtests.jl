@@ -516,6 +516,9 @@ shouldtest("computing") do
         a = row(collect(1:3))
         r = pmap(a, x->x+1)
         @fact r --> a + 1
+        @fact eltype(r) --> Int
+        r = pmapvec(a, x->x+1)
+        @fact eltype(r) --> Any
         a = rand(2,10)
         r = pmap(a, x->x+1)
         @fact r --> a+1
@@ -524,6 +527,9 @@ shouldtest("computing") do
         a = row(collect(1:3))
         r = lmap(a, x->x+1)
         @fact r --> a + 1
+        @fact eltype(r) --> Int
+        r = lmapvec(a, x->x+1)
+        @fact eltype(r) --> Any
         a = rand(2,10)
         r = lmap(a, x->x+1)
         @fact r --> a+1

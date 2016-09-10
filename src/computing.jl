@@ -6,7 +6,9 @@ export mapprogress, mapkeys, mapvalues
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
+export pmapvec
 export lmap, lmap!, lmap!r, lmap2!, lwork
+export lmapvec
 export hmap, hmap!, hmap!r, hmap2!, hwork
 export amap, amap2, amapvec2
 export table, ptable, ltable, htable, shtable, tableany, ptableany, ltableany, htableany, shtableany
@@ -350,6 +352,7 @@ mapper!r(a, f) = map!r(a,f)
 mapper2!(a, f1::Callable, f2) = map2!(a,f1,f2)
 mapper2!(a, r, f) = map2!(a,r,f)
 pmap(a, f::Callable; kargs...) = pmap_internal(mapper, a, f; kargs...)
+pmapvec(args...; kargs...) = pmap(args...; vec = true, kargs...)
 pmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; kargs...)
 pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
 pmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
@@ -374,7 +377,7 @@ function pmapparts(a, inds, n)
     end
 end
 
-function pmap_exec(g, a; nworkers = typemax(Int), kargs...)
+function pmap_exec(g, a; nworkers = typemax(Int), vec = false, kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
     pids = workerpool(take(pids, nworkers))
@@ -386,7 +389,7 @@ function pmap_exec(g, a; nworkers = typemax(Int), kargs...)
     for x in r
         isa(x,RemoteException) && rethrow(x)
     end
-    flatten(r)
+    vec ? r : flatten(r)
 end
 
 function pmap_internal(mapf::Callable, a, f::Callable; pids = workers(), kargs...)
@@ -425,6 +428,7 @@ hmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, 
 hmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids(), kargs...)
 
 lmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = localworkers(), kargs...)
+lmapvec(args...; kargs...) = lmap(args...; vec = true, kargs...)
 lmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = localworkers(), kargs...)
 lmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = localworkers(), kargs...)
 lmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
