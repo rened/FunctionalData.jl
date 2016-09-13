@@ -104,7 +104,7 @@ function map(a::Dict, f::Callable; kargs...)
     makeentry{T<:Union{Tuple,Pair}}(a::Array{T}) = a
     makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
 
-    r = @p vec a | map (x->f(fst(x),snd(x))) | map makeentry | flatten
+    r = @p vec a | map f | map makeentry | flatten
     d = Dict()
     for x in r
         d[fst(x)] = snd(x)
@@ -112,8 +112,8 @@ function map(a::Dict, f::Callable; kargs...)
     d
 end
 
-mapkeys(a::Dict, f) = map(a, (k,v) -> (f(k),v))
-mapvalues(a::Dict, f) = map(a, (k,v) -> (k,f(v)))
+mapkeys(a::Dict, f) = map(a, x -> (f(fst(x)),snd(x)))
+mapvalues(a::Dict, f) = map(a, x ->(fst(x),f(snd(x))))
 mapmap(a::Dict, f) = [f(v) for (k,v) in a]
 
 function mapmap(a, f)

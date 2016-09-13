@@ -4,7 +4,6 @@ using FactCheck
 importall FunctionalData
 FactCheck.setstyle(:compact)
 
-
 shouldtest(f, a) = length(ARGS) == 0 || a == ARGS[1] ? facts(f, a) : nothing
 shouldtestcontext(f, a) = length(ARGS) < 2 || a == ARGS[2] ? facts(f, a) : nothing
 
@@ -427,11 +426,12 @@ shouldtest("computing") do
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) --> [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) --> [2 2 2; 2 2 2]
         @fact map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) --> cat(3,[2 2],[2 2],[2 2])
-        @fact map((Dict(1 => 2)), (k,v) -> (k, 10*v)) --> Dict(1 => 20)
-        @fact map((Dict(1 => 2)), (k,v) -> nothing) --> Dict()
+        @fact map((Dict(1 => 2)), x->(fst(x), 10*snd(x))) --> Dict(1 => 20)
+        @fact map((Dict(1 => 2)), x->nothing) --> Dict()
+        @fact (@p map Dict(1 => 2) x->(fst(x), 10*snd(x))) --> Dict(1 => 20)
+        @fact (@p map Dict(1 => 2) x->nothing) --> Dict()
 
-        @fact map(Dict(1 => 2, 3 => 4), (k,v) -> (k,10*k+v)) --> Dict(1=>12,3=>34)
-        # @fact (@p map Dict(1 => 2, 3 => 4), (k,v) -> (k,10*k+v)) --> Dict()
+        @fact map(Dict(1 => 2, 3 => 4), x->(fst(x),10*fst(x)+snd(x))) --> Dict(1=>12,3=>34)
 
         @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
