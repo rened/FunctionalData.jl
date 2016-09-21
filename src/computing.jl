@@ -347,12 +347,13 @@ end
 
 import Base.pmap
 mapper(a, f) = map(a,f)
+mappervec(a, f) = mapvec(a,f)
 mapper!(a, f) = map!(a,f)
 mapper!r(a, f) = map!r(a,f)
 mapper2!(a, f1::Callable, f2) = map2!(a,f1,f2)
 mapper2!(a, r, f) = map2!(a,r,f)
 pmap(a, f::Callable; kargs...) = pmap_internal(mapper, a, f; kargs...)
-pmapvec(args...; kargs...) = pmap(args...; vec = true, kargs...)
+pmapvec(a, f::Callable; kargs...) = pmap_internal(mappervec, a, f; kargs...)
 pmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; kargs...)
 pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
 pmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
@@ -389,7 +390,7 @@ function pmap_exec(g, a; nworkers = typemax(Int), vec = false, kargs...)
     for x in r
         isa(x,RemoteException) && rethrow(x)
     end
-    vec ? r : flatten(r)
+    flatten(r)
 end
 
 function pmap_internal(mapf::Callable, a, f::Callable; pids = workers(), kargs...)
@@ -428,7 +429,7 @@ hmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, 
 hmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; pids = hostpids(), kargs...)
 
 lmap(a, f; kargs...) = pmap_internal(mapper, a, f; pids = localworkers(), kargs...)
-lmapvec(args...; kargs...) = lmap(args...; vec = true, kargs...)
+lmapvec(a, f; kargs...) = pmap_internal(mappervec, a, f; pids = localworkers(), kargs...)
 lmap!(a, f; kargs...) = pmap_internal(mapper!, a, f; pids = localworkers(), kargs...)
 lmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; pids = localworkers(), kargs...)
 lmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; pids = localworkers(), kargs...)
