@@ -30,7 +30,7 @@ end
 function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
     p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
     unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
-    v
+    v::View{T}
 end
 
 function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
@@ -39,7 +39,7 @@ function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
     end
     s = size(a)[1:end-1]
     p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
-    convert(View, unsafe_view(p, tuple(s..., length(ind)) ))
+    convert(View, unsafe_view(p, tuple(s..., length(ind)) ))::View{T}
 end
 
 @inline function next!{T}(v::View{T})

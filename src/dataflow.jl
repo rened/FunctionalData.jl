@@ -76,7 +76,12 @@ end
 
 indtosub(i::Int, a) = indtosub([i], a)
 function indtosub(inds::AbstractArray, a::Union{Array,BitArray}) 
-    @p ind2sub size(a) inds | unstack | map row | col | flatten
+    if length(a)<=5
+        s = tuple(a...)
+    else
+        s = size(a)
+    end
+    @p ind2sub s inds | unstack | map row | col | flatten
 end
 
 #######################################

@@ -437,6 +437,8 @@ shouldtest("computing") do
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
         d = Dict(:a => 1, :b => 2)
         @fact (@p mapmap d id | sort) --> [1,2]
+        @fact (@p map (1:3) BigInt)  -->  BigInt[1,2,3]
+        @fact (@p map Any[1,2,3] BigInt)  -->  BigInt[1,2,3]
     end
     shouldtestcontext("mapi") do
         @fact reduce(&, mapi(0:9, (x,i)->x+1==i)) --> true
