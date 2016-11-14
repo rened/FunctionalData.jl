@@ -1,5 +1,5 @@
 export row, col, reshape
-export split, concat
+export split, concat, cat1, cat2, cat3, cat4, cat5
 export subtoind, indtosub
 export stack, flatten, unstack, vflatten, unflatten
 export riffle
@@ -60,7 +60,12 @@ function split(a::AbstractArray,f::Function)
 end
 
 concat(a) = concat(a...)
-concat(a...) = @p flatten Any[reject(collect(a),x->(!isa(x,Symbol) && isempty(x)))...]
+concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch return false end))...]
+cat1(a) = cat(1,a...)
+cat2(a) = cat(2,a...)
+cat3(a) = cat(3,a...)
+cat4(a) = cat(4,a...)
+cat5(a) = cat(5,a...)
 
 #######################################
 ## subtoind, indtosub
@@ -180,6 +185,8 @@ function flatten{T}(a::Array{T,2})
     end
     r
 end
+
+flatten{T}(a::Array{T,3}) = @p map a flatten | stack
 
 vflatten(a) = @p transpose a | flatten | transpose
 

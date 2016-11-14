@@ -25,8 +25,8 @@ export fold
 typealias Callable Union{Function, Type}
 
 import Base.sort
-sort(a, f::Callable; kargs...) = part(a, sortperm(vec(map(a, f)); kargs...))
-sort(a, key; kargs...) = part(a, sortperm(vec(extract(a, key)); kargs...))
+sort(a, f::Callable; kargs...) = part(a, sortperm(mapvec(a, f); kargs...))
+sort(a, key; kargs...) = part(a, sortperm(extractvec(a, key); kargs...))
 sortrev(a) = sort(a; rev = true)
 sortpermrev(a) = sortperm(a; rev = true)
 sortrev(a, f) = sort(a,f; rev = true)
@@ -523,6 +523,7 @@ import Base.select
 select(a, f::Callable) = filter(a, f)
 reject(a, f::Callable) = select(a, not*f)
 
+groupdict(a, s::Symbol) = groupdict(a, x->x[s])
 function groupdict(a,f::Function = id)
     d = Dict()
     inds = @p map a f
@@ -530,9 +531,11 @@ function groupdict(a,f::Function = id)
         ind = @p at inds i
         d[ind] = push!(get(d,ind,[]), at(a,i))
     end
-    mapvalues(d,flatten)
+    # mapvalues(d,flatten)
+    d
 end
 
+groupby(a, s::Symbol) = groupby(a, x->x[s])
 function groupby(a,f = id)
     r = groupdict(a,f)
     ks = collect(keys(r))
