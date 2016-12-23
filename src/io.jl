@@ -45,13 +45,14 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
     r = filter(x->selector(joinpath(path,x)) && (hidden || x[1]!='.'), files)
     # @show r
     r = sort(r)
-    r = withpath ? map(r, x->joinpath(path,x)) : r
-    f = (VERSION < v"0.5-") ? utf8 : AbstractString
-    r = map(r, f)
+    r = withpath ? mapvec(r, x->joinpath(path,x)) : r
+    f = (VERSION < v"0.5-") ? Base.utf8 : AbstractString
+    f = AbstractString
+    r = mapvec(r, f)
     if recursive
         f(x) = filedirnames(x; 
             selector = selector, hidden = hidden, withpath = withpath, recursive = true)
-        r = @p dirpaths path | map f | flatten | concat r _
+        r = @p dirpaths path | mapvec f | flatten | concat r _
     end
     if !isempty(suffix)
         suffix = isa(suffix, AbstractString) ? [suffix] : suffix
