@@ -62,11 +62,11 @@ end
 ## map, pmap
 
 
-mapvec(a, f::Callable) = [f(trytoview(a,i)) for i in 1:len(a)]
-mapvec2(a, b, f::Callable) = [f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
-mapvec3(a, b, c, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i)) for i in 1:len(a)]
-mapvec4(a, b, c, d, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i)) for i in 1:len(a)]
-mapvec5(a, b, c, d, e, f::Callable) = [f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i),trytoview(e,i)) for i in 1:len(a)]
+mapvec(a, f::Callable) = Any[f(trytoview(a,i)) for i in 1:len(a)]
+mapvec2(a, b, f::Callable) = Any[f(trytoview(a,i),trytoview(b,i)) for i in 1:len(a)]
+mapvec3(a, b, c, f::Callable) = Any[f(trytoview(a,i),trytoview(b,i),trytoview(c,i)) for i in 1:len(a)]
+mapvec4(a, b, c, d, f::Callable) = Any[f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i)) for i in 1:len(a)]
+mapvec5(a, b, c, d, e, f::Callable) = Any[f(trytoview(a,i),trytoview(b,i),trytoview(c,i),trytoview(d,i),trytoview(e,i)) for i in 1:len(a)]
 
 map2(a, b, f::Callable) = flatten(mapvec2(a,b,f))
 map3(a, b, c, f::Callable) = flatten(mapvec3(a,b,c,f))
@@ -531,8 +531,7 @@ function groupdict(a,f::Function = id)
         ind = @p at inds i
         d[ind] = push!(get(d,ind,[]), at(a,i))
     end
-    # mapvalues(d,flatten)
-    d
+    mapvalues(d,flatten)
 end
 
 groupby(a, s::Symbol) = groupby(a, x->x[s])

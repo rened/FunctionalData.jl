@@ -385,9 +385,9 @@ shouldtest("computing") do
     end
     shouldtestcontext("sort") do
         @fact FunctionalData.sort([1,2,3], id) --> [1,2,3]
-        @fact FunctionalData.sort([1 2 3], id) --> [1 2 3]
+        @fact FunctionalData.sort([1 2 3], x->x[1]) --> [1 2 3]
         @fact FunctionalData.sort([1,2,3], x->-x) --> [3,2,1]
-        @fact FunctionalData.sort([1 2 3], x->-x) --> [3 2 1]
+        @fact FunctionalData.sort([1 2 3], x->-x[1]) --> [3 2 1]
         local D = [Dict(:id => x, :a => string(x)) for x in 1:3]
         @fact FunctionalData.sort(D, :id) --> D
         @fact FunctionalData.sort("dcba", x->convert(Int,x)) --> "abcd"
@@ -544,7 +544,7 @@ shouldtest("computing") do
         r = amap(a, x->x+1)
         @fact r --> a+1
         @fact amap2(1:10, 1:10, +) --> collect(2*(1:10))
-        f = (VERSION < v"0.5-") ? utf8 : String
+        f = (VERSION < v"0.5-") ? utf8 : AbstractString
         @fact amap2("abc", 1:3, (x,y)->"$x$y") --> map(f, ["a1","b2","c3"])
         # @fact amapvec2(1:10, 1:10, +) --> unstack(2*(1:10))
     end
