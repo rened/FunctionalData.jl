@@ -100,7 +100,7 @@ function stack{T}(a::Array{T,1})
     end
     return r
 end
-stack{T<:Real}(a::DenseArray{T}) = a
+stack{T<:Number}(a::DenseArray{T}) = a
 
 typealias StringLike Union{Char, AbstractString}
 tostring(a) = string(a)
@@ -113,7 +113,7 @@ function flatten{T<:StringLike}(a::Array{T,2})
     join(vec(a))
 end
 
-flatten{T<:Real,N}(a::AbstractArray{T,N}) = a
+flatten{T<:Number,N}(a::AbstractArray{T,N}) = a
 function flatten{T}(a::Array{T,1})
     if isempty(a)
         return similar(a)

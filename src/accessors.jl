@@ -67,7 +67,7 @@ part{T1,T2}(a::AbstractArray{T1,1}, i::AbstractArray{T2,1}) = a[i]
 dictpart(a, inds) = Dict(map(filter(collect(keys(a)), x->in(x,inds)), x->Pair(x,at(a,x))))
 part(a::Dict, inds::AbstractVector) = dictpart(a, inds)
 part(a::Dict, inds...) = dictpart(a, inds)
-part{T<:Real}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
+part{T<:Number}(a::AbstractArray,i::DenseArray{T,2}) = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
 import Base.values

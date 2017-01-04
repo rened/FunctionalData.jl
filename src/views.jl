@@ -9,13 +9,13 @@ end
 typealias View Array
 offset = 1
 
-isviewable{T<:Real}(a::Union{DenseArray,SharedArray}{T}) = true
+isviewable{T<:Number}(a::Union{DenseArray,SharedArray}{T}) = true
 isviewable(a) = false
 
-view{T<:Real}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
-view!{T<:Real}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
+view{T<:Number}(a::SharedArray{T}, i::Int = 1) = view(sdata(a), i)
+view!{T<:Number}(a::SharedArray{T}, i::Int, v::View{T}) = view(sdata(a), i, v)
 
-function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
+function view{T<:Number}(a::DenseArray{T}, i::Int = 1)
     s = size(a)
     if length(s) > 2
         s = s[1:end-1]
@@ -27,13 +27,13 @@ function view{T<:Real}(a::DenseArray{T}, i::Int = 1)
     view!(a, i, convert(View, unsafe_view(pointer(a), s)))
 end
 
-function view!{T<:Real}(a::DenseArray{T}, i::Int, v::View{T})
+function view!{T<:Number}(a::DenseArray{T}, i::Int, v::View{T})
     p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
     unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
     v::View{T}
 end
 
-function view{T<:Real}(a::DenseArray{T}, ind::UnitRange)
+function view{T<:Number}(a::DenseArray{T}, ind::UnitRange)
     if len(ind) == 0
         return Array{T}([size(a)...][1:end-1]...,0)
     end
@@ -49,10 +49,10 @@ end
     v
 end
 
-trytoview{T<:Real}(a::DenseVector{T}, i = 1) = at(a,i)
-trytoview{T<:Real}(a::DenseVector{T}, i, v::View) = at(a,i)
-trytoview{T<:Real}(a::DenseArray{T}, i = 1) = view(a, i)
-trytoview{T<:Real}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
+trytoview{T<:Number}(a::DenseVector{T}, i = 1) = at(a,i)
+trytoview{T<:Number}(a::DenseVector{T}, i, v::View) = at(a,i)
+trytoview{T<:Number}(a::DenseArray{T}, i = 1) = view(a, i)
+trytoview{T<:Number}(a::DenseArray{T}, i, v::View) = view!(a, i, v)
 trytoview(a, i) = at(a, i)
 trytoview(a, i, v) = at(a, i)
 
