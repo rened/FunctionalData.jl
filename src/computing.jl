@@ -128,7 +128,7 @@ function mapmapvec(a, f)
     map(a, g)
 end
 
-function map{T<:Real}(a::DenseArray{T,1},f::Callable)
+function map{T<:Number}(a::DenseArray{T,1},f::Callable)
     isempty(a) && return []
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
@@ -148,7 +148,7 @@ function map{T<:Real}(a::DenseArray{T,1},f::Callable)
     end
 end
 
-function map{T<:Real,N}(a::DenseArray{T,N},f::Callable)
+function map{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return []
     v = view(a,1)
     r1 = f(v)
@@ -171,7 +171,7 @@ function map{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     end
 end
 
-function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
+function map2!{T<:Number,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
     isempty(a) && return []
     v = view(a,1)
     r1 = f1(v)
@@ -182,7 +182,7 @@ function map2!{T<:Real,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
     r
 end
 
-function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable)
+function map2!{T<:Number,N,T2<:Number,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable)
     isempty(a) && return []
     v = view(a,1)
     rv = view(r,1)
@@ -195,7 +195,7 @@ function map2!{T<:Real,N,T2<:Real,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f:
 end
 
 import Base.map!
-function map!r{T<:Real,N}(a::DenseArray{T,N},f::Callable)
+function map!r{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -205,7 +205,7 @@ function map!r{T<:Real,N}(a::DenseArray{T,N},f::Callable)
     a
 end
 
-function map!{T<:Real,N}(a::DenseArray{T,N},f::Callable)
+function map!{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -217,7 +217,7 @@ end
  
 work(a,f::Callable) = for i in 1:len(a) f(at(a,i)) end
 work(a::Dict,f::Callable) = map(vec(a),(k,v)->(f;nothing))
-function work{T<:Real,N}(a::DenseArray{T,N},f::Callable)
+function work{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     len(a)==0 && return
     v = view(a,1)
     for i = 1:len(a)
@@ -237,7 +237,7 @@ work4(a, b, c, d, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) 
 work5(a, b, c, d, e_, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
 worki(a, f) = mapi(a,(x,i)->(f(x,i);nothing))
  
-share{T<:Real,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
+share{T<:Number,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
 share(a::SharedArray) = a
 unshare(a::SharedArray) = sdata(a)
 
@@ -288,8 +288,8 @@ function shsetup(a::SharedArray; withfirst = false)
     pids, inds, n
 end
 
-shmap{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap(share(a), f)
-function shmap{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
+shmap{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap(share(a), f)
+function shmap{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a)
 
     r1 = f(view(a,1))
@@ -303,8 +303,8 @@ function shmap{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     r
 end
 
-shmap!{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap!(share(a), f)
-function shmap!{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
+shmap!{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap!(share(a), f)
+function shmap!{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -313,8 +313,8 @@ function shmap!{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     a
 end
 
-shmap!r{T<:Real,N}(a::DenseArray{T,N}, f::Callable) = shmap!r(share(a), f)
-function shmap!r{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
+shmap!r{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap!r(share(a), f)
+function shmap!r{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -323,8 +323,8 @@ function shmap!r{T<:Real,N}(a::SharedArray{T,N}, f::Callable)
     a
 end
 
-shmap2!{T<:Real, N}(a::DenseArray{T,N}, f1::Callable, f2::Callable) = shmap2!(share(a), f1, f2)
-function shmap2!{T<:Real, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
+shmap2!{T<:Number, N}(a::DenseArray{T,N}, f1::Callable, f2::Callable) = shmap2!(share(a), f1, f2)
+function shmap2!{T<:Number, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
     r1 = f1(view(a,1))
     r = sharraylike(r1, len(a))
     rv = view(r,1)
@@ -333,8 +333,8 @@ function shmap2!{T<:Real, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
     r
 end
 
-shmap2!{T<:Real,N, T2<:Real, M}(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Callable) = shmap2!(share(a), r, f)
-function shmap2!{T<:Real,N, T2<:Real, M}(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Callable; withfirst = true)
+shmap2!{T<:Number,N, T2<:Number, M}(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Callable) = shmap2!(share(a), r, f)
+function shmap2!{T<:Number,N, T2<:Number, M}(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Callable; withfirst = true)
     pids, inds, n = shsetup(a, withfirst = withfirst)
     @sync for i in 1:n
         @spawnat pids[i] loopovershared2!(view(r, inds[i]), view(a, inds[i]), f)
@@ -371,7 +371,7 @@ function pmapsetup(a; pids = workers())
 end
 
 function pmapparts(a, inds, n) 
-    if isa(a, DenseArray) && eltype(a)<:Real
+    if isa(a, DenseArray) && eltype(a)<:Number
         parts = [view(a, inds[i]) for i in 1:n]
     else
         parts = [part(a, inds[i]) for i in 1:n]
