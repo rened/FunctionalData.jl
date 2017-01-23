@@ -544,7 +544,6 @@ function groupby(a,f = id)
     values(r,ks)
 end
 
-import Base.apply
 apply(f::Callable, f2::Callable) = error("undefined")
 apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)
