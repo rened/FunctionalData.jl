@@ -2,7 +2,7 @@ export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, mapveci, work, 
 export map2, map3, map4, map5
 export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
-export mapprogress, mapkeys, mapvalues
+export mapprogress, dictmap, mapkeys, mapvalues
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
@@ -112,6 +112,7 @@ function map(a::Dict, f::Callable; kargs...)
     d
 end
 
+dictmap(a::Dict, f) = @p vec a | map (x->f(fst(x), snd(x))) | Dict
 mapkeys(a::Dict, f) = map(a, x -> (f(fst(x)),snd(x)))
 mapvalues(a::Dict, f) = map(a, x ->(fst(x),f(snd(x))))
 mapmap(a::Dict, f) = [f(v) for (k,v) in a]

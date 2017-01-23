@@ -321,6 +321,7 @@ end
 #####################################################
 ##   find
 
-findsub(a::Union{Array,BitArray}) = indtosub(find(a.!=0), a)
+findsub(a::Array) = findsub(a.!=0)
+findsub(a::BitArray) = indtosub(find(vec(a)), a)
 
 
