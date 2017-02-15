@@ -433,8 +433,8 @@ shouldtest("computing") do
 
         @fact map(Dict(1 => 2, 3 => 4), x->(fst(x),10*fst(x)+snd(x))) --> Dict(1=>12,3=>34)
 
-        @fact dictmap((Dict(1 => 2)), (k,v) -> (k,k+v)) --> Dict(1 => 3)
-        @fact (@p dictmap (Dict(1 => 2)) (k,v) -> (k,k+v)) --> Dict(1 => 3)
+        @fact mapdict((Dict(1 => 2)), (k,v) -> (k,k+v)) --> Dict(1 => 3)
+        @fact (@p mapdict (Dict(1 => 2)) (k,v) -> (k,k+v)) --> Dict(1 => 3)
         @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
         d = Dict(:a => 1, :b => 2)

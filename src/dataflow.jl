@@ -124,6 +124,7 @@ function flatten{T}(a::Array{T,1})
     if VERSION.minor > 3 && !method_exists(ndims,Tuple{typeof(fst(a))})
         return a
     end
+    a = reject(a, isempty)
     if ndims(fst(a)) == 1
         return vcat(a...)
     end
