@@ -115,7 +115,7 @@ end
 
 flatten{T<:Number,N}(a::AbstractArray{T,N}) = a
 function flatten{T}(a::Array{T,1})
-    if isempty(a)
+    if isempty(a) || all(isempty,a)
         return similar(a)
     end
     if isa(a[1], StringLike)
@@ -127,7 +127,8 @@ function flatten{T}(a::Array{T,1})
     if ndims(fst(a)) == 1
         return vcat(a...)
     end
-    r = arraylike(fst(fst(a)), sum([len(x) for x in a]))
+    firstnonempty = @p map a not*isempty | findfirst
+    r = arraylike(fst(at(a,firstnonempty)), sum([len(x) for x in a]))
     ind = 0
     for i = 1:len(a)
         for j = 1:len(a[i])
