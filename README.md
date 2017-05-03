@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/rened/FunctionalData.jl.png)](https://travis-ci.org/rened/FunctionalData.jl)
 [![Build Status](http://pkg.julialang.org/badges/FunctionalData_0.4.svg)](http://pkg.julialang.org/?pkg=FunctionalData&ver=0.4)
 [![Build Status](http://pkg.julialang.org/badges/FunctionalData_0.5.svg)](http://pkg.julialang.org/?pkg=FunctionalData&ver=0.5)
+[![Build Status](http://pkg.julialang.org/badges/FunctionalData_0.6.svg)](http://pkg.julialang.org/?pkg=FunctionalData&ver=0.6)
 
 
 `FunctionalData` is a package for fast and expressive data modification. 
