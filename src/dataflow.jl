@@ -102,7 +102,7 @@ function stack{T}(a::Array{T,1})
 end
 stack{T<:Number}(a::DenseArray{T}) = a
 
-typealias StringLike Union{Char, AbstractString}
+const StringLike  = Union{Char, AbstractString}
 tostring(a) = string(a)
 tostring(a::AbstractString) = a
 flatten(a::StringLike) = a

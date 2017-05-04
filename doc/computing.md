@@ -1,6 +1,6 @@
 ### <a name="views"></a>Efficient Views
 
-typealias View Array
+const View = Array
 
 ##### View
 ```jl

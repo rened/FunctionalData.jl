@@ -99,7 +99,10 @@ function takewhile(a, f)
     a
 end
 
-import Base.drop
+if VERSION.minor < 6
+    import Base.drop
+end
+
 drop(a::AbstractString,i::Int) = part(a,i+1:len(a))
 drop(a::AbstractArray,i::Int) = part(a,i+1:len(a))
 dropat(a, ind) = part(a, setdiff(1:len(a), ind))
