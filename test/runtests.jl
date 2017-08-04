@@ -398,10 +398,12 @@ shouldtest("computing") do
         @fact (@p groupdict a id) --> Dict(1 => Any[1], 2 => Any[2,2], 3 => Any[3,3,3])
     end
      shouldtestcontext("groupby") do
-        a = [1,2,3,2,3,3]
-        @fact (@p groupby a id) --> Any[Any[1],Any[2,2],Any[3,3,3]]
-        a = [2 1 3 2 3 3; 20 10 30 20 30 30]
-        @fact (@p groupby a getindex 2) --> Any[[1 10]', [2 2; 20 20], [3 3 3; 30 30 30]]
+         a = ["a1","b1","c1","a2","b2","c2"]
+         @fact (@p groupby a snd) --> Any[Any["a1","b1","c1"],Any["a2","b2","c2"]]
+         a = [1,2,3,2,3,3]
+         @fact (@p groupby a id) --> Any[Any[1],Any[2,2],Any[3,3,3]]
+         a = [2 1 3 2 3 3; 20 10 30 20 30 30]
+         @fact (@p groupby a getindex 2) --> Any[[1 10]', [2 2; 20 20], [3 3 3; 30 30 30]]
     end
     shouldtestcontext("filter") do
         @fact filter([1,2,3],x->isodd(x)) --> [1,3]
@@ -432,8 +434,9 @@ shouldtest("computing") do
 
         @fact map(Dict(1 => 2, 3 => 4), x->(fst(x),10*fst(x)+snd(x))) --> Dict(1=>12,3=>34)
 
-        @fact mapdict((Dict(1 => 2)), (k,v) -> (k,k+v)) --> Dict(1 => 3)
+        @fact mapdict(Dict(1 => 2), (k,v) -> (k,k+v)) --> Dict(1 => 3)
         @fact (@p mapdict (Dict(1 => 2)) (k,v) -> (k,k+v)) --> Dict(1 => 3)
+        @fact mapdict(Dict(1 => 10, 2 => 20), (k,v) -> k == 1 ? (k,k+v) : nothing) --> Dict(1 => 11)
         @fact mapkeys((Dict(1 => 2)), x -> 2x) --> Dict(2 => 2)
         @fact mapvalues((Dict(1 => 2)), x -> 2x) --> Dict(1 => 4)
         d = Dict(:a => 1, :b => 2)

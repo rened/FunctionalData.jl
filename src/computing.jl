@@ -2,7 +2,7 @@ export map, mapvec, map!, map!r, map2!, mapmap, mapmapvec, mapi, mapveci, work, 
 export map2, map3, map4, map5
 export mapvec2, mapvec3, mapvec4, mapvec5
 export work2, work3, work4, work5
-export mapprogress, mapdict, mapkeys, mapvalues
+export mapprogress, mapdict, workdict, mapkeys, mapvalues
 export share, unshare
 export shmap, shmap!, shmap!r, shmap2!, shwork
 export pmap, pmap!, pmap!r, pmap2!, pwork
@@ -112,7 +112,8 @@ function map(a::Dict, f::Callable; kargs...)
     d
 end
 
-mapdict(a::Dict, f) = @p vec a | map (x->f(fst(x), snd(x))) | Dict
+mapdict(a::Dict, f) = @p vec a | map (x->f(fst(x), snd(x))) | reject isnil | Dict
+workdict(a::Dict, f) = @p vec a | work x->f(fst(x), snd(x))
 mapkeys(a::Dict, f) = map(a, x -> (f(fst(x)),snd(x)))
 mapvalues(a::Dict, f) = map(a, x ->(fst(x),f(snd(x))))
 mapmap(a::Dict, f) = [f(v) for (k,v) in a]
@@ -532,7 +533,11 @@ function groupdict(a,f::Function = id)
         ind = @p at inds i
         d[ind] = push!(get(d,ind,[]), at(a,i))
     end
-    mapvalues(d,flatten)
+    mapvalues(d,x->begin
+              len(x) == 0 && return x
+              isa(fst(x), String) && return x
+              flatten(x)
+    end)
 end
 
 groupby(a, s::Symbol) = groupby(a, x->x[s])
