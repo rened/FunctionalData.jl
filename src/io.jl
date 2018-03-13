@@ -5,27 +5,6 @@ export readmat, writemat
 
 existsfile(filename::AbstractString) = (s = stat(filename); s.inode!=0)
 
-#import Base.mkdir
-#function amkdir(a)
-#    if a[1]=='/'
-#        start = '/';
-#    else
-#        start = "";
-#    end
-#
-#    if !existsfile(a)
-#        parts = split(a,'/');
-#        n = len(parts);
-#        for i = 1:n
-#      @show riffle(parts[1:i],'/')
-#        d = [start join(riffle(parts[1:i],'/'))];
-#            if !(existsfile(d))
-#                Base.mkdir(d)
-#            end
-#        end
-#    end
-#end
-
 import Base.read
 read(filename::AbstractString) = open(read, filename)
 
@@ -33,21 +12,20 @@ import Base.write
 write(data::AbstractString, filename::AbstractString) = write(data, filename, "w")
 function write(data::AbstractString, filename::AbstractString, mode)
     io = open(filename, mode)
-    finalizer(io,close)
+    finalizer(close, io)
     write(io,data)
     close(io)
 end
 
 function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath = false, 
-    recursive = false, suffix = "", regex = Void)
+    recursive = false, suffix = "", regex = Nothing)
     # @show path selector hidden withpath
     files = readdir(path)
     r = filter(x->selector(joinpath(path,x)) && (hidden || x[1]!='.'), files)
     # @show r
     r = sort(r)
     r = withpath ? mapvec(r, x->joinpath(path,x)) : r
-    f = (VERSION < v"0.5-") ? Base.utf8 : AbstractString
-    f = AbstractString
+    f = String
     r = mapvec(r, f)
     if recursive
         f(x) = filedirnames(x; 
@@ -58,7 +36,7 @@ function filedirnames(path = pwd(); selector = isdir, hidden = false, withpath =
         suffix = isa(suffix, AbstractString) ? [suffix] : suffix
         r = @p mapvec suffix (suf->@p filter r x->@p takelast x len(suf) | isequal suf) | flatten
     end
-    if regex != Void
+    if regex != Nothing
         r = @p filter r x->@p ismatch regex x
     end
     r

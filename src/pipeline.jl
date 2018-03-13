@@ -22,7 +22,7 @@ macro p(a...)
     while input!=output
         input = output
         output = Any[]
-        flatten(x) = typeof(x)==Expr && x.args[1]==:|?append!(output,x.args[[2,1,3]]):push!(output,x)
+        flatten(x) = typeof(x)==Expr && x.args[1]==:| ? append!(output,x.args[[2,1,3]]) : push!(output,x)
         # println(string("input before: ",input))
         # println(string("output before: ",output))
         # @show flatten input
@@ -86,7 +86,7 @@ macro p(a...)
                 if sum(part.==:_) > 1
                     error("Use can use '_' only once per section of a @p ... | ... | ... pipeline")
                 end
-                part[find(part.==:_)] = ex
+                part[findall(part.==:_)] = ex
                 didreplace = true
             end
             r = :( $(part[1])( $(part[2:end]...)) )

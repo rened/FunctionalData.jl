@@ -22,7 +22,7 @@ export typed
 export call, apply
 export fold
 
-typealias Callable Union{Function, Type}
+const Callable = Union{Function, Type}
 
 import Base.sort
 sort(a, f::Callable; kargs...) = part(a, sortperm(mapvec(a, f); kargs...))
@@ -79,7 +79,7 @@ mapveci(a, f::Callable ) = mapvec2(a, 1:len(a), f)
 import Base.map
 map(a, f::Callable) = map(unstack(1:len(a)), i->f(at(a,i)))
 map(a::AbstractString, f::Callable) = flatten(map(unstack(a),f))
-function map{T,N}(a::AbstractArray{T,N}, f::Callable)
+function map(a::AbstractArray{T,N}, f::Callable) where {T,N}
     isempty(a) && return []
 
     r1 = f(fst(a))
@@ -90,7 +90,7 @@ function map{T,N}(a::AbstractArray{T,N}, f::Callable)
     return r
 end
 
-@inline function map_{Tin,Nin,Tout,Nout}(f::Callable,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout})
+@inline function map_(f::Callable,a::AbstractArray{Tin,Nin},r::Array{Tout,Nout}) where {Tin,Nin,Tout,Nout}
     for i = 2:len(a)
         b = f(at(a,i))
         setat!(r,i,b)
@@ -99,10 +99,10 @@ end
 
 function map(a::Dict, f::Callable; kargs...)
     isempty(a) && return a
-    makeentry(a::Void) = []
+    makeentry(a::Nothing) = []
     makeentry(a::Union{Tuple,Pair}) = [a]
-    makeentry{T<:Union{Tuple,Pair}}(a::Array{T}) = a
-    makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Void, Tuple{Symbol,Any}, Array{Tuple}")
+    makeentry(a::Array{T}) where {T<:Union{Tuple,Pair}} = a
+    makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Nothing, Tuple{Symbol,Any}, Array{Tuple}")
 
     r = @p vec a | map f | map makeentry | flatten
     d = Dict()
@@ -130,7 +130,7 @@ function mapmapvec(a, f)
     map(a, g)
 end
 
-function map{T<:Number}(a::DenseArray{T,1},f::Callable)
+function map(a::DenseArray{T,1},f::Callable) where {T<:Number}
     isempty(a) && return []
     r1 = f(fst(a))
     r = arraylike(r1, len(a), a)
@@ -150,7 +150,7 @@ function map{T<:Number}(a::DenseArray{T,1},f::Callable)
     end
 end
 
-function map{T<:Number,N}(a::DenseArray{T,N},f::Callable)
+function map(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     isempty(a) && return []
     v = view(a,1)
     r1 = f(v)
@@ -173,7 +173,7 @@ function map{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     end
 end
 
-function map2!{T<:Number,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
+function map2!(a::DenseArray{T,N}, f1::Callable, f2::Callable) where {T<:Number,N}
     isempty(a) && return []
     v = view(a,1)
     r1 = f1(v)
@@ -184,7 +184,7 @@ function map2!{T<:Number,N}(a::DenseArray{T,N}, f1::Callable, f2::Callable)
     r
 end
 
-function map2!{T<:Number,N,T2<:Number,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable)
+function map2!(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable) where {T<:Number,N,T2<:Number,M}
     isempty(a) && return []
     v = view(a,1)
     rv = view(r,1)
@@ -197,7 +197,7 @@ function map2!{T<:Number,N,T2<:Number,M}(a::DenseArray{T,N}, r::DenseArray{T2,M}
 end
 
 import Base.map!
-function map!r{T<:Number,N}(a::DenseArray{T,N},f::Callable)
+function map!r(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -207,7 +207,7 @@ function map!r{T<:Number,N}(a::DenseArray{T,N},f::Callable)
     a
 end
 
-function map!{T<:Number,N}(a::DenseArray{T,N},f::Callable)
+function map!(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -219,7 +219,7 @@ end
  
 work(a,f::Callable) = for i in 1:len(a) f(at(a,i)) end
 work(a::Dict,f::Callable) = map(vec(a),(k,v)->(f;nothing))
-function work{T<:Number,N}(a::DenseArray{T,N},f::Callable)
+function work(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     len(a)==0 && return
     v = view(a,1)
     for i = 1:len(a)
@@ -239,7 +239,7 @@ work4(a, b, c, d, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i)); nothing) 
 work5(a, b, c, d, e_, f::Callable) = [(f(at(a,i),at(b,i),at(c,i),at(d,i),at(e_,i)); nothing) for i in 1:len(a)]
 worki(a, f) = mapi(a,(x,i)->(f(x,i);nothing))
  
-share{T<:Number,N}(a::DenseArray{T,N}) = convert(SharedArray, a)
+share(a::DenseArray{T,N}) where {T<:Number,N} = convert(SharedArray, a)
 share(a::SharedArray) = a
 unshare(a::SharedArray) = sdata(a)
 
@@ -290,8 +290,8 @@ function shsetup(a::SharedArray; withfirst = false)
     pids, inds, n
 end
 
-shmap{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap(share(a), f)
-function shmap{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
+shmap(a::DenseArray{T,N}, f::Callable) where {T<:Number,N} = shmap(share(a), f)
+function shmap(a::SharedArray{T,N}, f::Callable) where {T<:Number,N}
     pids, inds, n = shsetup(a)
 
     r1 = f(view(a,1))
@@ -305,8 +305,8 @@ function shmap{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     r
 end
 
-shmap!{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap!(share(a), f)
-function shmap!{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
+shmap!(a::DenseArray{T,N}, f::Callable) where {T<:Number,N} = shmap!(share(a), f)
+function shmap!(a::SharedArray{T,N}, f::Callable) where {T<:Number,N}
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -315,8 +315,8 @@ function shmap!{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     a
 end
 
-shmap!r{T<:Number,N}(a::DenseArray{T,N}, f::Callable) = shmap!r(share(a), f)
-function shmap!r{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
+shmap!r(a::DenseArray{T,N}, f::Callable) where {T<:Number,N} = shmap!r(share(a), f)
+function shmap!r(a::SharedArray{T,N}, f::Callable) where {T<:Number,N}
     pids, inds, n = shsetup(a; withfirst = true)
 
     @sync for i in 1:n
@@ -325,8 +325,8 @@ function shmap!r{T<:Number,N}(a::SharedArray{T,N}, f::Callable)
     a
 end
 
-shmap2!{T<:Number, N}(a::DenseArray{T,N}, f1::Callable, f2::Callable) = shmap2!(share(a), f1, f2)
-function shmap2!{T<:Number, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
+shmap2!(a::DenseArray{T,N}, f1::Callable, f2::Callable) where {T<:Number, N} = shmap2!(share(a), f1, f2)
+function shmap2!(a::SharedArray{T,N}, f1::Callable, f2::Callable) where {T<:Number, N}
     r1 = f1(view(a,1))
     r = sharraylike(r1, len(a))
     rv = view(r,1)
@@ -335,8 +335,8 @@ function shmap2!{T<:Number, N}(a::SharedArray{T,N}, f1::Callable, f2::Callable)
     r
 end
 
-shmap2!{T<:Number,N, T2<:Number, M}(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Callable) = shmap2!(share(a), r, f)
-function shmap2!{T<:Number,N, T2<:Number, M}(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Callable; withfirst = true)
+shmap2!(a::DenseArray{T,N}, r::SharedArray{T2,M}, f::Callable) where {T<:Number,N, T2<:Number, M} = shmap2!(share(a), r, f)
+function shmap2!(a::SharedArray{T,N}, r::SharedArray{T2,M}, f::Callable; withfirst = true) where {T<:Number,N, T2<:Number, M}
     pids, inds, n = shsetup(a, withfirst = withfirst)
     @sync for i in 1:n
         @spawnat pids[i] loopovershared2!(view(r, inds[i]), view(a, inds[i]), f)
@@ -347,7 +347,6 @@ end
 ###############################
 #  pmap
 
-import Base.pmap
 mapper(a, f) = map(a,f)
 mappervec(a, f) = mapvec(a,f)
 mapper!(a, f) = map!(a,f)
@@ -361,7 +360,7 @@ pmap!r(a, f; kargs...) = pmap_internal(mapper!r, a, f; kargs...)
 pmap2!r(a, f1::Callable, f2::Callable; kargs...) = pmap_internal2!(mapper2!, a, f1, f2; kargs...)
 pmap2!r(a, r, f::Callable; kargs...) = pmap_internal2!(mapper2!, a, r, f; kargs...)
 
-workerpool(pids) =  VERSION < v"0.5-" ? pids : WorkerPool(pids)
+workerpool(pids) =  WorkerPool(pids)
 
 function pmapsetup(a; pids = workers())
     if length(pids) > 1
@@ -384,11 +383,7 @@ function pmap_exec(g, a; nworkers = typemax(Int), vec = false, kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
     pids = workerpool(take(pids, nworkers))
-    if VERSION < v"0.5-" 
-        r = Base.pmap(x->(yield();g(x)), parts, pids = pids)
-    else
-        r = Base.pmap(pids, x->(yield();g(x)), parts)
-    end
+    r = Base.pmap(pids, x->(yield();g(x)), parts)
     for x in r
         isa(x,RemoteException) && rethrow(x)
     end
@@ -510,7 +505,7 @@ tee(a,f) = (f(a);a)
 import Base.*
 *(f::Callable, g::Callable) = (a...) -> f(g(a...))
 
-typed{N}(a::Array{Any,N}) = isempty(a) ? [] : convert(Array{typeof(a[1]),N}, a)
+typed(a::Array{Any,N}) where {N} = isempty(a) ? [] : convert(Array{typeof(a[1]),N}, a)
 typed(a) = a
 
 import Base.filter
@@ -550,9 +545,6 @@ function groupby(a,f = id)
     values(r,ks)
 end
 
-if VERSION < v"0.5.0"
-    import Base.apply
-end
 apply(f::Callable, f2::Callable) = error("undefined")
 apply(f::Callable, args...) = f(args...)
 apply(args, f::Callable) = f(args)

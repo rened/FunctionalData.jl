@@ -22,7 +22,7 @@ col(a::Tuple) = reshape([a...],length(a),1)
 col(a...) = col(vcat(a...))
 
 import Base.reshape
-reshape{T}(a::AbstractArray, siz::Array{T,2}) = reshape(a, siz...)
+reshape(a::AbstractArray, siz::Array{T,2}) where {T} = reshape(a, siz...)
 function reshape(a::AbstractArray) 
     if !(ndims(a)==1 || len(a)==1)
         error("FuncionalData.reshape(a): a was expected to be a vector or len(a)==1, actual size was: $(size(a))")
@@ -60,7 +60,7 @@ function split(a::AbstractArray,f::Function)
 end
 
 concat(a) = concat(a...)
-concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch return false end))...]
+concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch; return false end))...]
 cat1(a) = cat(1,a...)
 cat2(a) = cat(2,a...)
 cat3(a) = cat(3,a...)
@@ -86,44 +86,42 @@ function indtosub(inds::AbstractArray, a::Union{Array,BitArray})
     else
         s = size(a)
     end
-    @p ind2sub s inds | unstack | map row | col | flatten
+    @p map CartesianIndices(s)[inds] (x->col([convert(Tuple,x)...])) | flatten
 end
 
 #######################################
 ## flatten, stack, unstack, unflatten
 
 
-function stack{T}(a::Array{T,1})
+function stack(a::Array{T,1}) where {T}
     r = arraylike(fst(a), len(a))
     for i = 1:len(a)
         setat!(r, i, at(a,i))
     end
     return r
 end
-stack{T<:Number}(a::DenseArray{T}) = a
+stack(a::DenseArray{T}) where {T<:Number} = a
 
 const StringLike  = Union{Char, AbstractString}
 tostring(a) = string(a)
 tostring(a::AbstractString) = a
 flatten(a::StringLike) = a
-flatten{T<:StringLike}(a::Array{T,1}) = join(a)
+flatten(a::Array{T,1}) where {T<:StringLike} = join(a)
 
-function flatten{T<:StringLike}(a::Array{T,2}) 
-    assert(size(a,1)==1)
+function flatten(a::Array{T,2}) where {T<:StringLike} 
+    @assert size(a,1)==1
     join(vec(a))
 end
 
-flatten{T<:Number,N}(a::AbstractArray{T,N}) = a
-function flatten{T}(a::Array{T,1})
+flatten(a::AbstractArray{T,N}) where {T<:Number,N} = a
+function flatten(a::Array{T,1}) where {T}
     if isempty(a)
         return similar(a)
     end
     if isa(a[1], StringLike)
         return join(map(a,tostring))
     end
-    if VERSION.minor > 3 && !method_exists(ndims,Tuple{typeof(fst(a))})
-        return a
-    end
+    !hasmethod(ndims,Tuple{typeof(fst(a))}) && return a
     if ndims(fst(a)) == 1
         return vcat(a...)
     end
@@ -139,12 +137,12 @@ function flatten{T}(a::Array{T,1})
     return r
 end
 
-function flatten{T}(a::Array{T,2})
+function flatten(a::Array{T,2}) where {T}
     if isempty(a)
         return arraylike(a)
     end
     if isa(a[1], StringLike)
-        assert(size(a,1) == 1)
+        @assert size(a,1) == 1
         return flatten(vec(a))
     end
     ms = Base.map(x->size(x,1), a)
@@ -173,7 +171,7 @@ function flatten{T}(a::Array{T,2})
         typ = promote_type(typ, eltype(a[i]))
     end
 
-    r = Array(typ, msum, nsum)
+    r = Array{typ,2}(undef, msum, nsum)
 
     ncum = 0
     for n = 1:size(a,2)
@@ -187,7 +185,7 @@ function flatten{T}(a::Array{T,2})
     r
 end
 
-flatten{T}(a::Array{T,3}) = @p map a flatten | stack
+flatten(a::Array{T,3}) where {T} = @p map a flatten | stack
 
 vflatten(a) = @p transpose a | flatten | transpose
 
@@ -197,7 +195,7 @@ unstack(a) = Any[at(a,i) for i in 1:len(a)]
 function unflatten(a,template)
     lens = @p mapvec template len
     ends = cumsum(lens)
-    starts = @p droplast [1; ends+1]
+    starts = @p droplast [1; ends.+1]
     @p mapvec2 starts ends (i,j)->part(a,i:j)
 end
 
@@ -250,7 +248,7 @@ end
 #######################################
 ##  matrix, unmatrix
 
-matrix{T<:Number}(a::AbstractArray{T}) = @p reshape a div(length(a),len(a)) len(a)
+matrix(a::AbstractArray{T}) where {T<:Number} = @p reshape a div(length(a),len(a)) len(a)
 matrix(a) = @p map a col | flatten
 function unmatrix(a, example) 
     r = @p map a (x->reshape(x,siz(fst(example)))) 
@@ -278,7 +276,7 @@ unlines(a) = join(a,'\n')
 #######################################
 ##  randperm, randsample
 
-import Base.randperm
+import Random.randperm
 _randperm = randperm
 randperm(a::Number) = _randperm(a)
 randperm(a) = part(a, randperm(len(a)))
@@ -323,6 +321,6 @@ end
 ##   find
 
 findsub(a::Array) = findsub(a.!=0)
-findsub(a::BitArray) = indtosub(find(vec(a)), a)
+findsub(a::BitArray) = indtosub(findall(vec(a)), a)
 
 

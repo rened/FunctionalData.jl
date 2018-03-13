@@ -13,6 +13,6 @@
 * Literal ranges sometimes need to be places in parentheses: 
 ```jl
 @p id 1:10
-@p id (1:10) | show
+@p id (1:10) | sum
 ```
  

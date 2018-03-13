@@ -13,8 +13,7 @@ Built around a simple memory layout convention, it provides a small set of gener
 Optionally, it supplies a [syntax](doc/pipeline.md) for clean, concise code:
  
 ```jl
-wordcount(filename) = @p readstring filename | lines | map split | flatten | length
-# note: use readsting on 0.5, readall on 0.4
+wordcount(filename) = @p read filename String | lines | map split | flatten | length
 ```
  
 #### Memory Layout 

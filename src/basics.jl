@@ -11,27 +11,27 @@ export minimum, maximum
 #######################################
 ##  zerossiz, onessiz, randsiz, randnsiz
 
-zerossiz(a::Array, typ::Type = Float64) = zeros(typ, a...)
-onessiz(a::Array, typ::Type = Float64) = ones(typ, a...)
-randsiz(a::Array, typ::Type = Float64) = rand(typ, a...)
-randnsiz(a::Array) = randn(a...)
-randnsiz(a::Array, typ::Type) = (r = Array(typ, a...); fillrandn(r))
+zerossiz(a::AbstractArray, T::Type = Float64) = zeros(T, a...)
+onessiz(a::AbstractArray, T::Type = Float64) = ones(T, a...)
+randsiz(a::AbstractArray, T::Type = Float64) = rand(T, a...)
+randnsiz(a::AbstractArray) = randn(a...)
+randnsiz(a::AbstractArray, T::Type) = (r = Array{T,length(a)r}(a...); fillrandn(r))
 
-shzerossiz(a::Array, typ::Type = Float64) = shzeros(typ, a...)
-shonessiz(a::Array, typ::Type = Float64) = shones(typ, a...)
-shrandsiz(a::Array, typ::Type = Float64) = shrand(typ, a...)
-shrandnsiz(a::Array, typ::Type = Float64) = shrandn(a...)
+shzerossiz(a::AbstractArray, T::Type = Float64) = shzeros(T, a...)
+shonessiz(a::AbstractArray, T::Type = Float64) = shones(T, a...)
+shrandsiz(a::AbstractArray, T::Type = Float64) = shrand(T, a...)
+shrandnsiz(a::AbstractArray, T::Type = Float64) = shrandn(a...)
 
-fillrand{T}(a::SharedArray{T}) = (for i = 1:length(a) a[i] = rand(T) end; a)
-fillrandn{T}(a::SharedArray{T}) = (for i = 1:length(a) a[i] = randn() end; a)
+fillrand(a::SharedArray{T}) where {T} = (for i = 1:length(a) a[i] = rand(T) end; a)
+fillrandn(a::SharedArray{T}) where {T} = (for i = 1:length(a) a[i] = randn() end; a)
 shzeros(a...) = SharedArray(Float64, a...)
-shzeros(typ::Type, a...) = SharedArray(typ, a...)
-shones(a...) = fill!(SharedArray(Float64, a...), one(typ))
-shones(typ::Type, a...) = fill!(SharedArray(typ, a...), one(typ))
-shrand(a...) = fillrand(SharedArray(Float64, a...))
-shrand(typ::Type, a...) = fillrand(SharedArray(typ, a...))
-shrandn(a...) = fillrandn(SharedArray(Float64, a...))
-shrandn(typ::Type, a...) = fillrandn(SharedArray(typ, a...))
+shzeros(T::Type, a...) = SharedArray{T,length(a)}(a...)
+shones(a...) = fill!(SharedArray{Float64,length(a)}(a...), one(Float64))
+shones(T::Type, a...) = fill!(SharedArray{T,length(a)}(a...), one(T))
+shrand(a...) = fillrand(SharedArray{Float64,length(a)}(a...))
+shrand(T::Type, a...) = fillrand(SharedArray{T,length(a)}(a...))
+shrandn(a...) = fillrandn(SharedArray{Float64,length(a)}(a...))
+shrandn(T::Type, a...) = fillrandn(SharedArray{T,length(a)}(a...))
 
 
 
@@ -50,7 +50,8 @@ import Base.*
 *(a::Union{Char,AbstractString}...) = string(a...)
 
 import Base.repeat
-repeat(a::Char,n::Int) = repeat(string(a), n)
+# repeat(a::AbstractArray{T,1}, n::Integer) where T = flatten(map(unstack(1:n), x->a))
+repeat(a::AbstractArray{T,2}, n::Integer) where T = flatten(map(unstack(1:n), x->a))
 repeat(a, n) = flatten(map(unstack(1:n), x->a))
 
 nop(a...) = return
@@ -112,32 +113,18 @@ function newarraysize(a,n::Int)
     tuple(s...,n)
 end
  
-arraylike{T<:AbstractString}(a::T, n::Int, array = nothing) = Array(T, n)
+arraylike(a::T, n::Int, array = nothing) where {T<:AbstractString} = Array{T,1}(undef, n)
 function arraylike(a, n::Int, array = nothing)
     if a == nothing || (array != nothing && !(eltype(array) <: Number))
-        return Array{Any}(n)
+        return Array{Any,1}(undef,n)
     end
-    r = Array(eltype(a), newarraysize(a,n)...)
+    s = newarraysize(a,n)
+    r = Array{eltype(a),length(s)}(undef, s...)
 end
 
-# function arraylike(a::Array, n::Int, array = nothing)
-#     if isempty(a)
-#         return Array{Any}(n)
-#     end
-#     r = Array(eltype(a), newarraysize(a,n)...)
-# end
-
-# arraylike(a, n::Int, array = nothing) = return Array{Any}(n)
-
-sharraylike(a, n::Int) = SharedArray(eltype(a), newarraysize(a,n)...)
-
-function copy(from, to)
-    if length(from)!=length(to)
-        error("in copy(from,to::SubArray): lengths do not match. length(from): $(length(from))  length(to): $(length(to))")
-    end
-    for i = 1:length(from)
-        to[i] = from[i]
-    end
+function sharraylike(a, n::Int)
+    s = newarraysize(a,n)
+    SharedArray{eltype(a),length(s)}(s...)
 end
 
 plus(a,b) = a.+b
@@ -150,11 +137,9 @@ power(a,n) = a.^n
 
 inside = in
 
-if VERSION >= v"0.4-"
-    import Base: minimum, maximum
-    minimum{T<:AbstractFloat}(::Type{T} = Float64) = -realmax(T)
-    maximum{T<:AbstractFloat}(::Type{T} = Float64) =  realmax(T)
-    minimum{T<:Number}(::Type{T}) = typemin(T)
-    maximum{T<:Number}(::Type{T}) = typemax(T)
-end
+import Base: minimum, maximum
+minimum(::Type{T} = Float64) where {T<:AbstractFloat} = -realmax(T)
+maximum(::Type{T} = Float64) where {T<:AbstractFloat} =  realmax(T)
+minimum(::Type{T}) where {T<:Number} = typemin(T)
+maximum(::Type{T}) where {T<:Number} = typemax(T)
 

@@ -2,6 +2,8 @@ __precompile__()
 
 module FunctionalData
 
+using SharedArrays, Random, Distributed
+
 FD = FunctionalData
 export FD
 

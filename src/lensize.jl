@@ -1,7 +1,7 @@
 export len, siz, siz3, sizem, sizen, sizeo, rangem, rangen, rangeo, range
 
 len(a) = length(a)
-len{T,N}(a::AbstractArray{T,N}) = size(a,N)
+len(a::AbstractArray{T,N}) where {T,N} = size(a,N)
 
 siz(a) = ones(Int, 2, 1)
 
@@ -19,7 +19,7 @@ function siz(a::Union{UnitRange, Char, AbstractString})
 end
 
 
-function siz{T,N}(a::AbstractArray{T,N})
+function siz(a::AbstractArray{T,N}) where {T,N}
     r = ones(Int, max(2,N), 1)
     for i = 1:N
         r[i] = size(a,i)
@@ -27,7 +27,7 @@ function siz{T,N}(a::AbstractArray{T,N})
     r
 end
 
-function siz3{T,N}(a::Array{T,N})
+function siz3(a::Array{T,N}) where {T,N}
     if N > 3
         error("siz3 can only be used for arrays with ndims <= 3")
     end
@@ -47,7 +47,7 @@ rangen(a) = 1:size(a,2)
 rangeo(a) = 1:size(a,3)
 
 import Base.range
-range(a) = 1:len(a)
+range(a::AbstractArray) = 1:len(a)
 
 import Base.ndims
 ndims(a::Tuple) = 1
