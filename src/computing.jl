@@ -535,8 +535,8 @@ function groupdict(a,f::Function = id)
     end
     mapvalues(d,x->begin
               len(x) == 0 && return x
-              isa(fst(x), String) && return x
-              flatten(x)
+              isa(fst(x), Number) && return flatten(x)
+              x
     end)
 end
 
