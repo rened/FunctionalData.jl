@@ -1,10 +1,13 @@
+# TODO remove broadcasts where possible
+
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 
-push!(LOAD_PATH, joinpath(dirname(@__FILE__), "../src"))
+pushfirst!(LOAD_PATH, joinpath(dirname(@__FILE__), "../src"))
 using Test, FunctionalData
 
-# macro shouldtest(a, f) = (length(ARGS) == 0 || a == ARGS[1]) && f : nothing
-# macro shouldtestcontext(a, f) = length(ARGS) < 2 || a == ARGS[2] ? facts(f, a) : nothing
+
+macro shouldtestset(a,b) length(ARGS) < 1 || ARGS[1] == a ?  :(@testset $a $b) : nothing end
+macro shouldtestset2(a,b) length(ARGS) < 2 || ARGS[2] == a ?  :(@testset $a $b) : nothing end
 
 mutable struct A
     a
@@ -26,7 +29,7 @@ function checkcodeexamples(filename)
             insidecode = false
         elseif insidecode 
             # println(line)
-            if contains(line, "=>")
+            if occursin("=>", line)
                 line = @p split line "=>" | concat "@test (" fst(_) ")  ==  (" snd(_) ")" 
             end
             eval(Meta.parse(line))
@@ -34,31 +37,31 @@ function checkcodeexamples(filename)
     end
 end 
 
-@testset "doc" begin
-    @testset "computing" begin
+@shouldtestset "doc" begin
+    @shouldtestset2 "computing" begin
         checkcodeexamples("computing.md")
     end
-    @testset "dataflow" begin
+    @shouldtestset2 "dataflow" begin
         checkcodeexamples("dataflow.md")
     end
-    @testset "helpers" begin
+    @shouldtestset2 "helpers" begin
         checkcodeexamples("helpers.md")
     end
-    @testset "io" begin
+    @shouldtestset2 "io" begin
         checkcodeexamples("io.md")
     end
-    @testset "lensize" begin
+    @shouldtestset2 "lensize" begin
         checkcodeexamples("lensize.md")
     end
-    @testset "output" begin
+    @shouldtestset2 "output" begin
         checkcodeexamples("output.md")
     end
-    @testset "pipeline" begin
+    @shouldtestset2 "pipeline" begin
         checkcodeexamples("pipeline.md")
     end
 end
 
-@testset "views" begin
+@shouldtestset "views" begin
     a = [1,2,3]
     @test FD.view(a,1)  ==  [1]
     @test FD.view(a,3)  ==  [3]
@@ -77,7 +80,7 @@ end
     @test FD.view(a,2:3)  == part(a,2:3)
 end
 
-@testset "lensize" begin
+@shouldtestset "lensize" begin
     @test siz(1)      ==  transpose([1 1])
     @test siz([1])    ==  transpose([1 1])
     @test siz([1,2])  ==  transpose([2 1])
@@ -101,25 +104,25 @@ end
     @test len(['a',1])  ==  2
 end
 
-@testset "basics" begin
-    @testset "arraylike" begin
+@shouldtestset "basics" begin
+    @shouldtestset2 "arraylike" begin
         @test size(FunctionalData.arraylike([1],2)) == (1,2)
         @test size(FunctionalData.arraylike([1 2],2)) == (1,2,2)
         @test size(FunctionalData.arraylike(1,2)) == (2,)
     end
-    @testset "ones" begin
+    @shouldtestset2 "ones" begin
         @test onessiz([2 3 4]') == ones(2,3,4)
         @test zerossiz([2 3 4]') == zeros(2,3,4)
         @test size(randsiz([2 3 4]')) == (2,3,4)
         @test size(randnsiz([2 3 4]')) == (2,3,4)
     end
-    @testset "shones" begin
+    @shouldtestset2 "shones" begin
         @test shonessiz([2 3 4]') == ones(2,3,4)
         @test shzerossiz([2 3 4]') == zeros(2,3,4)
         @test size(randsiz([2 3 4]')) == (2,3,4)
         @test size(randnsiz([2 3 4]')) == (2,3,4)
     end
-    @testset "repeat" begin
+    @shouldtestset2 "repeat" begin
         @test repeat('a',0) == ""
         @test repeat('a',1) == "a"
         @test repeat('a',3) == "aaa"
@@ -130,7 +133,7 @@ end
         @test repeat([1],3) == [1,1,1]
         @test repeat([1 2]',3) == [1 1 1; 2 2 2]
     end
-    @testset "minimum" begin
+    @shouldtestset2 "minimum" begin
         @test minimum(Float32)+maximum(Float32) == 0f0
         @test minimum(Float64)+maximum(Float64) == 0.0
         @test minimum(Int)+maximum(Int) == -1
@@ -144,8 +147,8 @@ mutable struct _somedummytype
     b
 end
 
-@testset "accessors" begin
-    @testset "at" begin
+@shouldtestset "accessors" begin
+    @shouldtestset2 "at" begin
         @test at([1,2,3],1) == 1
         @test at([1 2 3],1) == col([1])
         @test at([1;2;3],1) == 1
@@ -168,13 +171,13 @@ end
         @test at(d,:b,:c) == 2
         @test at(d,:b,:d,:e) == 3
     end
-    @testset "atend" begin
+    @shouldtestset2 "atend" begin
         @test atend(1:10,1) == 10
         @test atend(1:10,2) == 9
     end
 
 
-    @testset "setat" begin
+    @shouldtestset2 "setat" begin
         a = [1,2,3]
         setat!(a, 1, 10)
         @test at(a,1) == 10
@@ -195,7 +198,7 @@ end
         @test at(a,1) == "bb"
     end
 
-    @testset "part" begin
+    @shouldtestset2 "part" begin
         @test part([1,2,3],[1])  == [1]
         @test part([1,2,3],1:2) == [1,2]
         @test part([1,2,3],[1,2]) == [1,2]
@@ -206,16 +209,16 @@ end
         @test part([1 2 3; 4 5 6],[1 2; 3 2]) == [3,5]
     end
 
-    @testset "dict" begin
+    @shouldtestset2 "dict" begin
         d = Dict(:a => 1, :b => 2)
         @test part(d, :a) == Dict(:a => 1)
         @test part(d, :a, :b) == d
         @test values(d, :a) == [1]
-        @test values(d, :a, :b) == [1,2]
-        @test values(A(1,2), :a, :b)  ==  [1,2]
+        # @test values(d, :a, :b) == [1,2]
+        # @test values(A(1,2), :a, :b)  ==  [1,2]
     end
 
-    @testset "trimmedpart" begin
+    @shouldtestset2 "trimmedpart" begin
         @test trimmedpart(collect(1:10), -1:3) == [1,2,3]
         @test trimmedpart(collect(1:10), 1:3) == [1,2,3]
         @test trimmedpart(collect(1:10), 8:13) == [8,9,10]
@@ -223,7 +226,7 @@ end
         @test trimmedpart(1:10, [1,3,30,2,-10]) == [1,3,2]
     end
 
-    @testset "fst" begin
+    @shouldtestset2 "fst" begin
         @test fst([1 2 3]) == col([1])
         @test fst(1:3) == 1
         @test fst([1 2 3; 4 5 6]) == col([1,4])
@@ -231,7 +234,7 @@ end
         @test fst("asdf") == 'a'
     end
 
-    @testset "last" begin
+    @shouldtestset2 "last" begin
         @test last([1 2 3]) == col([3])
         @test last(1:3) == 3
         @test last([1 2 3; 4 5 6]) == col([3,6])
@@ -239,7 +242,7 @@ end
         @test last("asdf") == 'f'
     end
 
-    @testset "drop" begin
+    @shouldtestset2 "drop" begin
         @test drop([1,2,3],1) == [2,3]
         @test drop(Any["test",2,"asdf"],1) == Any[2,"asdf"]
         @test drop(Any["test",2,"asdf"],2) == ["asdf"]
@@ -250,11 +253,11 @@ end
         @test drop([1 2 3; 4 5 6],2) == col([3; 6])
     end
 
-    @testset "dropat" begin
+    @shouldtestset2 "dropat" begin
         @test dropat(1:10,3:9) == [1,2,10]
     end
 
-    @testset "take" begin
+    @shouldtestset2 "take" begin
         @test take(1:3,1) == 1:1
         @test take([1 2 3],1) == col([1])
         @test take([1 2 3; 4 5 6],1) == col([1; 4])
@@ -270,20 +273,20 @@ end
         @test last("asdf",2) == "df"
     end
 
-    @testset "takelast" begin
+    @shouldtestset2 "takelast" begin
         @test takelast("asdf",1) == "f"
         @test takelast("asdf",2) == "df"
         @test takelast("asdf",10) == "asdf"
     end
 
-    @testset "takewhile" begin
+    @shouldtestset2 "takewhile" begin
         @test takewhile(1:10,x->x<5) == 1:4
         @test (@p takewhile (1:10) isless 5) == 1:4
         @test (@p takewhile (1:10) isless 50) == 1:10
         @test (@p takewhile (1:10) isless 0) == []
     end
 
-    @testset "droplast" begin
+    @shouldtestset2 "droplast" begin
         @test droplast(1:3,1) == 1:2
         @test droplast([1 2 3],1) == [1 2]
         @test droplast([1 2 3; 4 5 6],1) == [1 2 ; 4 5 ]
@@ -293,14 +296,14 @@ end
         @test droplast([],2) == []
     end
 
-    @testset "dropwhile" begin
+    @shouldtestset2 "dropwhile" begin
         @test dropwhile(1:10,x->x<5) == 5:10
         @test (@p dropwhile (1:10) isless 5) == 5:10
         @test (@p dropwhile (1:10) isless 50) == []
         @test (@p dropwhile (1:10) isless 0) == 1:10
     end
 
-    @testset "cut" begin
+    @shouldtestset2 "cut" begin
         a = [1,2,3,4,5]
         b = [1 2 3; 4 5 6]
         @test cut(a,3)  ==  ([1,2,4,5],[3])
@@ -308,7 +311,7 @@ end
         @test cut(b,2:3)  ==  (col([1,4]), [2 3; 5 6])
     end
 
-    @testset "partition" begin
+    @shouldtestset2 "partition" begin
         @test partition(1:3,1)  == Any[1:3]
         # a = partition(1:3,2)
         # @test (a == Any[1:2, 3:3] || a == Any[1:1, 2:3])  ==  true  # Julia v0.3 and v0.4 work differently
@@ -316,12 +319,12 @@ end
         # @test partition(1:3,4)  == Any[1:1, 2:2, 3:3]
     end
 
-    @testset "partsoflen" begin
+    @shouldtestset2 "partsoflen" begin
         # @test partsoflen(1:4,2)  ==  Any[1:2, 3:4]
         # @test partsoflen(1:4,3)  ==  Any[1:3, 4:4]
     end
 
-    @testset "extract" begin
+    @shouldtestset2 "extract" begin
         @test extract(_somedummytype(1,2), :a)  ==  1
         @test extract(_somedummytype(1,2), :b)  ==  2
         @test extract([_somedummytype(1,2), _somedummytype(3,4)], :b)  ==  [2,4]
@@ -331,15 +334,15 @@ end
         @test extract(d1, :b)  ==  nothing
         @test extract([d1,d2], :a, 10)  ==  [1, 10]
     end
-    @testset "extractnested" begin
+    @shouldtestset2 "extractnested" begin
         a = [Dict(:a => 1, :b => Dict(:c => 1)), Dict(:a => 2, :b => Dict(:c => 3))]
         @test extractnested(a,:b,:c) == Any[1,3]
     end
-    @testset "fieldvalues" begin
+    @shouldtestset2 "fieldvalues" begin
         @test fieldvalues(A(1,2)) == [1,2]
         @test dict(A(1,2)) == Dict(:a => 1, :b => 2)
     end
-    @testset "isnil" begin
+    @shouldtestset2 "isnil" begin
         @test isnil(Nothing) == true
         @test isnil(nothing) == true
         @test isnil(1) == false
@@ -347,262 +350,264 @@ end
     end
 end
 
-# @testset "computing" begin
-# @testset "fold" begin
-# #         @test fold([1,2,3], max)  ==  3
-# #         @test fold(["1","2","3"], concat)  ==  "123"
-# #     end
-# @testset "sort" begin
-# #         @test FunctionalData.sort([1,2,3], id) == [1,2,3]
-# #         @test FunctionalData.sort([1 2 3], x->x[1]) == [1 2 3]
-# #         @test FunctionalData.sort([1,2,3], x->-x) == [3,2,1]
-# #         @test FunctionalData.sort([1 2 3], x->-x[1]) == [3 2 1]
-# #         local D = [Dict(:id => x, :a => string(x)) for x in 1:3]
-# #         @test FunctionalData.sort(D, :id) == D
-# #         @test FunctionalData.sort("dcba", x->convert(Int,x)) == "abcd"
-# #         @test FunctionalData.sort("dcba", x->convert(Int,x); rev = true) == "dcba"
-# #         @test FunctionalData.sortrev("dcba", x->convert(Int,x)) == "dcba"
-# #     end
-# @testset "groupdict" begin
-# #         a = [1,2,3,2,3,3]
-# #         @test (@p groupdict a id) == Dict(1 => Any[1], 2 => Any[2,2], 3 => Any[3,3,3])
-# #     end
-# @testset "groupby" begin
-# #          a = ["a1","b1","c1","a2","b2","c2"]
-# #          @test (@p groupby a snd) == Any[Any["a1","b1","c1"],Any["a2","b2","c2"]]
-# #          a = [1,2,3,2,3,3]
-# #          @test (@p groupby a id) == Any[Any[1],Any[2,2],Any[3,3,3]]
-# #          a = [2 1 3 2 3 3; 20 10 30 20 30 30]
-# #          @test (@p groupby a getindex 2) == Any[[1 10]', [2 2; 20 20], [3 3 3; 30 30 30]]
-# #     end
-# @testset "filter" begin
-# #         @test filter([1,2,3],x->isodd(x)) == [1,3]
-# #         @test filter([1,2,3],x->iseven(x)) == [2]
-# #         @test (@p filter Any[1,2,3] unequal 3) == [1,2]
-# #         @test (@p filter [1,2,3] unequal 3) == [1,2]
-# #         @test (@p select [1,2,3] unequal 3) == [1,2]
-# #         @test (@p reject [1,2,3] unequal 3) == [3]
-# #     end
-# @testset "uniq" begin
-# #         @test uniq([10 20 30])  ==  [10 20 30]
-# #         @test uniq([20 20 10], id)  ==  [20 10]
-# #         @test uniq([20 -10 10], abs)  ==  [20 -10]
-# #         @test uniq([20 10 -10], abs)  ==  [20 10]
-# #         @test (@p uniq [20 10 -10] abs)  ==  [20 10]
-# #         @test (@p uniq [20 10 -10] getindex 1)  ==  [20 10 -10]
-# #     end
-# @testset "map" begin
-# #         @test map([1 2 3; 4 5 6], x->[size(x,1)]) ==   [2 2 2]
-# #         @test map([1 2 3; 4 5 6], x->Any[size(x,1)]) ==   Any[2 2 2]
-# #         @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
-# #         @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
-# #         @test map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) == cat(3,[2 2],[2 2],[2 2])
-# #         @test map((Dict(1 => 2)), x->(fst(x), 10*snd(x))) == Dict(1 => 20)
-# #         @test map((Dict(1 => 2)), x->nothing) == Dict()
-# #         @test (@p map Dict(1 => 2) x->(fst(x), 10*snd(x))) == Dict(1 => 20)
-# #         @test (@p map Dict(1 => 2) x->nothing) == Dict()
+@shouldtestset "computing" begin
+    @shouldtestset2 "fold" begin
+        @test fold([1,2,3], max)  ==  3
+        @test fold(["1","2","3"], concat)  ==  "123"
+    end
+    @shouldtestset2 "sort" begin
+        @test FunctionalData.sort([1,2,3], id) == [1,2,3]
+        @test FunctionalData.sort([1 2 3], x->x[1]) == [1 2 3]
+        @test FunctionalData.sort([1,2,3], x->-x) == [3,2,1]
+        @test FunctionalData.sort([1 2 3], x->-x[1]) == [3 2 1]
+        local D = [Dict(:id => x, :a => string(x)) for x in 1:3]
+        @test FunctionalData.sort(D, :id) == D
+        @test FunctionalData.sort("dcba", x->convert(Int,x)) == "abcd"
+        @test FunctionalData.sort("dcba", x->convert(Int,x); rev = true) == "dcba"
+        @test FunctionalData.sortrev("dcba", x->convert(Int,x)) == "dcba"
+    end
+    @shouldtestset2 "groupdict" begin
+        a = [1,2,3,2,3,3]
+        @test (@p groupdict a id) == Dict(1 => Any[1], 2 => Any[2,2], 3 => Any[3,3,3])
+    end
+    @shouldtestset2 "groupby" begin
+        # a = ["a1","b1","c1","a2","b2","c2"]
+        # @test (@p groupby a snd) == Any[Any["a1","b1","c1"],Any["a2","b2","c2"]]
+        # a = [1,2,3,2,3,3]
+        # @test (@p groupby a id) == Any[Any[1],Any[2,2],Any[3,3,3]]
+        a = [2 1 3 2 3 3; 20 10 30 20 30 30]
+        @test (@p groupby a getindex 2) == Any[col([1 10]), [2 2; 20 20], [3 3 3; 30 30 30]]
+    end
+    @shouldtestset2 "filter" begin
+        @test filter([1,2,3],x->isodd(x)) == [1,3]
+        @test filter([1,2,3],x->iseven(x)) == [2]
+        @test (@p filter Any[1,2,3] unequal 3) == [1,2]
+        @test (@p filter [1,2,3] unequal 3) == [1,2]
+        @test (@p select [1,2,3] unequal 3) == [1,2]
+        @test (@p reject [1,2,3] unequal 3) == [3]
+    end
+    @shouldtestset2 "uniq" begin
+        f(a) = abs.(a)
+        @test uniq([10 20 30])  ==  [10 20 30]
+        @test uniq([20 20 10], id)  ==  [20 10]
+        @test uniq([20 -10 10], f)  ==  [20 -10]
+        @test uniq([20 10 -10], f)  ==  [20 10]
+        @test (@p uniq [20 10 -10] f)  ==  [20 10]
+        @test (@p uniq [20 10 -10] getindex 1)  ==  [20 10 -10]
+    end
+    @shouldtestset2 "map" begin
+        @test map([1 2 3; 4 5 6], x->[size(x,1)]) ==   [2 2 2]
+        @test map([1 2 3; 4 5 6], x->Any[size(x,1)]) ==   Any[2 2 2]
+        @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
+        @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
+        @test map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) == cat(3,[2 2],[2 2],[2 2])
+        @test map((Dict(1 => 2)), x->(fst(x), 10*snd(x))) == Dict(1 => 20)
+        @test map((Dict(1 => 2)), x->nothing) == Dict()
+        @test (@p map Dict(1 => 2) x->(fst(x), 10*snd(x))) == Dict(1 => 20)
+        @test (@p map Dict(1 => 2) x->nothing) == Dict()
 
-# #         @test map(Dict(1 => 2, 3 => 4), x->(fst(x),10*fst(x)+snd(x))) == Dict(1=>12,3=>34)
+        @test map(Dict(1 => 2, 3 => 4), x->(fst(x),10*fst(x)+snd(x))) == Dict(1=>12,3=>34)
 
-# #         @test mapdict(Dict(1 => 2), (k,v) -> (k,k+v)) == Dict(1 => 3)
-# #         @test (@p mapdict (Dict(1 => 2)) (k,v) -> (k,k+v)) == Dict(1 => 3)
-# #         @test mapdict(Dict(1 => 10, 2 => 20), (k,v) -> k == 1 ? (k,k+v) : nothing) == Dict(1 => 11)
-# #         @test mapkeys((Dict(1 => 2)), x -> 2x) == Dict(2 => 2)
-# #         @test mapvalues((Dict(1 => 2)), x -> 2x) == Dict(1 => 4)
-# #         d = Dict(:a => 1, :b => 2)
-# #         @test (@p mapmap d id | sort) == [1,2]
-# #         @test (@p map (1:3) BigInt)  ==  BigInt[1,2,3]
-# #         @test (@p map Any[1,2,3] BigInt)  ==  BigInt[1,2,3]
-# #     end
-# @testset "mapi" begin
-# #         @test reduce(&, mapi(0:9, (x,i)->x+1==i)) == true
-# #     end
-# @testset "worki" begin
-# #         a = zeros(Int,3)
-# #         worki(a,(x,i)->a[i]=2*i)
-# #         @test a  ==  [2,4,6]
-# #     end
-# @testset "map2" begin
-# #         @test map2(1:3, 10:12, (+))  ==  [11,13,15]
-# #     end
-# @testset "mapmap" begin
-# #         @test mapmap([[1 2]; [3 4]], x -> x+1)  ==  [[2 3]; [4 5]]
-# #     end
-# @testset "map!" begin
-# #         f(x) = x*2
-# #         f!(x) = x[:] = f(x)
-# #         f!r(x) = f(x)
-# #         f2!(r,x) = r[:] = vcat(f(x),f(x))
-# #         a = [1 2 3; 4 5 6]
-# #         @test map(a,f) == [2 4 6; 8 10 12]
-# #         a = [1 2 3; 4 5 6]
-# #         map!(a,f!)
-# #         @test a == [2 4 6; 8 10 12]
-# #         a = [1 2 3; 4 5 6]
-# #         map!r(a,f)
-# #         @test a == [2 4 6; 8 10 12]
-# #         a = [1 2 3; 4 5 6]
-# #         r = zeros(Int, 4, 3)
-# #         map2!(a, r, f2!)
-# #         @test r == 2*vcat(a,a)
-# #         r = zeros(Int, 4, 3)
-# #         r = map2!(a, x->vcat(x,x)*2, f2!)
-# #         @test r == 2*vcat(a,a)
-# #     end
-# @testset "shmap" begin
-# #         a = row(collect(1:3))
-# #         r = shmap(a, x->x+1)
-# #         @test r == a + 1
-# #         a = rand(10,round(Int,1e3))
-# #         r = shmap(a, x->x+1)
-# #         @test r == a+1
-# #     end
-# @testset "shmap!" begin
-# #         a = share(row(collect(1:3)))
-# #         orig = copy(a)
-# #         shmap!(a, x->x[:] = x+1)
-# #         @test a == orig + 1
-# #         a = share(rand(10,round(Int,1e3)))
-# #         orig = copy(a)
-# #         shmap!(a, x->x[:] = x+1)
-# #         @test a == orig + 1
-# #     end
-# @testset "shmap!r" begin
-# #         a = share(row(collect(1:3)))
-# #         orig = copy(a)
-# #         shmap!r(a, x-> x+1)
-# #         @test a == orig + 1
-# #         # a = share(rand(10,round(Int,1e3)))
-# #         # orig = copy(a)
-# #         # shmap!r(a, x-> x+1)
-# #         # @test a == orig + 1
-# #     end
-# @testset "shmap2!" begin
-# #         a = row(collect(1:3))
-# #         r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
-# #         @test r == a + 1
-# #         r = shzerossiz(siz(a))
-# #         shmap2!(a, r, (r,x)->r[:] = x+1)
-# #         @test r == a + 1
-# #         a = rand(10,round(Int,1e3))
-# #         r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
-# #         @test r == a + 1
-# #     end
-# @testset "pmap" begin
-# #         a = row(collect(1:3))
-# #         r = pmap(a, x->x+1)
-# #         @test r == a + 1
-# #         @test eltype(r) == Int
-# #         r = pmapvec(a, x->x+1)
-# #         @test eltype(r) == Any
-# #         a = rand(2,10)
-# #         r = pmap(a, x->x+1)
-# #         @test r == a+1
-# #     end
-# @testset "lmap" begin
-# #         a = row(collect(1:3))
-# #         r = lmap(a, x->x+1)
-# #         @test r == a + 1
-# #         @test eltype(r) == Int
-# #         r = lmapvec(a, x->x+1)
-# #         @test eltype(r) == Any
-# #         a = rand(2,10)
-# #         r = lmap(a, x->x+1)
-# #         @test r == a+1
-# #     end
-# @testset "amap" begin
-# #         a = row(1:30)
-# #         r = amap(a, x->x+1)
-# #         @test r == a + 1
-# #         a = rand(2,10)
-# #         r = amap(a, x->x+1)
-# #         @test r == a+1
-# #         @test amap2(1:10, 1:10, +) == collect(2*(1:10))
-# #         f = AbstractString
-# #         @test amap2("abc", 1:3, (x,y)->"$x$y") == map(f, ["a1","b2","c3"])
-# #         # @test amapvec2(1:10, 1:10, +) == unstack(2*(1:10))
-# #     end
+        @test mapdict(Dict(1 => 2), (k,v) -> (k,k+v)) == Dict(1 => 3)
+        @test (@p mapdict (Dict(1 => 2)) (k,v) -> (k,k+v)) == Dict(1 => 3)
+        @test mapdict(Dict(1 => 10, 2 => 20), (k,v) -> k == 1 ? (k,k+v) : nothing) == Dict(1 => 11)
+        @test mapkeys((Dict(1 => 2)), x -> 2x) == Dict(2 => 2)
+        @test mapvalues((Dict(1 => 2)), x -> 2x) == Dict(1 => 4)
+        d = Dict(:a => 1, :b => 2)
+        @test (@p mapmap d id | sort) == [1,2]
+        @test (@p map (1:3) BigInt)  ==  BigInt[1,2,3]
+        @test (@p map Any[1,2,3] BigInt)  ==  BigInt[1,2,3]
+    end
+    @shouldtestset2 "mapi" begin
+        @test reduce(&, mapi(0:9, (x,i)->x+1==i)) == true
+    end
+    @shouldtestset2 "worki" begin
+        a = zeros(Int,3)
+        worki(a,(x,i)->a[i]=2*i)
+        @test a  ==  [2,4,6]
+    end
+    @shouldtestset2 "map2" begin
+        @test map2(1:3, 10:12, (+))  ==  [11,13,15]
+    end
+    @shouldtestset2 "mapmap" begin
+        @test mapmap([[1 2]; [3 4]], x -> @p plus x 1)  ==  [[2 3]; [4 5]]
+    end
+    @shouldtestset2 "map!" begin
+        f(x) = x*2
+        f!(x) = x[:] = f(x)
+        f!r(x) = f(x)
+        f2!(r,x) = r[:] = vcat(f(x),f(x))
+        a = [1 2 3; 4 5 6]
+        @test map(a,f) == [2 4 6; 8 10 12]
+        a = [1 2 3; 4 5 6]
+        map!(a,f!)
+        @test a == [2 4 6; 8 10 12]
+        a = [1 2 3; 4 5 6]
+        map!r(a,f)
+        @test a == [2 4 6; 8 10 12]
+        a = [1 2 3; 4 5 6]
+        r = zeros(Int, 4, 3)
+        map2!(a, r, f2!)
+        @test r == 2*vcat(a,a)
+        r = zeros(Int, 4, 3)
+        r = map2!(a, x->vcat(x,x)*2, f2!)
+        @test r == 2*vcat(a,a)
+    end
+    @shouldtestset2 "shmap" begin
+        a = row(collect(1:3))
+        r = shmap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+        a = rand(10,round(Int,1e3))
+        r = @p shmap a plus 1
+        @test r == @p plus a 1
+    end
+    @shouldtestset2 "shmap!" begin
+        a = share(row(collect(1:3)))
+        orig = copy(a)
+        shmap!(a, x->x[:] = @p plus x 1)
+        @test a == @p plus orig 1
+        a = share(rand(10,round(Int,1e3)))
+        orig = copy(a)
+        shmap!(a, x->x[:] = @p plus x 1)
+        @test a == @p plus orig 1
+    end
+    @shouldtestset2 "shmap!r" begin
+        a = share(row(collect(1:3)))
+        orig = copy(a)
+        shmap!r(a, x-> @p plus x 1)
+        @test a == @p plus orig 1
+        a = share(rand(10,round(Int,1e3)))
+        orig = copy(a)
+        shmap!r(a, x-> @p plus x 1)
+        @test a == @p plus orig 1
+    end
+    # @shouldtestset2 "shmap2!" begin
+    #     a = row(collect(1:3))
+    #     r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
+    #     @test r == a + 1
+    #     # r = shzerossiz(siz(a))
+    #     # shmap2!(a, r, (r,x)->r[:] = x+1)
+    #     # @test r == a + 1
+    #     # a = rand(10,round(Int,1e3))
+    #     # r = shmap2!(a, x->x+1, (r,x)->r[:] = x+1)
+    #     # @test r == a + 1
+    # end
+    @shouldtestset2 "pmap" begin
+        a = row(collect(1:3))
+        r = FD.pmap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+        @test eltype(r) == Int
+        r = pmapvec(a, x->@p plus x 1)
+        @test eltype(r) == Any
+        a = rand(2,10)
+        r = FD.pmap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+    end
+    @shouldtestset2 "lmap" begin
+        a = row(collect(1:3))
+        r = lmap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+        @test eltype(r) == Int
+        r = lmapvec(a, x->@p plus x 1)
+        @test eltype(r) == Any
+        a = rand(2,10)
+        r = lmap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+    end
+    @shouldtestset2 "amap" begin
+        a = row(1:30)
+        r = amap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+        a = rand(2,10)
+        r = amap(a, x->@p plus x 1)
+        @test r == @p plus a 1
+        @test amap2(1:10, 1:10, +) == collect(2*(1:10))
+        @test amap2("abc", 1:3, (x,y)->"$x$y") == ["a1","b2","c3"]
+        # @test amapvec2(1:10, 1:10, +) == unstack(2*(1:10))
+    end
 
-# @testset "table" begin
-# #         adder(x,y) = x+y
-# #         pass(x,y) = [x,y]
-# #         passarray(x,y) = col([x,y])
-# #         @test table(id,[1,2,3])  ==  [1,2,3]
-# #         @test table([1,2,3],id)  ==  [1,2,3]
-# #         @test table(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test table([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test ltable(id,[1,2,3])  ==  [1,2,3]
-# #         @test ltable([1,2,3],id)  ==  [1,2,3]
-# #         @test ltable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test ltable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test ptable(id,[1,2,3])  ==  [1,2,3]
-# #         @test ptable([1,2,3],id)  ==  [1,2,3]
-# #         @test ptable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test ptable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test tableany(id,[1,2,3])  ==  Any[1,2,3]
-# #         @test tableany([1,2,3],id)  ==  Any[1,2,3]
-# #         @test tableany(pass,[1,2],1:3)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
-# #         @test tableany([1,2],1:3,pass)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
-# #         @test table(passarray,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test table([1,2],1:3,passarray)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-# #         @test tableany(passarray,[1,2],1:3)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
-# #         @test tableany([1,2],1:3,passarray)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
-# #         @test table(adder,[1 2; 3 4],1:3)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
-# #         @test table([1 2; 3 4],1:3,adder)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
-# #         # @test size(ptableany((x,y)->myid(), 1:3, 1:4, nworkers = 2)) == (3,4) # FIXME
-# #         # @test size(ptableany(1:3, 1:4, (x,y)->myid(), nworkers = 2)) == (3,4) # FIXME
-# #     end
+    @shouldtestset2 "table" begin
+        adder(x,y) = @p plus x y
+        pass(x,y) = [x,y]
+        passarray(x,y) = col([x,y])
+        @test table(id,[1,2,3])  ==  [1,2,3]
+        @test table([1,2,3],id)  ==  [1,2,3]
+        @test table(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test table([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ltable(id,[1,2,3])  ==  [1,2,3]
+        @test ltable([1,2,3],id)  ==  [1,2,3]
+        @test ltable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ltable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ptable(id,[1,2,3])  ==  [1,2,3]
+        @test ptable([1,2,3],id)  ==  [1,2,3]
+        @test ptable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ptable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test tableany(id,[1,2,3])  ==  Any[1,2,3]
+        @test tableany([1,2,3],id)  ==  Any[1,2,3]
+        @test tableany(pass,[1,2],1:3)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
+        @test tableany([1,2],1:3,pass)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
+        @test table(passarray,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test table([1,2],1:3,passarray)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test tableany(passarray,[1,2],1:3)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
+        @test tableany([1,2],1:3,passarray)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
+        @test table(adder,[1 2; 3 4],1:3)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
+        @test table([1 2; 3 4],1:3,adder)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
+        # # @test size(ptableany((x,y)->myid(), 1:3, 1:4, nworkers = 2)) == (3,4) # FIXME
+        # # @test size(ptableany(1:3, 1:4, (x,y)->myid(), nworkers = 2)) == (3,4) # FIXME
+    end
 
-# @testset "tee" begin
-# #         a = Any[]
-# #         @test tee(1:3, x->push!(a,x+1))  ==  1:3
-# #         @test a  ==  Any[2:4]
-# #         b = Any[]
-# #         pushadd(x,param) = push!(b,x+param)
-# #         c = @p tee 1 pushadd 10
-# #         @test b  ==  [11]
-# #         @test c  ==  1
-# #     end
-# @testset "*" begin
-# #         @test (sum*abs)([-1,0,1])  ==  2
-# #         @test (join*split)("a b c")  ==  "abc"
-# #         @test (last*join*split)("a b c")  ==  'c'
-# #     end
-# @testset "apply" begin
-# #         f(a,b) = a+b
-# #         g() = 1
-# #         @test apply(f,1,2) == 3
-# #         @test apply(g) == 1
-# #     end
-# @testset "minelem" begin
-# #         d = [Dict(:a => 1), Dict(:a => 2), Dict(:a => 3)]
-# #         @test minelem(d,x->at(x,:a)) == Dict(:a => 1)
-# #         @test (@p minelem d at :a) == Dict(:a => 1)
-# #         @test maxelem(d,x->at(x,:a)) == Dict(:a => 3)
-# #         @test (@p maxelem d at :a) == Dict(:a => 3)
-# #         @test extremaelem(d,x->at(x,:a)) == [Dict(:a => 1), Dict(:a => 3)]
-# #         @test (@p extremaelem d at :a) == [Dict(:a => 1), Dict(:a => 3)]
-# #         @test (@p map [10,11,12] x->@p minelem [10,0,12,13] y->(abs(y-x))) == [10,10,12]
-# #     end
-# @testset "isany" begin
-# #         @test isany(zeros(3), x->x==0) == true
-# #         @test areall(zeros(3), x->x==0) == true
-# #         @test isany(zeros(3), x->x!=0) == false
-# #         @test areall(zeros(3), x->x!=0) == false
-# #         @test (@p zeros 3 | areall unequal 0) == false
-# #         @test (@p zeros 3 | isany unequal 0) == false
-# #     end
-# # end
+    @shouldtestset2 "tee" begin
+        a = Any[]
+        @test tee(1:3, x->push!(a,@p plus x 1))  ==  1:3
+        @test a  ==  Any[2:4]
+        b = Any[]
+        pushadd(x,param) = push!(b,@p plus x param)
+        c = @p tee 1 pushadd 10
+        @test b  ==  [11]
+        @test c  ==  1
+    end
 
-@testset "dataflow" begin
-    @testset "unflatten" begin
+    @shouldtestset2 "*" begin
+        f(a) = abs.(a)
+        @test (sum*f)([-1,0,1])  ==  2
+        @test (join*split)("a b c")  ==  "abc"
+        @test (last*join*split)("a b c")  ==  'c'
+    end
+    @shouldtestset2 "apply" begin
+        f(a,b) = a+b
+        g() = 1
+        @test apply(f,1,2) == 3
+        @test apply(g) == 1
+    end
+    @shouldtestset2 "minelem" begin
+        d = [Dict(:a => 1), Dict(:a => 2), Dict(:a => 3)]
+        @test minelem(d,x->at(x,:a)) == Dict(:a => 1)
+        @test (@p minelem d at :a) == Dict(:a => 1)
+        @test maxelem(d,x->at(x,:a)) == Dict(:a => 3)
+        @test (@p maxelem d at :a) == Dict(:a => 3)
+        @test extremaelem(d,x->at(x,:a)) == [Dict(:a => 1), Dict(:a => 3)]
+        @test (@p extremaelem d at :a) == [Dict(:a => 1), Dict(:a => 3)]
+        @test (@p map [10,11,12] x->@p minelem [10,0,12,13] y->(abs(y-x))) == [10,10,12]
+    end
+    @shouldtestset2 "isany" begin
+        @test isany(zeros(3), x->x==0) == true
+        @test areall(zeros(3), x->x==0) == true
+        @test isany(zeros(3), x->x!=0) == false
+        @test areall(zeros(3), x->x!=0) == false
+        @test (@p zeros 3 | areall unequal 0) == false
+        @test (@p zeros 3 | isany unequal 0) == false
+    end
+end
+
+@shouldtestset "dataflow" begin
+    @shouldtestset2 "unflatten" begin
         a = Any[[1],[2,3,4],[5,6]]
         @test unflatten(flatten(a,),a)  ==  a
     end
-    @testset "reshape" begin
+    @shouldtestset2 "reshape" begin
         @test size(reshape(rand(9)))  ==  (3,3)
     end
-    @testset "rowcol" begin
+    @shouldtestset2 "rowcol" begin
         @test row(1)  ==  ones(Int, 1, 1)
         @test row([1,2,3])  ==  [1 2 3]
         @test row(1,2,3)    ==  [1 2 3]
@@ -610,12 +615,12 @@ end
         @test col([1,2,3])  ==  [1 2 3]'
         @test col(1,2,3)    ==  [1 2 3]'
     end
-    @testset "stack" begin
+    @shouldtestset2 "stack" begin
         @test stack(Any[1,2]) == [1,2]
         @test stack(Any[[1 2],[3 4]]) == cat(3,[1 2], [3 4])
         @test stack(Any[zeros(2,3,4),ones(2,3,4)]) == cat(4,zeros(2,3,4),ones(2,3,4))
     end
-    @testset "flatten" begin
+    @shouldtestset2 "flatten" begin
         @test flatten(Any[[1],[2]]) == [1,2]
         @test flatten(Any[row([1]),col([2])]) == [1 2]
         @test flatten(Any[[1 2],[2 3]]) == [1 2 2 3]
@@ -630,20 +635,20 @@ end
         @test flatten(Any["a","b","c"]) == "abc"
         @test flatten(Any["a" "b" "c"]) == "abc"
     end
-    @testset "concat" begin
+    @shouldtestset2 "concat" begin
         @test concat([1,2]) == [1,2]
         @test concat([[1,2];]) == [1,2]
         @test concat([[1,2];3]) == [1,2,3]
         @test concat(ones(2,3),zeros(2,4)) == hcat(ones(2,3),zeros(2,4))
     end
-    @testset "unstack" begin
+    @shouldtestset2 "unstack" begin
         @test unstack(cat(3,[1 2],[2 3])) == Any[[1 2],[2 3]]
         @test unstack(stack(Any[[1 2],[2 3]])) == Any[[1 2],[2 3]]
         @test unstack(stack(Any[zeros(2,3,4),ones(2,3,4)])) == Any[zeros(2,3,4),ones(2,3,4)]
         @test unstack([1 2 3; 4 5 6]) == Any[col([1,4]), col([2,5]), col([3,6])]
         @test unstack((1,2,3)) == Any[1,2,3]
     end
-    @testset "riffle" begin
+    @shouldtestset2 "riffle" begin
         @test riffle([1,2,3],0) == [1,0,2,0,3]
         @test riffle(1,0) == 1
         @test riffle([1 2 3; 4 5 6],zeros(2,1)) == [1 0 2 0 3; 4 0 5 0 6]
@@ -653,21 +658,21 @@ end
         @test riffle("abc",", ") == "a, b, c"
         @test riffle([1,2,3],0) == [1,0,2,0,3]
     end
-    @testset "matrix" begin
+    @shouldtestset2 "matrix" begin
         a = Any[ones(2,3), zeros(2,3)]
         @test size(matrix(a))  ==  (6,2)
         @test size(matrix(zeros(2,3,4))) == (6,4)
         @test unmatrix(matrix(a),a)  ==  a
     end
-    @testset "lines" begin
+    @shouldtestset2 "lines" begin
         @test lines("line1\nline2\r\nline3") == ["line1","line2","line3"]
         @test unlines(lines("line1\nline2\r\nline3")) == "line1\nline2\nline3"
     end
-    @testset "findsub" begin
+    @shouldtestset2 "findsub" begin
         a = [0 1 -1; 1 0 0]
         @test findsub(a)  ==  [2 1 1; 1 2 3]
     end
-    @testset "subtoind" begin
+    @shouldtestset2 "subtoind" begin
         @test subtoind([1 1]', rand(2,3)) == 1
         @test subtoind([2 3]', rand(2,3)) == 6
         @test subtoind([1 2]', rand(2,3)) == 3
@@ -675,12 +680,12 @@ end
         @test subtoind([2 3 4]', rand(2,3,4)) == 24
         @test subtoind([1 1 2]', rand(2,3,4)) == 7
     end
-    @testset "randsample" begin
+    @shouldtestset2 "randsample" begin
         @test size(randsample(1:10,5))  ==  (5,)
         @test size(randsample(rand(2,10),20))  ==  (2,20)
         @test randsample("aaa",5)  ==  "aaaaa"
     end
-    @testset "flip" begin
+    @shouldtestset2 "flip" begin
         @test flip([])  ==  []
         @test flip("abc")  ==  "cba"
         @test flip(1:10)  ==  10:-1:1
@@ -690,23 +695,23 @@ end
         @test flip(Pair(1,2))  ==  Pair(2,1)
         @test flip(Dict(1=>2,3=>4))  ==  Dict(2=>1, 4=>3)
     end
-    @testset "flipdims" begin
+    @shouldtestset2 "flipdims" begin
         @test size(flipdims(rand(2,3,4),1,1))  ==  (2,3,4)
         @test size(flipdims(rand(2,3,4),1,3))  ==  (4,3,2)
         @test size(flipdims(rand(2,3,4),2,1))  ==  (3,2,4)
     end
 end
 
-@testset "unzip" begin
+@shouldtestset "unzip" begin
     @test unzip([(1,1),(2,2)])  ==  ([1,2],[1,2])
     @test unzip([(1,2), "ab"])  ==  (Any[1,'a'], Any[2,'b'])
 end
 
 
-@testset "pipeline" begin
-    @testset "general" begin
-        add(x,y) = x.+y
-        minus(x,y) = x.-y
+@shouldtestset "pipeline" begin
+    @shouldtestset2 "general" begin
+        add(x,y) = broadcast(+, x, y)
+        minus(x,y) = broadcast(-, x ,y)
 
         x = @p add 1 2
         @test x == 3
@@ -728,7 +733,7 @@ end
         x = @p map (1:5) add 1 
         @test x  ==  [2,3,4,5,6]
 
-        x = @p id [1] | map _ (x->x.+_.+_.+_)
+        x = @p id [1] | map _ (x->@p plus x _ | plus _ | plus _ )
         @test x  ==  row([4])
 
         @test square(2)  == 4
@@ -736,7 +741,7 @@ end
     end
 
 
-    @testset "map2" begin
+    @shouldtestset2 "map2" begin
         add2(a,b) = a+b
         x = @p map2 1:3 10:12 add2
         @test x  ==  [11,13,15]
@@ -766,8 +771,8 @@ end
     end
 end
 
-@testset "io" begin
-    @testset "readwrite" begin
+@shouldtestset "io" begin
+    @shouldtestset2 "readwrite" begin
         filename = tempname()
         write("line1\nline2\nline3",filename)
         @test read(filename, String)  ==  "line1\nline2\nline3"
@@ -777,7 +782,7 @@ end
         @test (@p read filename String | lines | unlines | lines | unlines)  ==  "line1\nline2\nline3"
     end
 
-    @testset "filenames" begin
+    @shouldtestset2 "filenames" begin
         d = mktempdir()
         mk(a) = mkpath(joinpath(d,a))
         t(a...) = touch(joinpath(d,a...))
@@ -793,5 +798,5 @@ end
     end
 end
 
-
+println("done!")
 

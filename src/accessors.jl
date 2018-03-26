@@ -15,27 +15,28 @@ export czip
 
 @inline at(a::NTuple{T,N},i) where {T,N} = a[i]
 # @inline at(a, ind::Tuple) = a[ind...]
-@inline at(a::AbstractArray{T},i::AbstractArray) where {T} = 
+@inline at(a::AbstractArray{T},i::AbstractArray) where T = 
     len(i) == 1 ? (size(i,1) == 1 ? at(a, i[1]) : a[subtoind(i,a)]) : error("index has len>1")
-@inline at(a::AbstractArray{T,1},i::Number) where {T} = a[i]
+@inline at(a::AbstractArray{T,1},i::Number) where T = a[i]
 #at(a::AbstractArray{T,N},i) where {T,N} = slicedim(a,N,i)
-@inline at(a::AbstractArray{T,2},i::Number) where {T} = col(a[:,i])
-@inline at(a::AbstractArray{T,3},i::Number) where {T} = a[:,:,i]
-@inline at(a::AbstractArray{T,4},i::Number) where {T} = a[:,:,:,i]
-@inline at(a::AbstractArray{T,5},i::Number) where {T} = a[:,:,:,:,i]
-@inline at(a::AbstractArray{T,6},i::Number) where {T} = a[:,:,:,:,:,i]
-@inline at(a::AbstractArray{T,7},i::Number) where {T} = a[:,:,:,:,:,:,i]
-@inline at(a::AbstractArray{T,8},i::Number) where {T} = a[:,:,:,:,:,:,:,i]
+@inline at(a::AbstractArray{T,2},i::Number) where T = col(a[:,i])
+@inline at(a::AbstractArray{T,3},i::Number) where T = a[:,:,i]
+@inline at(a::AbstractArray{T,4},i::Number) where T = a[:,:,:,i]
+@inline at(a::AbstractArray{T,5},i::Number) where T = a[:,:,:,:,i]
+@inline at(a::AbstractArray{T,6},i::Number) where T = a[:,:,:,:,:,i]
+@inline at(a::AbstractArray{T,7},i::Number) where T = a[:,:,:,:,:,:,i]
+@inline at(a::AbstractArray{T,8},i::Number) where T = a[:,:,:,:,:,:,:,i]
 @inline at(a::AbstractArray{T,N},i::Number,args...) where {T,N} = at(at(a,i), args...)
 @inline at(a::Dict,i) = a[i]
 @inline at(a::Dict,ind...) = at(at(a, ind[1]), ind[2:end]...)
+@inline at(a,i::CartesianIndex) = at(a, i.I[end])
 @inline at(a,i) = a[i]
 atend(a, i) = at(a, len(a)-i+1)
 atrow(a,i) = a[i,:]
 
 
-#######################################
-##  setat!
+# #######################################
+# ##  setat!
 
 @inline setat!(a::AbstractArray{T,1},i::Number,v) where {T} = (a[i] = v; a)
 @inline setat!(a::AbstractArray{T,2},i::Number,v) where {T} = (a[:,i] = v; a)
@@ -72,8 +73,12 @@ part(a::AbstractArray,i::DenseArray{T,2}) where {T<:Number} = map(i, x->at(a,x))
 part(a::AbstractArray,i::Base.ValueIterator) = part(a,typed(collect(i)))
 
 import Base.values
-values(a::Dict, ind, inds...) = values(a, [ind; inds...])
-values(a::Dict, inds::AbstractArray) = mapvec(inds,x->at(a,x))
+function values(a::Dict, ind, inds...)
+    values(a, [ind; inds...])
+end
+function values(a::Dict, inds::AbstractArray)
+    mapvec(inds,x->at(a,x))
+end
 ckeys(a::Dict) = collect(keys(a))
 cvalues(a::Dict) = collect(values(a))
 values(a, inds...) = Any[getfield(a,x) for x in inds]

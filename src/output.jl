@@ -20,5 +20,5 @@ function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
     end
     a
 end
-showinfo(a...; kargs...) = showinfo(STDOUT, a...; kargs...)
+showinfo(a...; kargs...) = showinfo(stdout, a...; kargs...)
 

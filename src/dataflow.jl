@@ -74,14 +74,14 @@ function subtoind(subs, a)
     strides_ = strides(a)
     r = oneel(subs)
     for i in 1:length(strides_)
-        r +=(subs[i]-1) * strides_[i]
+        r += (subs[i]-1) * strides_[i]
     end
     return r
 end
 
 indtosub(i::Int, a) = indtosub([i], a)
 function indtosub(inds::AbstractArray, a::Union{Array,BitArray}) 
-    if length(a)<=5
+    if length(a) <= 5
         s = tuple(a...)
     else
         s = size(a)
@@ -177,7 +177,7 @@ function flatten(a::Array{T,2}) where {T}
     for n = 1:size(a,2)
         mcum = 0
         for m = 1:size(a,1)
-            r[mcum + (1:ms[m,n]), ncum + (1:ns[m,n])] = a[m,n]
+            r[mcum .+ (1:ms[m,n]), ncum .+ (1:ns[m,n])] = a[m,n]
             mcum += ms[m,n]
         end
         ncum += ns[1,n]

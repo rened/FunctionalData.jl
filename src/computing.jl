@@ -173,7 +173,7 @@ function map(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     end
 end
 
-function map2!(a::DenseArray{T,N}, f1::Callable, f2::Callable) where {T<:Number,N}
+function map2!(a::AbstractArray{T,N}, f1::Callable, f2::Callable) where {T<:Number,N}
     isempty(a) && return []
     v = view(a,1)
     r1 = f1(v)
@@ -184,7 +184,7 @@ function map2!(a::DenseArray{T,N}, f1::Callable, f2::Callable) where {T<:Number,
     r
 end
 
-function map2!(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable) where {T<:Number,N,T2<:Number,M}
+function map2!(a::AbstractArray{T,N}, r::AbstractArray{T2,M}, f::Callable) where {T<:Number,N,T2<:Number,M}
     isempty(a) && return []
     v = view(a,1)
     rv = view(r,1)
@@ -197,7 +197,7 @@ function map2!(a::DenseArray{T,N}, r::DenseArray{T2,M}, f::Callable) where {T<:N
 end
 
 import Base.map!
-function map!r(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
+function map!r(a::AbstractArray{T,N},f::Callable) where {T<:Number,N}
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -207,7 +207,7 @@ function map!r(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
     a
 end
 
-function map!(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
+function map!(a::AbstractArray{T,N},f::Callable) where {T<:Number,N}
     isempty(a) && return a
     v = view(a,1)
     for i = 1:len(a)
@@ -219,7 +219,7 @@ end
  
 work(a,f::Callable) = for i in 1:len(a) f(at(a,i)) end
 work(a::Dict,f::Callable) = map(vec(a),(k,v)->(f;nothing))
-function work(a::DenseArray{T,N},f::Callable) where {T<:Number,N}
+function work(a::AbstractArray{T,N},f::Callable) where {T<:Number,N}
     len(a)==0 && return
     v = view(a,1)
     for i = 1:len(a)
@@ -243,7 +243,7 @@ share(a::DenseArray{T,N}) where {T<:Number,N} = convert(SharedArray, a)
 share(a::SharedArray) = a
 unshare(a::SharedArray) = sdata(a)
 
-function loopovershared(r::View, a::View, f::Callable)
+function loopovershared(r::AbstractArray, a::AbstractArray, f::Callable)
     v = view(a,1)
     rv = view(r,1)
     for i = 1:len(a)
@@ -253,7 +253,7 @@ function loopovershared(r::View, a::View, f::Callable)
     end
 end
 
-function loopovershared!(a::View, f::Callable)
+function loopovershared!(a::AbstractArray, f::Callable)
     v = view(a, 1)
     for i = 1:len(a)
         f(v)
@@ -261,7 +261,7 @@ function loopovershared!(a::View, f::Callable)
     end
 end
 
-function loopovershared!r(a::View, f::Callable)
+function loopovershared!r(a::AbstractArray, f::Callable)
     v = view(a, 1)
     for i = 1:len(a)
         v[:] = f(v)
@@ -269,7 +269,7 @@ function loopovershared!r(a::View, f::Callable)
     end
 end
 
-function loopovershared2!(r::View, a::View, f::Callable)
+function loopovershared2!(r::AbstractArray, a::AbstractArray, f::Callable)
     v = view(a,1)
     rv = view(r,1)
     for i = 1:len(a)
@@ -347,6 +347,8 @@ end
 ###############################
 #  pmap
 
+import Distributed.pmap
+
 mapper(a, f) = map(a,f)
 mappervec(a, f) = mapvec(a,f)
 mapper!(a, f) = map!(a,f)
@@ -383,7 +385,7 @@ function pmap_exec(g, a; nworkers = typemax(Int), vec = false, kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
     pids = workerpool(take(pids, nworkers))
-    r = Base.pmap(pids, x->(yield();g(x)), parts)
+    r = Distributed.pmap(pids, x->(yield();g(x)), parts)
     for x in r
         isa(x,RemoteException) && rethrow(x)
     end
@@ -407,8 +409,7 @@ function pmap_internal2!(mapf::Callable, a, r, f::Callable; nworkers = typemax(I
     partsr = pmapparts(r, inds, n)
     parts = zip(partsa, partsr)
     pids = workerpool(take(pids,nworkers))
-    @show pids
-    r = Base.pmap(g, parts, pids = pids)
+    r = Distributed.pmap(g, parts, pids = pids)
     flatten(r)
 end
 
@@ -436,7 +437,7 @@ amapvec(a,f; kargs...) = amap(a,f; n = 10, mapper = mapvec)
 function amap(a,f; n = 10, mapper = map)
     n = min(len(a),n)
     a = @p partition a n
-    r = Array{Any}(n)
+    r = Array{Any}(undef,n)
     @sync for i in 1:n 
         @async r[i] = mapper(a[i], f)
     end
@@ -466,14 +467,14 @@ ltableany(f::Callable, a...; kargs...) = table_internal(lmap, f, a...; flat = fa
 htableany(f::Callable, a...; kargs...) = table_internal(hmap, f, a...; flat = false, kargs...)
 
 function table_internal(mapf, f, args...; flat = true, kargs...)
-    a = [isa(x,Range) ? collect(x) : x for x in args]
+    a = [isa(x,AbstractRange) ? collect(x) : x for x in args]
     s = @p col [len(x) for x in a]
     if any(s.==0)
         error("FunctionalData.xtable: empty arguments, lengths of the $(len(args)) arguments are $(vec(s))")
     end
     S = tuple(s...)
     getarg(sub) = [at(a[i],sub[i]) for i in 1:length(a)]
-    args = [getarg(ind2sub(S,x)) for x in 1:prod(s)]
+    args = [getarg(CartesianIndices(S)[x]) for x in 1:prod(s)]
     g(x) = f(x...)
     r = mapf(args,g; kargs...)
 
@@ -524,14 +525,16 @@ groupdict(a, s::Symbol) = groupdict(a, x->x[s])
 function groupdict(a,f::Function = id)
     d = Dict()
     inds = @p map a f
+    # @show inds
     for i in 1:len(a)
         ind = @p at inds i
         d[ind] = push!(get(d,ind,[]), at(a,i))
+        # @show d
     end
     mapvalues(d,x->begin
               len(x) == 0 && return x
-              isa(fst(x), Number) && return flatten(x)
-              x
+              # isa(fst(x), Number) && return flatten(x)
+              flatten(x)
     end)
 end
 

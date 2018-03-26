@@ -1,54 +1,54 @@
 export View, isviewable, view!, next!, trytoview
 
-unsafe_view(p,s) = unsafe_wrap(Array, p, s)
+import Base: size, getindex, setindex!
 
-const View = Array
-offset = 1
+mutable struct View{T,N,M} <: AbstractArray{T,N}
+    parent::AbstractArray{T,M}
+    v::SubArray{T,N}
+    ind::Int
+end
+
+size(a::View, args...) = size(a.v, args...)
+getindex(a::View, args...) = getindex(a.v, args...)
+function setindex!(a::View, value, args...)
+    setindex!(a.v, value, args...)
+    value
+end
+
 
 isviewable(a::Union{DenseArray,SharedArray}{T}) where {T<:Number} = true
 isviewable(a) = false
 
-view(a::SharedArray{T}, i::Int = 1) where {T<:Number} = view(sdata(a), i)
-view!(a::SharedArray{T}, i::Int, v::View{T}) where {T<:Number} = view(sdata(a), i, v)
-
-function view(a::DenseArray{T}, i::Int = 1) where {T<:Number}
-    s = size(a)
-    if length(s) > 2
-        s = s[1:end-1]
-    elseif length(s) == 2
-        s = (s[1],1)
-    else
-        s = (1,)
-    end
-    view!(a, i, convert(View, unsafe_view(pointer(a), s)))
+function view(a::AbstractArray{T,1}, i::Int = 1) where T
+    View(a, Base.view(a, i:i), i)
 end
 
-function view!(a::DenseArray{T}, i::Int, v::View{T}) where {T<:Number}
-    p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-    unsafe_store!(p, pointer(a) + (i-1) * length(v) * sizeof(T), offset)
-    v::View{T}
+function view(a::AbstractArray, i::Int = 1)
+    View(a, selectdim(a, ndims(a), i:i), i)
 end
 
-function view(a::DenseArray{T}, ind::UnitRange) where {T<:Number}
-    if len(ind) == 0
-        return Array{T}([size(a)...][1:end-1]...,0)
-    end
-    s = size(a)[1:end-1]
-    p = pointer(a) + (fst(ind)-1) * prod(s) * sizeof(T)
-    convert(View, unsafe_view(p, tuple(s..., length(ind)) ))::View{T}
-end
-
-@inline function next!(v::View{T}) where {T}
-    p = convert(Ptr{Ptr{T}}, pointer_from_objref(v))
-    datap = unsafe_load(p, offset)
-    unsafe_store!(p, datap + length(v) * sizeof(T), offset)
+function view!(a::AbstractArray{T,N}, i::Int, v::View{T,N}) where T where N
+    @assert v.parent == a
+    v.v = view(a, i)
     v
 end
 
-trytoview(a::DenseVector{T}, i = 1) where {T<:Number} = at(a,i)
-trytoview(a::DenseVector{T}, i, v::View) where {T<:Number} = at(a,i)
+function view(a::AbstractArray, ind::UnitRange)
+    selectdim(a, ndims(a), ind)
+end
+
+function next!(v::View)
+    v.ind += v.ind < len(v.parent) ? 1 : 0
+    v.v = selectdim(v.parent, ndims(v.parent), v.ind:v.ind)
+    v
+end
+
+trytoview(a::Vector{T}, i = 1) where {T<:Number} = at(a,i)
+trytoview(a::Vector{T}, i, v::View) where {T<:Number} = at(a,i)
 trytoview(a::DenseArray{T}, i = 1) where {T<:Number} = view(a, i)
 trytoview(a::DenseArray{T}, i, v::View) where {T<:Number} = view!(a, i, v)
 trytoview(a, i) = at(a, i)
 trytoview(a, i, v) = at(a, i)
+# trytoview(a, i) = view(a, i)
+# trytoview(a, i, v) = view(a, i)
 
