@@ -43,7 +43,7 @@ zeroel(a) = zero(eltype(a))
 oneel(a) = one(eltype(a))
 
 macro dict(a...)
-    esc(Expr(:call, :Dict, [Expr(:(=>), QuoteNode(x), x) for x in a]...))
+    Expr(:call, :Dict, [Meta.parse(":$x => $x") for x in a]...)
 end
 
 import Base.*

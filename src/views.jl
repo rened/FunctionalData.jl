@@ -2,8 +2,8 @@ export View, isviewable, view!, next!, trytoview
 
 import Base: size, getindex, setindex!
 
-mutable struct View{T,N,M} <: AbstractArray{T,N}
-    parent::AbstractArray{T,M}
+mutable struct View{T,N} <: AbstractArray{T,N}
+    parent::AbstractArray
     v::SubArray{T,N}
     ind::Int
 end
@@ -23,8 +23,12 @@ function view(a::AbstractArray{T,1}, i::Int = 1) where T
     View(a, Base.view(a, i:i), i)
 end
 
-function view(a::AbstractArray, i::Int = 1)
+function view(a::AbstractArray{T,2}, i::Int = 1) where T
     View(a, selectdim(a, ndims(a), i:i), i)
+end
+
+function view(a::AbstractArray{T,3}, i::Int = 1) where T
+    View(a, selectdim(a, ndims(a), i), i)
 end
 
 function view!(a::AbstractArray{T,N}, i::Int, v::View{T,N}) where T where N
@@ -39,7 +43,11 @@ end
 
 function next!(v::View)
     v.ind += v.ind < len(v.parent) ? 1 : 0
-    v.v = selectdim(v.parent, ndims(v.parent), v.ind:v.ind)
+    if ndims(v.parent) <= 2
+        v.v = selectdim(v.parent, ndims(v.parent), v.ind:v.ind)
+    else
+        v.v = selectdim(v.parent, ndims(v.parent), v.ind)
+    end
     v
 end
 

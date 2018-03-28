@@ -70,6 +70,7 @@ end
     @test FD.view(a,3)  ==  row([3])
     a = [1 2 3; 4 5 6]
     @test FD.view(a,1)  ==  col([1,4])
+    @test size(FD.view(a,1))  ==  (2,1)
     @test FD.view(a,3)  ==  col([3,6])
     v = FD.view(a,2) 
     v[2] = 10
@@ -78,6 +79,9 @@ end
     @test FD.view(a,1)  ==  col(UInt8[1,4])
     @test FD.view(a,3)  ==  col(UInt8[3,6])
     @test FD.view(a,2:3)  == part(a,2:3)
+    @test size(FD.view(a,2:3))  == (2,2)
+    @test size(FD.view(rand(2,3,4),1)) == (2,3)
+    @test size(FD.view(rand(2,3,4),1:2)) == (2,3,2)
 end
 
 @shouldtestset "lensize" begin
@@ -796,6 +800,12 @@ end
         @test dirnames(d)  ==  ["adir","bdir"]
         rm(d, recursive = true)
     end
+end
+
+@shouldtestset "@dict" begin
+    a = 1
+    b = 2
+    @test @dict(a,b) == Dict(:a => 1, :b => 2)
 end
 
 println("done!")

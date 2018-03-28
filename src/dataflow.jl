@@ -5,7 +5,7 @@ export stack, flatten, unstack, vflatten, unflatten
 export riffle
 export matrix, unmatrix
 export lines, unlines, unzip
-export findsub
+export findsub, contains_, find_
 export randsample, flip, flip!, flipdims
 
 #######################################
@@ -324,3 +324,8 @@ findsub(a::Array) = findsub(a.!=0)
 findsub(a::BitArray) = indtosub(findall(vec(a)), a)
 
 
+#####################################################
+##   contains_
+contains_(a, x) = occursin(x,a)
+
+find_(a) = (LinearIndices(a))[findall(a)]
