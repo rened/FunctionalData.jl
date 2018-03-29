@@ -60,3 +60,13 @@ trytoview(a, i, v) = at(a, i)
 # trytoview(a, i) = view(a, i)
 # trytoview(a, i, v) = view(a, i)
 
+import Base.read!
+export read!
+read!(io, v::View) = read!(io, v.v)
+function read!(io, v::SubArray)
+    if v.stride1 <= 1
+        GC.@preserve v unsafe_read(io, pointer(v), sizeof(v))
+    else
+        error("FunctionalData: There is no suitable read! for SubArrays with v.stride != 1")
+    end
+end

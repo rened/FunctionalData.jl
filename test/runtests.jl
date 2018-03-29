@@ -82,6 +82,29 @@ end
     @test size(FD.view(a,2:3))  == (2,2)
     @test size(FD.view(rand(2,3,4),1)) == (2,3)
     @test size(FD.view(rand(2,3,4),1:2)) == (2,3,2)
+
+    @shouldtestset2 "read!" begin
+        a = UInt8[1 2 3]
+        v = FD.view(a,2)
+        data = IOBuffer(UInt8[0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        read!(data, v)
+        @test a == [1 0 3]
+        a = UInt8[1 2 3; 4 5 6]
+        v = FD.view(a,2)
+        data = IOBuffer(UInt8[0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        read!(data, v)
+        @test a == [1 0 3; 4 0 6]
+        a = UInt8[1 2 3; 4 5 6]
+        v = FD.view(a,2:3)
+        data = IOBuffer(UInt8[0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        read!(data, v)
+        @test a == [1 0 0; 4 0 0]
+        a = ones(UInt8, 2, 3, 4)
+        v = FD.view(a,2)
+        data = IOBuffer(UInt8[0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        read!(data, v)
+        @test a == cat(3, ones(UInt8,2,3), zeros(UInt8,2,3), ones(UInt8,2,3), ones(UInt8,2,3))
+    end
 end
 
 @shouldtestset "lensize" begin
