@@ -385,7 +385,7 @@ function pmap_exec(g, a; nworkers = typemax(Int), vec = false, kargs...)
     pids, inds, n = pmapsetup(a; kargs...)
     parts = pmapparts(a, inds, n)
     pids = workerpool(take(pids, nworkers))
-    r = Distributed.pmap(pids, x->(yield();g(x)), parts)
+    r = Distributed.pmap(x->(yield();g(x)), pids, parts)
     for x in r
         isa(x,RemoteException) && rethrow(x)
     end
