@@ -10,10 +10,9 @@ end
 
 size(a::View, args...) = size(a.v, args...)
 getindex(a::View, args...) = getindex(a.v, args...)
-function setindex!(a::View, value, args...)
-    setindex!(a.v, value, args...)
-    value
-end
+setindex!(a::View, value::AbstractArray, args...) = a.v[args...] = value
+setindex!(a::View, value, args::Integer...) where N = a.v[args...] = value
+setindex!(a::View, value, args...) = a.v[args...] .= value
 
 
 isviewable(a::Union{DenseArray,SharedArray}{T}) where {T<:Number} = true

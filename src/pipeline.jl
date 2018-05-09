@@ -86,7 +86,8 @@ macro p(a...)
                 if sum(part.==:_) > 1
                     error("Use can use '_' only once per section of a @p ... | ... | ... pipeline")
                 end
-                part[findall(part.==:_)] = ex
+                ind = findall(part.==:_)
+                part[ind] .= Ref(ex)
                 didreplace = true
             end
             r = :( $(part[1])( $(part[2:end]...)) )

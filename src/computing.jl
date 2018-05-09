@@ -55,7 +55,8 @@ function uniq(a,f = id)
     for i = len(h):-1:1
         d[at(h,i)] = i
     end
-    @p vec d | sort snd | map snd | part a _
+    # @p vec d | sort snd | map snd | part a _
+    part(a,map(sort(vec(d), snd),snd))
 end
 
 #######################################
