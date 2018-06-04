@@ -103,7 +103,7 @@ end
         v = FD.view(a,2)
         data = IOBuffer(UInt8[0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         read!(data, v)
-        @test a == cat(3, ones(UInt8,2,3), zeros(UInt8,2,3), ones(UInt8,2,3), ones(UInt8,2,3))
+        @test a == cat(ones(UInt8,2,3), zeros(UInt8,2,3), ones(UInt8,2,3), ones(UInt8,2,3), dims=3)
     end
 end
 
@@ -181,7 +181,7 @@ end
         @test at([1;2;3],1) == 1
         @test at((1,2,3),1) == 1
         @test at([1 2 3; 4 5 6],1) == col([1 4])
-        @test at(cat(3,[1 1],[2 2],[3 3]),1) == [1 1]
+        @test at(cat([1 1],[2 2],[3 3],dims=3),1) == [1 1]
 
         @test at("asdf",1) == 'a'
         @test at(Any["aa",1],1) == "aa"
@@ -216,7 +216,7 @@ end
         a = [1 2 3; 4 5 6]
         setat!(a, 1, col([10,11]))
         @test at(a,1) == col([10,11])
-        a = cat(3,[1 1],[2 2],[3 3])
+        a = cat([1 1],[2 2],[3 3],dims=3)
         setat!(a,1,[10 11])
         @test at(a,1) == [10 11]
 
@@ -427,7 +427,7 @@ end
         @test map([1 2 3; 4 5 6], x->Any[size(x,1)]) ==   Any[2 2 2]
         @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
         @test map([1 2 3; 4 5 6], x->[size(x,1);size(x,1)]) == [2 2 2; 2 2 2]
-        @test map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) == cat(3,[2 2],[2 2],[2 2])
+        @test map([1 2 3; 4 5 6], x->[size(x,1) size(x,1)]) == cat([2 2],[2 2],[2 2],dims=3)
         @test map((Dict(1 => 2)), x->(fst(x), 10*snd(x))) == Dict(1 => 20)
         @test map((Dict(1 => 2)), x->nothing) == Dict()
         @test (@p map Dict(1 => 2) x->(fst(x), 10*snd(x))) == Dict(1 => 20)
@@ -559,26 +559,26 @@ end
         passarray(x,y) = col([x,y])
         @test table(id,[1,2,3])  ==  [1,2,3]
         @test table([1,2,3],id)  ==  [1,2,3]
-        @test table(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-        @test table([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test table(pass,[1,2],1:3)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
+        @test table([1,2],1:3,pass)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
         @test ltable(id,[1,2,3])  ==  [1,2,3]
         @test ltable([1,2,3],id)  ==  [1,2,3]
-        @test ltable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-        @test ltable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ltable(pass,[1,2],1:3)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
+        @test ltable([1,2],1:3,pass)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
         @test ptable(id,[1,2,3])  ==  [1,2,3]
         @test ptable([1,2,3],id)  ==  [1,2,3]
-        @test ptable(pass,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-        @test ptable([1,2],1:3,pass)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test ptable(pass,[1,2],1:3)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
+        @test ptable([1,2],1:3,pass)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
         @test tableany(id,[1,2,3])  ==  Any[1,2,3]
         @test tableany([1,2,3],id)  ==  Any[1,2,3]
         @test tableany(pass,[1,2],1:3)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
         @test tableany([1,2],1:3,pass)  ==  reshape(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]], 2, 3)
-        @test table(passarray,[1,2],1:3)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
-        @test table([1,2],1:3,passarray)  ==  cat(3, [1 2; 1 1], [1 2; 2 2], [1 2; 3 3])
+        @test table(passarray,[1,2],1:3)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
+        @test table([1,2],1:3,passarray)  ==  cat([1 2; 1 1], [1 2; 2 2], [1 2; 3 3], dims=3)
         @test tableany(passarray,[1,2],1:3)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
         @test tableany([1,2],1:3,passarray)  ==  reshape(map(Any[[1,1], [2,1], [1,2], [2,2], [1,3], [2,3]],col), 2, 3)
-        @test table(adder,[1 2; 3 4],1:3)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
-        @test table([1 2; 3 4],1:3,adder)  ==  cat(3, [2 3; 4 5], [3 4; 5 6], [4 5; 6 7])
+        @test table(adder,[1 2; 3 4],1:3)  ==  cat([2 3; 4 5], [3 4; 5 6], [4 5; 6 7], dims=3)
+        @test table([1 2; 3 4],1:3,adder)  ==  cat([2 3; 4 5], [3 4; 5 6], [4 5; 6 7], dims=3)
         # # @test size(ptableany((x,y)->myid(), 1:3, 1:4, nworkers = 2)) == (3,4) # FIXME
         # # @test size(ptableany(1:3, 1:4, (x,y)->myid(), nworkers = 2)) == (3,4) # FIXME
     end
@@ -644,8 +644,8 @@ end
     end
     @shouldtestset2 "stack" begin
         @test stack(Any[1,2]) == [1,2]
-        @test stack(Any[[1 2],[3 4]]) == cat(3,[1 2], [3 4])
-        @test stack(Any[zeros(2,3,4),ones(2,3,4)]) == cat(4,zeros(2,3,4),ones(2,3,4))
+        @test stack(Any[[1 2],[3 4]]) == cat([1 2], [3 4], dims=3)
+        @test stack(Any[zeros(2,3,4),ones(2,3,4)]) == cat(zeros(2,3,4),ones(2,3,4), dims=4)
     end
     @shouldtestset2 "flatten" begin
         @test flatten(Any[[1],[2]]) == [1,2]
@@ -669,7 +669,7 @@ end
         @test concat(ones(2,3),zeros(2,4)) == hcat(ones(2,3),zeros(2,4))
     end
     @shouldtestset2 "unstack" begin
-        @test unstack(cat(3,[1 2],[2 3])) == Any[[1 2],[2 3]]
+        @test unstack(cat([1 2],[2 3],dims=3)) == Any[[1 2],[2 3]]
         @test unstack(stack(Any[[1 2],[2 3]])) == Any[[1 2],[2 3]]
         @test unstack(stack(Any[zeros(2,3,4),ones(2,3,4)])) == Any[zeros(2,3,4),ones(2,3,4)]
         @test unstack([1 2 3; 4 5 6]) == Any[col([1,4]), col([2,5]), col([3,6])]

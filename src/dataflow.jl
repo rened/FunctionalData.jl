@@ -61,11 +61,11 @@ end
 
 concat(a) = concat(a...)
 concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch; return false end))...]
-cat1(a) = cat(1,a...)
-cat2(a) = cat(2,a...)
-cat3(a) = cat(3,a...)
-cat4(a) = cat(4,a...)
-cat5(a) = cat(5,a...)
+cat1(a) = cat(a..., dims=1)
+cat2(a) = cat(a..., dims=2)
+cat3(a) = cat(a..., dims=3)
+cat4(a) = cat(a..., dims=4)
+cat5(a) = cat(a..., dims=5)
 
 #######################################
 ## subtoind, indtosub
@@ -177,7 +177,7 @@ function flatten(a::Array{T,2}) where {T}
     for n = 1:size(a,2)
         mcum = 0
         for m = 1:size(a,1)
-            r[mcum .+ (1:ms[m,n]), ncum .+ (1:ns[m,n])] = a[m,n]
+            r[mcum .+ (1:ms[m,n]), ncum .+ (1:ns[m,n])] .= a[m,n]
             mcum += ms[m,n]
         end
         ncum += ns[1,n]

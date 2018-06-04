@@ -17,6 +17,7 @@ export czip
 # @inline at(a, ind::Tuple) = a[ind...]
 @inline at(a::AbstractArray{T},i::AbstractArray) where T = 
     len(i) == 1 ? (size(i,1) == 1 ? at(a, i[1]) : a[subtoind(i,a)]) : error("index has len>1")
+@inline at(a::AbstractArray{T,0},i::Number) where T = a[i]
 @inline at(a::AbstractArray{T,1},i::Number) where T = a[i]
 #at(a::AbstractArray{T,N},i) where {T,N} = slicedim(a,N,i)
 @inline at(a::AbstractArray{T,2},i::Number) where T = col(a[:,i])
