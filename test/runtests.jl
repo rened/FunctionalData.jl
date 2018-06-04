@@ -2,7 +2,6 @@
 
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 
-pushfirst!(LOAD_PATH, joinpath(dirname(@__FILE__), "../src"))
 using Test, FunctionalData
 
 
