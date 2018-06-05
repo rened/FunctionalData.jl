@@ -26,7 +26,7 @@ function view(a::AbstractArray{T,2}, i::Int = 1) where T
     View(a, selectdim(a, ndims(a), i:i), i)
 end
 
-function view(a::AbstractArray{T,3}, i::Int = 1) where T
+function view(a::AbstractArray{T,N}, i::Int = 1) where T where N
     View(a, selectdim(a, ndims(a), i), i)
 end
 
