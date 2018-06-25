@@ -545,6 +545,7 @@ function groupby(a,f = id)
     ks = collect(keys(r))
     try
         ks = sort(ks)
+    catch
     end
     values(r,ks)
 end

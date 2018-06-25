@@ -1,6 +1,7 @@
 export read, write, existsfile, mkdir 
 export filenames, filepaths, dirnames, dirpaths
 export readmat, writemat
+export writejls, readjls
 # using MAT
 
 existsfile(filename::AbstractString) = (s = stat(filename); s.inode!=0)
@@ -64,4 +65,10 @@ function readmat(filename,variables...)
     end
 end
 
-
+function writejls(a,filename)
+    tempfilename = @p concat filename "." randstring(10) ".tmp"
+    open(fd->serialize(fd,a),tempfilename,"w")
+    mv(tempfilename, filename, remove_destination = true)
+    filename
+end
+readjls(filename) = open(Serialization.deserialize, filename, "r")

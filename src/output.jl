@@ -14,6 +14,7 @@ function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
             if !isa(a, Array) || eltype(a)<:Number 
                 println(io, "    min:  $(minimum(a))   max: $(maximum(a))\n    mean: $(mean(a))   median: $(med(v(a)))")
             end
+        catch
         end
     else
         println(io, "type: $(typeof(a))")

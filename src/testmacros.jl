@@ -3,9 +3,9 @@ export @test_equal, @assert_equal,  @test_almostequal
 function test_equal(a, b, doassert = false)
     if isequal(a,b) && isequal(typeof(a), typeof(b)) return end
     local sizea = ()
-    try sizea = siz(a) end
+    try sizea = siz(a); catch end
     local sizeb = ()
-    try sizeb = siz(b) end
+    try sizeb = siz(b); catch end
     local sizesEqual = isequal(sizea,sizeb)
     local contentEqual = true
     if sizesEqual 
