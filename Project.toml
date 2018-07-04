@@ -1,7 +1,6 @@
 name = "FunctionalData"
 uuid = "3307bf92-67e5-11e8-014e-27eee38d7b4d"
 authors = ["Rene Donner <code@donner.at>"]
-version = "0.1.0"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
