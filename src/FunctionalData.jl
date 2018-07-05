@@ -2,7 +2,7 @@ __precompile__()
 
 module FunctionalData
 
-using SharedArrays, Random, Distributed, Serialization
+using SharedArrays, Random, Distributed, Serialization, Statistics
 
 FD = FunctionalData
 export FD
