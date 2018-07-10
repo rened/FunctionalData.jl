@@ -61,11 +61,11 @@ end
 
 concat(a) = concat(a...)
 concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch; return false end))...]
-cat1(a) = cat(a..., dims=1)
-cat2(a) = cat(a..., dims=2)
-cat3(a) = cat(a..., dims=3)
-cat4(a) = cat(a..., dims=4)
-cat5(a) = cat(a..., dims=5)
+cat1(a...) = cat(a..., dims=1)
+cat2(a...) = cat(a..., dims=2)
+cat3(a...) = cat(a..., dims=3)
+cat4(a...) = cat(a..., dims=4)
+cat5(a...) = cat(a..., dims=5)
 
 #######################################
 ## subtoind, indtosub
