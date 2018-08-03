@@ -1,5 +1,3 @@
-__precompile__()
-
 module FunctionalData
 
 using SharedArrays, Random, Distributed, Serialization, Statistics

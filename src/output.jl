@@ -17,7 +17,7 @@ function showinfo(io::IO, a, comment::AbstractString = ""; showheader = true)
         catch
         end
     else
-        println(io, "type: $(typeof(a))")
+        println(io, "type: $(typeof(a)) ", length(comment)==0 ? "----  " : comment*"  --  ")
     end
     a
 end
