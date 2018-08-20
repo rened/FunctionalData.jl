@@ -138,8 +138,8 @@ power(a,n) = a.^n
 inside = in
 
 import Base: minimum, maximum
-minimum(::Type{T} = Float64) where {T<:AbstractFloat} = -realmax(T)
-maximum(::Type{T} = Float64) where {T<:AbstractFloat} =  realmax(T)
+minimum(::Type{T} = Float64) where {T<:AbstractFloat} = -floatmax(T)
+maximum(::Type{T} = Float64) where {T<:AbstractFloat} =  floatmax(T)
 minimum(::Type{T}) where {T<:Number} = typemin(T)
 maximum(::Type{T}) where {T<:Number} = typemax(T)
 

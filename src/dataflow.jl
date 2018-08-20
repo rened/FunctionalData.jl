@@ -1,5 +1,6 @@
 export row, col, reshape
 export split, concat, cat1, cat2, cat3, cat4, cat5
+export dropdim1, dropdim2, dropdim3, dropdim4, dropdim5, squeeze
 export subtoind, indtosub
 export stack, flatten, unstack, vflatten, unflatten
 export riffle
@@ -61,11 +62,24 @@ end
 
 concat(a) = concat(a...)
 concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch; return false end))...]
-cat1(a...) = cat(a..., dims=1)
-cat2(a...) = cat(a..., dims=2)
-cat3(a...) = cat(a..., dims=3)
-cat4(a...) = cat(a..., dims=4)
-cat5(a...) = cat(a..., dims=5)
+cat1(a) = cat(a..., dims=1)
+cat2(a) = cat(a..., dims=2)
+cat3(a) = cat(a..., dims=3)
+cat4(a) = cat(a..., dims=4)
+cat5(a) = cat(a..., dims=5)
+cat1(a, b, c...) = cat(a, b, c..., dims=1)
+cat2(a, b, c...) = cat(a, b, c..., dims=2)
+cat3(a, b, c...) = cat(a, b, c..., dims=3)
+cat4(a, b, c...) = cat(a, b, c..., dims=4)
+cat5(a, b, c...) = cat(a, b, c..., dims=5)
+
+dropdim1(a) = dropdims(a, dims = 1)
+dropdim2(a) = dropdims(a, dims = 2)
+dropdim3(a) = dropdims(a, dims = 3)
+dropdim4(a) = dropdims(a, dims = 4)
+dropdim5(a) = dropdims(a, dims = 5)
+
+squeeze(a) = dropdims(a, dims = tuple(findall(size(a).==1)...))
 
 #######################################
 ## subtoind, indtosub
@@ -325,3 +339,4 @@ findsub(a::BitArray) = indtosub(findall(vec(a)), a)
 
 
 find_(a) = (LinearIndices(a))[findall(a)]
+

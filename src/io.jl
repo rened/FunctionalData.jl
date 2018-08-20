@@ -68,7 +68,7 @@ end
 function writejls(a,filename)
     tempfilename = @p concat filename "." randstring(10) ".tmp"
     open(fd->serialize(fd,a),tempfilename,"w")
-    mv(tempfilename, filename, remove_destination = true)
+    mv(tempfilename, filename, force = true)
     filename
 end
 readjls(filename) = open(Serialization.deserialize, filename, "r")
