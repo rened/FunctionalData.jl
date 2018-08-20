@@ -79,7 +79,12 @@ dropdim3(a) = dropdims(a, dims = 3)
 dropdim4(a) = dropdims(a, dims = 4)
 dropdim5(a) = dropdims(a, dims = 5)
 
-squeeze(a) = dropdims(a, dims = tuple(findall(size(a).==1)...))
+function squeeze(a)
+    t = tuple(findall(size(a).==1)...)
+    if t != ()
+        dropdims(a, dims = t)
+    end
+end
 
 #######################################
 ## subtoind, indtosub
