@@ -518,6 +518,8 @@ function filter(a, f::Callable)
     isempty(ind) ? [] : part(a, ind)
 end
 
+import Base.select
+select(a, f::Callable) = filter(a, f)
 reject(a, f::Callable) = filter(a, not*f)
 
 groupdict(a, s::Symbol) = groupdict(a, x->x[s])
