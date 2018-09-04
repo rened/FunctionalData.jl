@@ -81,9 +81,7 @@ dropdim5(a) = dropdims(a, dims = 5)
 
 function squeeze(a)
     t = tuple(findall(size(a).==1)...)
-    if t != ()
-        dropdims(a, dims = t)
-    end
+    t == () ? a : dropdims(a, dims = t)
 end
 
 #######################################
