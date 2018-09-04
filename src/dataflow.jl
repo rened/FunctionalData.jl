@@ -204,7 +204,7 @@ end
 
 flatten(a::Array{T,3}) where {T} = @p map a flatten | stack
 
-vflatten(a) = @p transpose a | flatten | transpose
+vflatten(a) = @p permutedims a | flatten | permutedims
 
 unstack(a) = Any[at(a,i) for i in 1:len(a)]
 
