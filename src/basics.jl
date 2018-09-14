@@ -114,12 +114,14 @@ function newarraysize(a,n::Int)
 end
  
 arraylike(a::T, n::Int, array = nothing) where {T<:AbstractString} = Array{T,1}(undef, n)
-function arraylike(a, n::Int, array = nothing)
-    if a == nothing || (array != nothing && !(eltype(array) <: Number))
-        return Array{Any,1}(undef,n)
+function arraylike(a::T, n::Int, array = nothing) where T
+    # if a == nothing || (array != nothing && !(eltype(array) <: Number))
+    if isa(a, AbstractArray)
+        s = newarraysize(a,n)
+        r = Array{eltype(a),length(s)}(undef, s...)
+    else
+        return Vector{T}(undef,n)
     end
-    s = newarraysize(a,n)
-    r = Array{eltype(a),length(s)}(undef, s...)
 end
 
 function sharraylike(a, n::Int)
