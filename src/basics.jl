@@ -115,8 +115,8 @@ end
  
 arraylike(a::T, n::Int, array = nothing) where {T<:AbstractString} = Array{T,1}(undef, n)
 function arraylike(a::T, n::Int, array = nothing) where T
-    # if a == nothing || (array != nothing && !(eltype(array) <: Number))
-    if isa(a, AbstractArray)
+    # if !(a == nothing || (array != nothing && !(eltype(array) <: Number)))
+    if T <: AbstractArray
         s = newarraysize(a,n)
         r = Array{eltype(a),length(s)}(undef, s...)
     else

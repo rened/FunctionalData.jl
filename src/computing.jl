@@ -100,23 +100,14 @@ end
 
 function map(a::Dict, f::Callable; kargs...)
     isempty(a) && return a
-    makeentry(a::Nothing) = []
-    makeentry(a::Union{Tuple,Pair}) = [a]
-    makeentry(a::Array{T}) where {T<:Union{Tuple,Pair}} = a
-    makeentry(a) = error("FunctionalData: map(::Dict), got entry of type $(typeof(a)), not one of Nothing, Tuple{Symbol,Any}, Array{Tuple}")
 
-    r = @p vec a | map f | map makeentry | flatten
-    d = Dict()
-    for x in r
-        d[fst(x)] = snd(x)
-    end
-    d
+    @p vec a | mapvec f | reject isnil | Dict
 end
 
-mapdict(a::Dict, f) = @p vec a | map (x->f(fst(x), snd(x))) | reject isnil | Dict
+mapdict(a::Dict, f) = @p vec a | mapvec (x->f(fst(x), snd(x))) | reject isnil | Dict
 workdict(a::Dict, f) = @p vec a | work x->f(fst(x), snd(x))
-mapkeys(a::Dict, f) = map(a, x -> (f(fst(x)),snd(x)))
-mapvalues(a::Dict, f) = map(a, x ->(fst(x),f(snd(x))))
+mapkeys(a::Dict, f) = map(a, x -> Pair(f(fst(x)),snd(x)))
+mapvalues(a::Dict, f) = map(a, x ->Pair(fst(x),f(snd(x))))
 mapmap(a::Dict, f) = [f(v) for (k,v) in a]
 
 function mapmap(a, f)
@@ -513,9 +504,9 @@ typed(a) = a
 import Base.filter
 filter(r::Regex, f2::Callable) = error()
 filter(f1::Callable, f2::Callable) = error()
-function filter(a, f::Callable)
+function filter(a::AbstractArray{T}, f::Callable) where T
     ind = vec(typed(map(a,f)))
-    isempty(ind) ? [] : part(a, ind)
+    isempty(ind) ? T[] : part(a, ind)
 end
 
 import Base.select

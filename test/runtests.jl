@@ -409,7 +409,7 @@ end
         @test filter([1,2,3],x->iseven(x)) == [2]
         @test (@p filter Any[1,2,3] unequal 3) == [1,2]
         @test (@p filter [1,2,3] unequal 3) == [1,2]
-        @test (@p select [1,2,3] unequal 3) == [1,2]
+        @test (@p FD.select [1,2,3] unequal 3) == [1,2]
         @test (@p reject [1,2,3] unequal 3) == [3]
     end
     @shouldtestset2 "uniq" begin

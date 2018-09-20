@@ -61,7 +61,7 @@ function split(a::AbstractArray,f::Function)
 end
 
 concat(a) = concat(a...)
-concat(a...) = @p flatten Any[reject(collect(a),x->(try return isempty(x) catch; return false end))...]
+concat(a...) = @p flatten [reject(collect(a),x->(try return isempty(x) catch; return false end))...]
 cat1(a) = cat(a..., dims=1)
 cat2(a) = cat(a..., dims=2)
 cat3(a) = cat(a..., dims=3)
@@ -138,7 +138,7 @@ function flatten(a::Array{T,1}) where {T}
     if isa(a[1], StringLike)
         return join(map(a,tostring))
     end
-    !hasmethod(ndims,Tuple{typeof(fst(a))}) && return a
+    isa(a[1], AbstractArray) || return a
     if ndims(fst(a)) == 1
         return vcat(a...)
     end
@@ -162,6 +162,7 @@ function flatten(a::Array{T,2}) where {T}
         @assert size(a,1) == 1
         return flatten(vec(a))
     end
+    isa(a[1], AbstractArray) || return a
     ms = Base.map(x->size(x,1), a)
     ns = Base.map(x->size(x,2), a)
     msum = 0
@@ -249,7 +250,8 @@ function riffle(a,x)
     dims = size(a)
     #dims[end] = dims[end]*2-1
     dims = tuple(dims[1:end-1]..., dims[end]*2-1)
-    r = similar(a,dims...)
+    # r = similar(a,dims...)
+    r = Array{Any}(undef, dims...)
     # println("dims: $dims   r: $r")
     for i = 1:len(a)
         setat!(r, i*2-1, at(a,i))
